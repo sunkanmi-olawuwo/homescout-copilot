@@ -24,7 +24,8 @@ Example questions:
 - ASP.NET Core API service
 - xUnit test project
 - Planned Microsoft Foundry Agent Service integration
-- Planned current Foundry Agent Service SDK/API usage from the backend, with the exact package/API route verified before implementation
+- Planned OpenAI SDK usage against Foundry `/openai/v1` for direct model calls
+- Planned Foundry SDK usage for project, agent, index, evaluation, and tracing platform work
 
 ## Current Architecture
 

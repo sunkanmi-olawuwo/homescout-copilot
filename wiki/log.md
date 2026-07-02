@@ -110,3 +110,9 @@
 
 - Updated [[API-First Foundry Agents]], [[Overview]], [[Readiness Checklist]], and [[Plan Divergence]] so `Azure.AI.Agents.Persistent` is treated as a candidate package to re-check, not a locked dependency.
 - Clarified that the first Foundry implementation should prefer the new Foundry project endpoint and Responses API path unless current implementation-time docs indicate a better SDK route.
+
+### Aligned Foundry SDK Plan To Microsoft SDK Overview
+
+- Updated [[API-First Foundry Agents]], [[Overview]], [[Readiness Checklist]], and [[Plan Divergence]] to use Microsoft's Foundry SDK overview as the anchor.
+- Clarified that HomeScout should use the OpenAI SDK against Foundry `/openai/v1` for direct model calls, and the Foundry SDK for project, agent, index, evaluation, and tracing platform work.
+- Removed `Azure.AI.Agents.Persistent` from the planned default path.

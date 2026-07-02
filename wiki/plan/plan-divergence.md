@@ -60,7 +60,10 @@ HomeScout direction:
 - HomeScout will be API-first.
 - React will call `HomeScoutCopilot.ApiService`.
 - Agent orchestration will sit behind an API-owned gateway abstraction.
-- The target enterprise agent platform is Microsoft Foundry Agent Service, using the current SDK/API surface rather than the older classic agents path or the course repo's local Azure OpenAI agent factory.
+- The target enterprise agent platform is Microsoft Foundry Agent Service.
+- Direct model calls should use the OpenAI SDK against Foundry's `/openai/v1` endpoint.
+- Project, agent, index, evaluation, and tracing platform work should use the Foundry SDK.
+- The course repo's local Azure OpenAI agent factory is reference material, not the implementation target.
 
 Reason:
 
@@ -71,8 +74,7 @@ Impact:
 
 - Course code should be adapted rather than copied when it places agent logic in Blazor components.
 - Part 3 and later should introduce API/service boundaries before agent-specific details where practical.
-- Before adding Foundry packages, check current Microsoft docs and pin the intended SDK/API route explicitly.
-- Do not assume `Azure.AI.Agents.Persistent` is the correct package until implementation-time docs confirm it fits the new Foundry Agent Service path we choose.
+- Before adding Foundry packages, check current Microsoft docs and pin the intended OpenAI SDK, Foundry SDK, and Azure Identity package versions explicitly.
 
 ### 2026-07-02: React From Part 1
 
