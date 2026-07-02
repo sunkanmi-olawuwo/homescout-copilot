@@ -19,6 +19,7 @@ This repository uses `wiki/` as the canonical development memory for HomeScout C
 - Avoid language that recommends a specific mortgage product or presents estimates as advice.
 - Prefer explainable comparisons, evidence trails, and clear caveats.
 - Keep the course-to-product mapping current in `wiki/plan/course-playlist-tracker.md`.
+- Before course-aligned implementation work, use `wiki/plan/release-monitoring.md` to check for new playlist videos and companion repo commits.
 
 ## Frontend Design Rules
 

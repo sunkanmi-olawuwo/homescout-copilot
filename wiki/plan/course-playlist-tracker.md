@@ -41,6 +41,10 @@ When new videos are released:
 
 The detailed implementation sequence lives in [[Video Implementation Roadmap]].
 
+## Release Monitoring
+
+Use [[Release Monitoring]] before each course session to check for new playlist videos and companion repo commits.
+
 ## Divergence Rule
 
 If HomeScout intentionally differs from the course implementation, record the reason in [[Plan Divergence]].

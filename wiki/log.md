@@ -39,3 +39,8 @@
 - Expanded [[Course Playlist Tracker]] with companion-code references.
 - Added per-video notes for Parts 2-11 under `wiki/plan/video-notes/`.
 
+
+### Added Release Monitoring Routine
+
+- Added [[Release Monitoring]] with commands for checking playlist RSS updates and companion repo commits.
+- Linked the routine from the wiki index, plan overview, and course playlist tracker.

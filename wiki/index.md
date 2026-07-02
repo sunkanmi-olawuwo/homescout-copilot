@@ -19,6 +19,7 @@ This wiki is the canonical development memory for HomeScout Copilot.
 - [[Plan Overview]] - How plans are organized and how course videos map into implementation work.
 - [[Product Brief]] - Product scope, MVP, target user, and success criteria.
 - [[Course Playlist Tracker]] - Per-video course-to-HomeScout mapping with companion code references.
+- [[Release Monitoring]] - How to check for new playlist videos and companion repo commits.
 - [[Video Implementation Roadmap]] - Detailed plan for every currently available playlist video.
 - [[Plan Divergence]] - Record of places where implementation diverges from plans or course material.
 
