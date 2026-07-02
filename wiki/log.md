@@ -25,9 +25,17 @@
 - Added `AGENTS.md` and planned `CLAUDE.md` symlink so assistant rules are shared.
 - Added plan divergence workflow so future plan/tool comparisons use `wiki/plan/` as the canonical source.
 
-
 ### Removed Legacy Docs Compatibility
 
 - Removed the `docs/` compatibility symlink layer.
 - Kept `wiki/` as the only documentation home.
 - Updated README, agent rules, plan overview, and plan divergence notes so plan checks read `wiki/plan/` directly.
+
+### Planned Available Course Videos
+
+- Refreshed the YouTube playlist feed and confirmed 12 available entries: intro plus Parts 1-11.
+- Updated the companion repo clone and confirmed latest state `062d953 Part 11 Done`.
+- Added [[Video Implementation Roadmap]].
+- Expanded [[Course Playlist Tracker]] with companion-code references.
+- Added per-video notes for Parts 2-11 under `wiki/plan/video-notes/`.
+

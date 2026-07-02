@@ -7,9 +7,10 @@ Canonical plan files live here. The repository intentionally uses `wiki/` as the
 ## Files
 
 - [[Product Brief]] - Product scope, MVP, target user, and success criteria.
-- [[Course Playlist Tracker]] - Course video to HomeScout implementation mapping.
+- [[Course Playlist Tracker]] - Course video to HomeScout implementation mapping with companion code references.
+- [[Video Implementation Roadmap]] - Detailed implementation plan for every currently available playlist video.
 - [[Plan Divergence]] - Record of implementation decisions that diverge from a plan or course implementation.
-- `video-notes/` - Per-video notes with course implementation, HomeScout translation, product decision, and implementation notes.
+- `video-notes/` - Per-video notes with course implementation, companion code, HomeScout translation, product decision, and implementation notes.
 
 ## Plan Divergence Tool Compatibility
 
