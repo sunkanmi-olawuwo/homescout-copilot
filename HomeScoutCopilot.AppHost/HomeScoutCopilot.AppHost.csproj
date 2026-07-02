@@ -1,0 +1,16 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.4.6">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>40c43a9f-95f9-4617-96d6-be3b419f7f25</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HomeScoutCopilot.ApiService\HomeScoutCopilot.ApiService.csproj" />
+    <ProjectReference Include="..\HomeScoutCopilot.Web\HomeScoutCopilot.Web.csproj" />
+  </ItemGroup>
+
+</Project>
