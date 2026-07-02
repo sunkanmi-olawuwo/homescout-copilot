@@ -23,8 +23,8 @@ Example questions:
 - Vite
 - ASP.NET Core API service
 - xUnit test project
-- Planned Microsoft Agent Framework integration
-- Planned Azure OpenAI integration
+- Planned Microsoft Foundry Agent Service integration
+- Planned current Foundry Agent Service SDK/API usage from the backend
 
 ## Current Architecture
 
@@ -58,5 +58,4 @@ HomeScout must not provide:
 
 ## Course Alignment
 
-The project follows the YouTube playlist "Let's build a Chatbot [AI in C#]" and maps each generic chatbot feature into a HomeScout-specific feature. See [[Course Playlist Tracker]].
-
+The project follows the YouTube playlist "Let's build a Chatbot [AI in C#]" for concepts, sequencing, and standard implementation patterns. The companion repo is a guide, not the target architecture. HomeScout translates those ideas into a React, API-first, Microsoft Foundry Agent Service product. See [[Course Playlist Tracker]] and [[API-First Foundry Agents]].

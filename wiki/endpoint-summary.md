@@ -15,7 +15,7 @@ The project currently has the first HomeScout-shaped API endpoints plus Aspire d
 
 ## Planned HomeScout Tool Endpoints
 
-These may become API routes, internal services, or Microsoft Agent Framework tools depending on the course implementation step.
+These may become API routes, internal services, Foundry Agent Service tools, or backend tool wrappers depending on the implementation step.
 
 | Tool | Input | Output | Status |
 | --- | --- | --- | --- |

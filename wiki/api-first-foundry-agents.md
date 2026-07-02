@@ -15,9 +15,22 @@ React Web UI
 
 The React frontend must not own agent orchestration. It should call backend endpoints and render workspace state.
 
+## SDK/API Rule
+
+HomeScout should use the current Microsoft Foundry Agent Service SDK/API surface for implementation, not the course repo's older local Azure OpenAI agent factory pattern.
+
+For .NET agent work, the current documented starting point is:
+
+- `Azure.AI.Agents.Persistent`
+- `Azure.Identity`
+- Foundry project endpoint in the format `https://<AIFoundryResourceName>.services.ai.azure.com/api/projects/<ProjectName>`
+- Microsoft Entra authentication through `DefaultAzureCredential`
+
+The first implementation can still use a stub gateway, but the real Foundry implementation should be built against the new Foundry Agent Service project endpoint and current SDK packages.
+
 ## Why
 
-The course companion repo is Blazor-first: the Blazor Server page directly creates and runs agents through `AzureOpenAIAgentFactory`. That is useful for learning, but HomeScout is a product-oriented app and should preserve a backend boundary from the beginning.
+The course companion repo is Blazor-first: the Blazor Server page directly creates and runs agents through `AzureOpenAIAgentFactory`. That is useful for learning concepts, patterns, and standard C# implementation habits, but HomeScout is a product-oriented app and should preserve a backend boundary from the beginning.
 
 Microsoft's current Foundry Agent Service direction is more enterprise-aligned because it provides:
 
@@ -34,7 +47,7 @@ Microsoft's current Foundry Agent Service direction is more enterprise-aligned b
 
 ## Important Nuance
 
-Do not use the old/classic Foundry agents path for new work. Microsoft documentation says classic agents are deprecated and scheduled for retirement. HomeScout should target the newer Microsoft Foundry Agent Service APIs and concepts.
+Do not use the old/classic Foundry agents path for new work. Microsoft documentation says classic agents are deprecated and scheduled for retirement. HomeScout should target the newer Microsoft Foundry Agent Service SDKs, APIs, project endpoints, and concepts.
 
 ## Preferred HomeScout Shape
 
@@ -80,7 +93,7 @@ public interface IHomeScoutAgentGateway
 Possible implementations:
 
 - `StubHomeScoutAgentGateway` for early UI/API work.
-- `LocalFoundryResponsesAgentGateway` using Foundry Responses API from our API process.
+- `FoundryPersistentAgentGateway` using the current Foundry Agent Service SDK from our API process.
 - `HostedFoundryAgentGateway` calling a deployed Foundry hosted agent endpoint.
 
 ## Phased Plan
@@ -98,11 +111,11 @@ Possible implementations:
 - Use a stub implementation first.
 - Add a deterministic cost-estimation tool as the first tool.
 
-### Phase 3: Foundry Responses API
+### Phase 3: Foundry SDK Integration
 
-- Add a Foundry-backed implementation that calls the Foundry project endpoint from `ApiService`.
+- Add a Foundry-backed implementation that calls the Foundry project endpoint from `ApiService` using the current SDK/API surface.
 - Keep local code running outside Foundry at first.
-- Use this as the lowest-friction way to learn Foundry models/tools without deploying hosted containers immediately.
+- Use this as the lowest-friction way to learn Foundry agents/tools without deploying hosted containers immediately.
 
 ### Phase 4: Hosted Foundry Agent
 
@@ -120,7 +133,7 @@ We still follow the course step by step, but translate implementation boundaries
 | Course Blazor page owns tools | API/tool layer owns tools |
 | Course Blazor conversation storage | API-owned comparison session storage |
 | Course Blazor streaming response | API streams report updates to frontend |
-| Local Azure OpenAI factory | Foundry Responses API or hosted Foundry agent |
+| Local Azure OpenAI factory | Current Foundry Agent Service SDK/API or hosted Foundry agent |
 
 ## Open Questions
 
@@ -128,6 +141,7 @@ We still follow the course step by step, but translate implementation boundaries
 - When do we deploy a hosted agent versus keeping agent code in `ApiService`?
 - Which HomeScout tools should be custom functions versus MCP tools?
 - Which data should live in our database versus Foundry/session state?
+- Confirm the exact SDK package versions at implementation time before adding dependencies.
 
 ## Working Rule
 
@@ -140,3 +154,4 @@ Checked on 2026-07-02:
 - Microsoft Learn: What is Microsoft Foundry Agent Service? https://learn.microsoft.com/en-us/azure/foundry/agents/overview
 - Microsoft Learn: Deploy a hosted agent https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/deploy-hosted-agent
 - Microsoft Learn: Classic agents deprecation note https://learn.microsoft.com/en-us/azure/foundry-classic/agents/quickstart
+- Microsoft Learn: New Foundry quickstart and SDK examples use Foundry project endpoints and `Azure.AI.Agents.Persistent` for .NET agent work. https://learn.microsoft.com/en-us/azure/foundry-classic/agents/quickstart

@@ -9,7 +9,8 @@ This page is the starting gate for HomeScout implementation sessions.
 - React is the frontend from the start.
 - `HomeScoutCopilot.ApiService` is the frontend-facing API.
 - Microsoft Foundry Agent Service is the target agent platform.
-- The course companion repo remains reference material, not the implementation shape.
+- Current Microsoft Foundry Agent Service SDK/API packages are the intended implementation path for real agent work.
+- The course companion repo remains reference material for concepts, sequencing, and standard patterns, not the implementation shape.
 - `wiki/` is the canonical project memory.
 
 ## Plans In Sync
@@ -40,6 +41,7 @@ Next implementation session:
 - Deterministic `estimate_monthly_costs` tool.
 - Prompt inventory.
 - Foundry agent gateway abstraction.
+- Current Foundry Agent Service SDK package selection.
 - Curated knowledge-base folder.
 - User-owned case-file storage.
 - AI evaluation dataset and rubric.

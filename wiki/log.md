@@ -99,3 +99,9 @@
 - Reviewed the phased plan, video roadmap, GenAIOps plan, RAG architecture, product brief, API-first architecture, endpoint summary, feature coverage, testing strategy, and plan divergence notes.
 - Updated stale starter references so docs match the current React/API state.
 - Added [[Readiness Checklist]] as the starting gate for implementation sessions.
+
+### Clarified Foundry SDK Direction
+
+- Updated [[API-First Foundry Agents]], [[Overview]], [[Readiness Checklist]], and [[Plan Divergence]] to explicitly say HomeScout will use the new Microsoft Foundry Agent Service SDK/API surface for real agent work.
+- Clarified that the course companion repo is a guide for concepts, sequencing, and standard implementation patterns, not the target architecture or SDK surface.
+- Updated [[Endpoint Summary]] to describe future tools as Foundry Agent Service tools or backend wrappers rather than course-specific Agent Framework tools.
