@@ -4,6 +4,18 @@ HomeScout Copilot is an AI homebuying due-diligence assistant built with .NET, A
 
 The app helps a buyer compare properties and areas using public data, uploaded documents, and conversational analysis. The MVP focuses on property and area comparison, not regulated mortgage advice.
 
+## Start Here
+
+The project wiki is the canonical development memory:
+
+- `wiki/index.md` - catalog of all wiki pages
+- `wiki/overview.md` - purpose, stack, architecture, and safety boundary
+- `wiki/onboarding-article.md` - narrative guide for returning to the project
+- `wiki/plan/course-playlist-tracker.md` - course-to-HomeScout implementation tracker
+- `wiki/frontend-design-guidelines.md` - binding frontend design direction
+
+Legacy `docs/` entries are symlinks into `wiki/plan/` so plan tooling can keep working without duplicate plan files.
+
 ## Product Direction
 
 HomeScout answers questions like:
@@ -26,7 +38,8 @@ For each video:
 1. Record what the course implemented.
 2. Decide how that feature maps to HomeScout.
 3. Implement the HomeScout version.
-4. Commit the notes and implementation together.
+4. Update relevant wiki pages.
+5. Commit the notes and implementation together.
 
 ## Current Scaffold
 

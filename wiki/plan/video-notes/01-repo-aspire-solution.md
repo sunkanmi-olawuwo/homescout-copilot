@@ -29,5 +29,6 @@ The Aspire solution structure fits the course and gives HomeScout a clean place 
 ## Implementation Notes
 
 - Initial scaffold created with `dotnet new aspire-starter`.
-- Restore has not yet been verified.
+- Restore has been verified.
+- Full solution build still needs verification outside the stuck sandbox build session.
 
