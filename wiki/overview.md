@@ -24,7 +24,7 @@ Example questions:
 - ASP.NET Core API service
 - xUnit test project
 - Planned Microsoft Foundry Agent Service integration
-- Planned current Foundry Agent Service SDK/API usage from the backend
+- Planned current Foundry Agent Service SDK/API usage from the backend, with the exact package/API route verified before implementation
 
 ## Current Architecture
 

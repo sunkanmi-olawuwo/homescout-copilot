@@ -19,14 +19,15 @@ The React frontend must not own agent orchestration. It should call backend endp
 
 HomeScout should use the current Microsoft Foundry Agent Service SDK/API surface for implementation, not the course repo's older local Azure OpenAI agent factory pattern.
 
-For .NET agent work, the current documented starting point is:
+The implementation path should be confirmed at the moment we add dependencies. The current decision is:
 
-- `Azure.AI.Agents.Persistent`
-- `Azure.Identity`
-- Foundry project endpoint in the format `https://<AIFoundryResourceName>.services.ai.azure.com/api/projects/<ProjectName>`
-- Microsoft Entra authentication through `DefaultAzureCredential`
+- Use the new Microsoft Foundry Agent Service, not classic agents.
+- Prefer the Foundry project endpoint and Responses API path when our agent code runs inside `ApiService`.
+- Use SDK/REST authoring for prompt agents only when that is the right product fit.
+- Treat `Azure.AI.Agents.Persistent` as a candidate package to re-check, not a locked dependency.
+- Use Microsoft Entra authentication through `DefaultAzureCredential` where supported.
 
-The first implementation can still use a stub gateway, but the real Foundry implementation should be built against the new Foundry Agent Service project endpoint and current SDK packages.
+The first implementation can still use a stub gateway, but the real Foundry implementation should be built against the new Foundry Agent Service project endpoint and the current recommended SDK/API packages at that time.
 
 ## Why
 
@@ -93,7 +94,8 @@ public interface IHomeScoutAgentGateway
 Possible implementations:
 
 - `StubHomeScoutAgentGateway` for early UI/API work.
-- `FoundryPersistentAgentGateway` using the current Foundry Agent Service SDK from our API process.
+- `FoundryResponsesAgentGateway` using the Foundry Responses API from our API process.
+- `FoundryPromptAgentGateway` using SDK/REST to call a managed prompt agent, if we choose that path.
 - `HostedFoundryAgentGateway` calling a deployed Foundry hosted agent endpoint.
 
 ## Phased Plan
@@ -115,7 +117,8 @@ Possible implementations:
 
 - Add a Foundry-backed implementation that calls the Foundry project endpoint from `ApiService` using the current SDK/API surface.
 - Keep local code running outside Foundry at first.
-- Use this as the lowest-friction way to learn Foundry agents/tools without deploying hosted containers immediately.
+- Prefer the Responses API path first unless current docs show a better SDK route for our use case.
+- Use this as the lowest-friction way to learn Foundry models, agents, and platform tools without deploying hosted containers immediately.
 
 ### Phase 4: Hosted Foundry Agent
 
@@ -141,7 +144,8 @@ We still follow the course step by step, but translate implementation boundaries
 - When do we deploy a hosted agent versus keeping agent code in `ApiService`?
 - Which HomeScout tools should be custom functions versus MCP tools?
 - Which data should live in our database versus Foundry/session state?
-- Confirm the exact SDK package versions at implementation time before adding dependencies.
+- Confirm the exact SDK/API route and package versions at implementation time before adding dependencies.
+- Confirm whether `Azure.AI.Agents.Persistent` is still the correct package for the selected new Foundry Agent Service path, or whether the Responses API/client package is the better fit.
 
 ## Working Rule
 
@@ -154,4 +158,4 @@ Checked on 2026-07-02:
 - Microsoft Learn: What is Microsoft Foundry Agent Service? https://learn.microsoft.com/en-us/azure/foundry/agents/overview
 - Microsoft Learn: Deploy a hosted agent https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/deploy-hosted-agent
 - Microsoft Learn: Classic agents deprecation note https://learn.microsoft.com/en-us/azure/foundry-classic/agents/quickstart
-- Microsoft Learn: New Foundry quickstart and SDK examples use Foundry project endpoints and `Azure.AI.Agents.Persistent` for .NET agent work. https://learn.microsoft.com/en-us/azure/foundry-classic/agents/quickstart
+- NuGet: `Azure.AI.Agents.Persistent` is an Azure AI Agents client package with project-endpoint and Entra authentication examples, but HomeScout should re-check the current Foundry docs before adopting it. https://www.nuget.org/packages/Azure.AI.Agents.Persistent/

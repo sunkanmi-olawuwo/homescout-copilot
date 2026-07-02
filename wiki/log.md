@@ -105,3 +105,8 @@
 - Updated [[API-First Foundry Agents]], [[Overview]], [[Readiness Checklist]], and [[Plan Divergence]] to explicitly say HomeScout will use the new Microsoft Foundry Agent Service SDK/API surface for real agent work.
 - Clarified that the course companion repo is a guide for concepts, sequencing, and standard implementation patterns, not the target architecture or SDK surface.
 - Updated [[Endpoint Summary]] to describe future tools as Foundry Agent Service tools or backend wrappers rather than course-specific Agent Framework tools.
+
+### Softened Foundry Package Assumption
+
+- Updated [[API-First Foundry Agents]], [[Overview]], [[Readiness Checklist]], and [[Plan Divergence]] so `Azure.AI.Agents.Persistent` is treated as a candidate package to re-check, not a locked dependency.
+- Clarified that the first Foundry implementation should prefer the new Foundry project endpoint and Responses API path unless current implementation-time docs indicate a better SDK route.

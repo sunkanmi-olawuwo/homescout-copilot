@@ -71,7 +71,8 @@ Impact:
 
 - Course code should be adapted rather than copied when it places agent logic in Blazor components.
 - Part 3 and later should introduce API/service boundaries before agent-specific details where practical.
-- Before adding Foundry packages, check current Microsoft docs and pin the intended SDK packages explicitly.
+- Before adding Foundry packages, check current Microsoft docs and pin the intended SDK/API route explicitly.
+- Do not assume `Azure.AI.Agents.Persistent` is the correct package until implementation-time docs confirm it fits the new Foundry Agent Service path we choose.
 
 ### 2026-07-02: React From Part 1
 
