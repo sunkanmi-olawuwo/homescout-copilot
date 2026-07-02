@@ -14,7 +14,7 @@ The project wiki is the canonical development memory:
 - `wiki/plan/course-playlist-tracker.md` - course-to-HomeScout implementation tracker
 - `wiki/frontend-design-guidelines.md` - binding frontend design direction
 
-Legacy `docs/` entries are symlinks into `wiki/plan/` so plan tooling can keep working without duplicate plan files.
+Plan files live under `wiki/plan/`, with `wiki/` as the only documentation home.
 
 ## Product Direction
 

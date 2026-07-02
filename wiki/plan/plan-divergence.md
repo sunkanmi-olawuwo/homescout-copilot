@@ -33,14 +33,16 @@ Impact:
 Previous state:
 
 - Plans lived under `docs/`.
+- A temporary compatibility layer linked `docs/` paths into `wiki/plan/`.
 
 New state:
 
 - Canonical plans live under `wiki/plan/`.
-- Legacy `docs/` entries should point to the wiki files using symlinks.
+- The `docs/` compatibility layer has been removed.
+- Plan divergence checks should read `wiki/plan/` directly.
 
 Reason:
 
+- This is a solo project, so duplicate documentation paths add friction without helping coordination.
 - The project now uses `wiki/` as the single development memory.
-- Symlinks preserve compatibility for workflows or tools that still look under `docs/`.
 

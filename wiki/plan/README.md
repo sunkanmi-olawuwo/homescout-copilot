@@ -2,7 +2,7 @@
 
 This folder contains the project plans, course mapping, and divergence records.
 
-Canonical plan files live here. Legacy paths under `docs/` should point to these files so older workflows and plan-comparison tools can still find the current plan without creating duplicates.
+Canonical plan files live here. The repository intentionally uses `wiki/` as the only documentation home.
 
 ## Files
 
@@ -13,13 +13,5 @@ Canonical plan files live here. Legacy paths under `docs/` should point to these
 
 ## Plan Divergence Tool Compatibility
 
-Use `wiki/plan/` as the canonical plan root.
-
-If a tool still expects old `docs/` paths, keep those paths as symlinks to the matching wiki files:
-
-- `docs/product-brief.md` -> `../wiki/plan/product-brief.md`
-- `docs/playlist-tracker.md` -> `../wiki/plan/course-playlist-tracker.md`
-- `docs/video-notes` -> `../wiki/plan/video-notes`
-
-Do not maintain duplicate copies.
+Use `wiki/plan/` as the canonical plan root. Plan divergence checks should read from this folder directly. Do not maintain duplicate copies under `docs/`.
 

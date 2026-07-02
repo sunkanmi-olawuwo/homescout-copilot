@@ -25,3 +25,9 @@
 - Added `AGENTS.md` and planned `CLAUDE.md` symlink so assistant rules are shared.
 - Added plan divergence workflow so future plan/tool comparisons use `wiki/plan/` as the canonical source.
 
+
+### Removed Legacy Docs Compatibility
+
+- Removed the `docs/` compatibility symlink layer.
+- Kept `wiki/` as the only documentation home.
+- Updated README, agent rules, plan overview, and plan divergence notes so plan checks read `wiki/plan/` directly.

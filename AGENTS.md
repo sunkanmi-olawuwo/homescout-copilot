@@ -29,6 +29,6 @@ This repository uses `wiki/` as the canonical development memory for HomeScout C
 ## Plan Divergence Workflow
 
 - Canonical plan files live under `wiki/plan/`.
-- Legacy `docs/` entries should point to the canonical wiki files, preferably by symlink.
+- Do not recreate `docs/` compatibility paths unless explicitly requested.
 - When implementation differs from a plan, update the plan file and record the divergence in `wiki/plan/plan-divergence.md`.
 
