@@ -13,7 +13,7 @@ Use this table to keep the course and HomeScout implementation aligned.
 | 0 | Let's build a Chatbot in C# using Microsoft Agent Framework | No | Series vision | HomeScout product vision and scope | `README.md` | Planned |
 | 1 | Repo + Aspire Solution | No | Companion repo and Aspire solution | HomeScout Aspire scaffold/config alignment | `src/AppHost`, `src/ServiceDefaults`, commit `421bf76` | In progress |
 | 2 | Blazor Server Baseline | No | Basic Blazor chatbot | Property and area comparison workspace | `ChatbotPage.razor`, `ChatbotPage.razor.cs` | Planned |
-| 3 | Tool Calls | No | Agent tool calling | Cost estimator first, then public-data tools | `ChatbotPage.razor.cs`, function-call extensions, `SecretKeys.cs` | Planned |
+| 3 | Tool Calls | No | Agent tool calling | API-owned cost estimator first, then Foundry-oriented data tools | `ChatbotPage.razor.cs`, function-call extensions, `SecretKeys.cs` | Planned |
 | 4 | Reasoning | No | Extract/display reasoning text | Evidence notes, assumptions, and tradeoff panel | `AssistantReasoningResponse.razor`, `MidTurnVisuals.razor` | Planned |
 | 5 | Streaming | No | Streaming responses | Live area/property report generation | `23e696a`, `MidTurnVisuals.razor` | Planned |
 | 6 | Conversations | No | Save and restore conversations | Saved comparisons and property searches | `Conversation.cs`, `ConversationsService.cs`, `LeftSidebar.*` | Planned |

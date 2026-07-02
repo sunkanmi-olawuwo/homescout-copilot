@@ -80,15 +80,17 @@ Expected wiki updates:
 - [[Frontend Design Guidelines]]
 - [[Log]]
 
-### Phase 2: Agent And Tools
+### Phase 2: API-First Agent And Tools
 
 Parts 3-5.
 
 Goal:
 
-- Add the course's AI/chat/tool patterns.
+- Add the course's AI/chat/tool patterns behind API boundaries.
+- Keep Blazor as an API client, not the owner of agent orchestration.
 - Start with a deterministic HomeScout tool before using live public APIs.
 - Add explainable output and streaming report generation.
+- Introduce a Foundry-oriented agent gateway abstraction.
 
 Recommended first tool:
 

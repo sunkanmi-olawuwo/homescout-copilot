@@ -46,3 +46,27 @@ Reason:
 - This is a solo project, so duplicate documentation paths add friction without helping coordination.
 - The project now uses `wiki/` as the single development memory.
 
+
+### 2026-07-02: API-First Foundry Agent Direction
+
+Course/companion shape:
+
+- Blazor Server page directly creates and runs agents through `AzureOpenAIAgentFactory`.
+- There is no separate API-first backend in the companion repo.
+
+HomeScout direction:
+
+- HomeScout will be API-first.
+- Blazor will call `HomeScoutCopilot.ApiService`.
+- Agent orchestration will sit behind an API-owned gateway abstraction.
+- The target enterprise agent platform is Microsoft Foundry Agent Service, not the older classic agents path.
+
+Reason:
+
+- This better supports a future React frontend, public-data integrations, testing, security boundaries, and enterprise deployment patterns.
+- Microsoft Foundry Agent Service provides managed identity, RBAC, observability, private networking options, guardrails, publishing/versioning, and hosted agent endpoints.
+
+Impact:
+
+- Course code should be adapted rather than copied when it places agent logic in Blazor components.
+- Part 3 and later should introduce API/service boundaries before agent-specific details where practical.

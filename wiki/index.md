@@ -7,6 +7,7 @@ This wiki is the canonical development memory for HomeScout Copilot.
 - [[Overview]] - High-level product purpose, stack, architecture, and safety boundary.
 - [[Component Architecture]] - Application projects, components, ownership boundaries, and current scaffold.
 - [[Endpoint Summary]] - API routes, integrations, and planned data flow.
+- [[API-First Foundry Agents]] - Architecture decision for API-first backend boundaries and Microsoft Foundry Agent Service.
 - [[Coding Conventions]] - Repository conventions for C#, Blazor, docs, Git, and frontend discipline.
 - [[Testing Strategy]] - Test framework, expected coverage, and verification patterns.
 - [[Feature Coverage]] - Implemented, scaffolded, planned, and deferred features.

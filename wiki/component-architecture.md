@@ -90,10 +90,13 @@ See [[Testing Strategy]].
 
 ## Architectural Direction
 
-The course companion repo begins with a Blazor Server chatbot. HomeScout should keep that learning path while adding product-specific boundaries:
+HomeScout is API-first. The course companion repo begins with a Blazor Server chatbot where the page directly creates and runs agents. HomeScout should learn from that implementation while preserving product-grade boundaries:
 
 - Chat and workspace UI belong in `Web`.
-- Data providers and tool wrappers belong in `ApiService` or a future shared/application project.
+- Product behavior, data providers, tool wrappers, and agent gateway calls belong in `ApiService` or a future shared/application project.
+- Blazor components must not own Foundry agent orchestration.
 - Aspire wiring belongs in `AppHost`.
 - Cross-service defaults belong in `ServiceDefaults`.
+
+See [[API-First Foundry Agents]].
 

@@ -40,13 +40,15 @@ These may become API routes, internal services, or Microsoft Agent Framework too
 ```text
 User prompt/upload
   -> Blazor workspace
-  -> API service or agent endpoint
-  -> tool selection
-  -> external data source or local cache
+  -> HomeScout API service
+  -> agent gateway and HomeScout tool services
+  -> Microsoft Foundry Agent Service and/or public-data integrations
   -> structured evidence
-  -> assistant response/report
+  -> streamed assistant response/report
   -> saved comparison session
 ```
+
+The frontend should call API endpoints. It should not create agents directly. See [[API-First Foundry Agents]].
 
 ## Safety Requirements
 

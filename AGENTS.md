@@ -15,6 +15,8 @@ This repository uses `wiki/` as the canonical development memory for HomeScout C
 
 ## Product Rules
 
+- HomeScout is API-first: frontend code should call `HomeScoutCopilot.ApiService`; agent orchestration belongs behind backend service/gateway boundaries.
+- Target Microsoft Foundry Agent Service for enterprise-style agent architecture; do not use classic Foundry agents for new work.
 - HomeScout Copilot is a homebuying due-diligence assistant, not a regulated mortgage adviser.
 - Avoid language that recommends a specific mortgage product or presents estimates as advice.
 - Prefer explainable comparisons, evidence trails, and clear caveats.

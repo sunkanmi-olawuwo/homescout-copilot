@@ -44,3 +44,9 @@
 
 - Added [[Release Monitoring]] with commands for checking playlist RSS updates and companion repo commits.
 - Linked the routine from the wiki index, plan overview, and course playlist tracker.
+
+### Adopted API-First Foundry Agent Direction
+
+- Fact-checked Microsoft Foundry Agent Service direction against current Microsoft Learn docs.
+- Added [[API-First Foundry Agents]].
+- Updated component architecture, endpoint summary, roadmap, tracker, and plan divergence to make HomeScout API-first and Foundry-agent oriented.
