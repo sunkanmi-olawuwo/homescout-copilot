@@ -64,3 +64,32 @@
 - Updated `AppHost` to host the React frontend with `AddViteApp`.
 - Added `/api/status` and `/api/comparison/sample` endpoints to `HomeScoutCopilot.ApiService`.
 - Verified restore, npm install/audit/build, API/AppHost builds, and Aspire integration test.
+
+### Added GenAIOps Learning Path Integration
+
+- Added [[GenAIOps Learning Path Integration]] based on Microsoft's Operationalize generative AI applications learning path.
+- Mapped each learning-path module to HomeScout artifacts: architecture records, prompt governance, evaluations, CI automation, monitoring, and distributed tracing.
+- Defined how future video notes should include a GenAIOps hook when the feature touches prompts, agents, tools, retrieval, evaluation, monitoring, or tracing.
+
+### Added Phased Learning And Build Plan
+
+- Added [[Phased Learning And Build Plan]] to sequence videos, Microsoft Learn GenAIOps modules, product design, API-first implementation, testing, evaluations, and Azure deployment management.
+- Moved product design into the early phases before deep AI behavior.
+- Added explicit expectations for AI evaluations in [[Testing Strategy]].
+
+### Verified GenAIOps Modules Individually
+
+- Opened each of the six Microsoft Learn GenAIOps modules and recorded the checked unit lists in [[GenAIOps Learning Path Integration]].
+- Adjusted [[Phased Learning And Build Plan]] so full tracing work follows the monitoring/deployment foundation, while lightweight correlation ids can still be introduced earlier.
+
+### Added RAG Architecture To Plan
+
+- Added [[RAG Architecture]] to define HomeScout's two retrieval layers: user-owned case files and the curated HomeScout knowledge base.
+- Updated [[Phased Learning And Build Plan]] so curated knowledge starts early as source-controlled assumptions and safety notes, while case-file retrieval arrives with saved comparisons, uploads, and user scoping.
+- Updated architecture, feature coverage, and testing notes for case-file retrieval and curated knowledge-base retrieval.
+
+### Added Curated Knowledge Source Strategy
+
+- Updated [[RAG Architecture]] with source rules for the curated HomeScout knowledge base.
+- Clarified that HomeScout should store short authored notes with source metadata, not raw scraped external websites.
+- Listed seed source families including GOV.UK, HM Land Registry, RICS, Police.uk, OpenStreetMap/Overpass, official school datasets, and internal HomeScout safety rules.

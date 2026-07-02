@@ -12,6 +12,7 @@ This wiki is the canonical development memory for HomeScout Copilot.
 - [[Testing Strategy]] - Test framework, expected coverage, and verification patterns.
 - [[Feature Coverage]] - Implemented, scaffolded, planned, and deferred features.
 - [[Frontend Design Guidelines]] - Strict frontend design direction for HomeScout UI work.
+- [[RAG Architecture]] - Case-file RAG and curated HomeScout knowledge-base design for agentic retrieval.
 - [[Onboarding Article]] - Narrative guide for returning to the project and understanding what exists.
 - [[Log]] - Chronological record of sessions and decisions.
 
@@ -20,6 +21,8 @@ This wiki is the canonical development memory for HomeScout Copilot.
 - [[Plan Overview]] - How plans are organized and how course videos map into implementation work.
 - [[Product Brief]] - Product scope, MVP, target user, and success criteria.
 - [[Course Playlist Tracker]] - Per-video course-to-HomeScout mapping with companion code references.
+- [[GenAIOps Learning Path Integration]] - Maps Microsoft Learn GenAIOps modules into HomeScout build artifacts, evals, monitoring, and tracing.
+- [[Phased Learning And Build Plan]] - Step-by-step sequence for videos, Microsoft Learn modules, design, build work, tests, evaluations, and Azure deployment.
 - [[Release Monitoring]] - How to check for new playlist videos and companion repo commits.
 - [[Video Implementation Roadmap]] - Detailed plan for every currently available playlist video.
 - [[Plan Divergence]] - Record of places where implementation diverges from plans or course material.
@@ -33,4 +36,3 @@ This wiki is the canonical development memory for HomeScout Copilot.
 - Add new pages here when they are created.
 - Keep one-line summaries current.
 - Use `[[Page Name]]` links in prose and normal Markdown links only when linking to exact files or external URLs.
-

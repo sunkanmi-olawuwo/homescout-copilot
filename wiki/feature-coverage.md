@@ -34,6 +34,8 @@ This page tracks feature inventory across scaffolded, implemented, planned, and 
 | User auth | Private user workspace | Planned |
 | Memory | Buyer preferences and search priorities | Planned |
 | Speech input | Spoken viewing notes and search criteria | Planned |
+| RAG user case file | Private retrieval over listings, EPCs, surveys, floorplans, notes, messages, screenshots, photos, and preferences | Planned |
+| Curated HomeScout knowledge base | Stable retrieval layer for homebuying explainers, terminology, assumptions, safety rules, and source guidance | Planned |
 
 See [[Course Playlist Tracker]].
 
@@ -44,4 +46,3 @@ See [[Course Playlist Tracker]].
 | Regulated mortgage product recommendations | Outside product safety boundary. |
 | Definitive property valuation | Requires careful valuation model and liability controls. |
 | Crime safety score | Too reductive; use contextual summaries instead. |
-

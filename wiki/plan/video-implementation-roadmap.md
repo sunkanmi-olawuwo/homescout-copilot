@@ -6,6 +6,8 @@ Companion repo state checked: `062d953 Part 11 Done`
 
 This roadmap maps the available course videos and companion code to the HomeScout Copilot implementation plan.
 
+For day-to-day sequencing across videos, Microsoft Learn modules, design work, tests, evaluations, and Azure deployment management, use [[Phased Learning And Build Plan]].
+
 ## How To Use This Roadmap
 
 For each video:
@@ -190,4 +192,3 @@ Suggested commit messages:
 - React is the frontend from Part 1; the open question is how quickly to replace tutorial-shaped Blazor patterns with API-first React flows.
 - Whether the first live public-data tool should be Police.uk crime data, OpenStreetMap amenities, or HM Land Registry price context.
 - Whether generated images should ship in the MVP or stay a documented extension point.
-

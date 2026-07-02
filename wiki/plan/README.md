@@ -8,6 +8,8 @@ Canonical plan files live here. The repository intentionally uses `wiki/` as the
 
 - [[Product Brief]] - Product scope, MVP, target user, and success criteria.
 - [[Course Playlist Tracker]] - Course video to HomeScout implementation mapping with companion code references.
+- [[GenAIOps Learning Path Integration]] - Parallel Microsoft Learn track for prompt governance, evaluations, automation, monitoring, and tracing.
+- [[Phased Learning And Build Plan]] - Day-to-day order for watching, learning, designing, building, testing, evaluating, and managing Azure deployment.
 - [[Video Implementation Roadmap]] - Detailed implementation plan for every currently available playlist video.
 - [[Release Monitoring]] - Routine for checking new videos and companion code updates.
 - [[Plan Divergence]] - Record of implementation decisions that diverge from a plan or course implementation.
@@ -16,4 +18,3 @@ Canonical plan files live here. The repository intentionally uses `wiki/` as the
 ## Plan Divergence Tool Compatibility
 
 Use `wiki/plan/` as the canonical plan root. Plan divergence checks should read from this folder directly. Do not maintain duplicate copies under `docs/`.
-

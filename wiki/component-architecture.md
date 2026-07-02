@@ -66,6 +66,7 @@ Responsibilities:
 - HomeScout data tools.
 - Future agent-facing tool wrappers.
 - Future public-data integration logic.
+- Future user-owned case-file retrieval and curated knowledge-base retrieval.
 
 Planned tool areas:
 
@@ -75,6 +76,8 @@ Planned tool areas:
 - price-paid context
 - ownership cost estimate
 - commute estimate
+- case-file document retrieval
+- curated HomeScout knowledge-base retrieval
 
 ## Tests
 
@@ -100,3 +103,11 @@ HomeScout is API-first. The course companion repo begins with a Blazor Server ch
 
 See [[API-First Foundry Agents]].
 
+## RAG Layers
+
+HomeScout uses two retrieval layers:
+
+- User-owned case file: private per-user/per-comparison corpus containing listings, EPCs, surveys, floorplans, viewing notes, estate-agent messages, screenshots, photos, and preferences.
+- Curated HomeScout knowledge base: stable product knowledge containing homebuying explainers, EPC and survey terminology, cost assumptions, data-source interpretation notes, safety rules, and source reliability guidance.
+
+See [[RAG Architecture]].

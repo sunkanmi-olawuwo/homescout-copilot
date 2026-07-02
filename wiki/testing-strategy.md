@@ -28,6 +28,25 @@ As features are added, test coverage should include:
 - API route behavior
 - React component behavior and API client behavior where practical
 
+## AI Evaluation Expectations
+
+Agentic behavior should be evaluated before it becomes a major product dependency.
+
+Start evaluations as soon as HomeScout has the first backend comparison workflow that uses a prompt or Foundry agent. Use small, hand-curated datasets first, then automate stable checks in CI after the rubric settles.
+
+Evaluation coverage should include:
+
+- groundedness against known property facts and source categories
+- usefulness of comparison summaries
+- safety boundary behavior, especially avoiding regulated mortgage advice
+- avoidance of simplistic safe/unsafe area labels
+- output format adherence
+- latency and estimated cost
+- retrieval correctness for user-owned case-file evidence
+- retrieval correctness for curated HomeScout knowledge-base guidance
+
+See [[GenAIOps Learning Path Integration]] and [[Phased Learning And Build Plan]] for when evaluations enter the build sequence.
+
 ## Test Patterns
 
 Prefer focused tests around behavior and contracts:
