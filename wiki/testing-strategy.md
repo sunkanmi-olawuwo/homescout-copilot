@@ -26,7 +26,7 @@ As features are added, test coverage should include:
 - preference/memory persistence
 - upload validation
 - API route behavior
-- core Blazor component state where practical
+- React component behavior and API client behavior where practical
 
 ## Test Patterns
 
@@ -57,3 +57,17 @@ For UI work:
 - check that text does not overflow
 - confirm the UI follows [[Frontend Design Guidelines]]
 
+
+## React Pivot Verification
+
+Verified on 2026-07-02 after replacing the Blazor frontend with React/Vite:
+
+- `dotnet restore HomeScoutCopilot.sln`
+- `npm install` in `frontend/`
+- `npm audit fix` in `frontend/`, resulting in 0 npm vulnerabilities
+- `npm run build` in `frontend/`
+- `dotnet build HomeScoutCopilot.ApiService/HomeScoutCopilot.ApiService.csproj --no-restore`
+- `dotnet build HomeScoutCopilot.AppHost/HomeScoutCopilot.AppHost.csproj --no-restore`
+- `dotnet test HomeScoutCopilot.Tests/HomeScoutCopilot.Tests.csproj --no-restore`
+- `npm audit`, resulting in 0 vulnerabilities
+- `dotnet list <dotnet-project>.csproj package --vulnerable --include-transitive` for AppHost, ApiService, ServiceDefaults, and Tests, resulting in no vulnerable packages

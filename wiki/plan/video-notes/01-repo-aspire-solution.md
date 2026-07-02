@@ -25,7 +25,7 @@ Create a HomeScout Aspire solution with:
 
 - AppHost
 - ServiceDefaults
-- Blazor web frontend
+- React/Vite frontend
 - API service for data tools
 - Tests
 
@@ -47,7 +47,7 @@ The Aspire solution structure fits the course and gives HomeScout a clean place 
 
 ## Implementation Notes
 
-- Initial scaffold created with `dotnet new aspire-starter`.
+- Initial scaffold was created with `dotnet new aspire-starter`, then pivoted to the Aspire React starter shape.
 - Restore has been verified.
 - Full solution build still needs verification outside the stuck sandbox build session.
 

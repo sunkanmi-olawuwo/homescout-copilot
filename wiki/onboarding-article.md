@@ -20,7 +20,7 @@ The repo currently has a clean .NET Aspire starter structure:
 
 - `HomeScoutCopilot.AppHost` starts and connects the app pieces.
 - `HomeScoutCopilot.ServiceDefaults` contains shared Aspire defaults.
-- `HomeScoutCopilot.Web` is the Blazor frontend.
+- `frontend` is the React/Vite frontend.
 - `HomeScoutCopilot.ApiService` is where service endpoints and data-tool APIs can grow.
 - `HomeScoutCopilot.Tests` is the integration test project.
 

@@ -18,7 +18,9 @@ Example questions:
 
 - .NET 10
 - .NET Aspire
-- Blazor
+- React
+- TypeScript
+- Vite
 - ASP.NET Core API service
 - xUnit test project
 - Planned Microsoft Agent Framework integration
@@ -30,7 +32,7 @@ The repo currently uses the Aspire starter shape:
 
 - `HomeScoutCopilot.AppHost` coordinates local app hosting.
 - `HomeScoutCopilot.ServiceDefaults` provides shared Aspire defaults.
-- `HomeScoutCopilot.Web` hosts the Blazor frontend.
+- `frontend` hosts the React/Vite frontend.
 - `HomeScoutCopilot.ApiService` is the service/API layer for future data and AI tools.
 - `HomeScoutCopilot.Tests` is the integration test project.
 

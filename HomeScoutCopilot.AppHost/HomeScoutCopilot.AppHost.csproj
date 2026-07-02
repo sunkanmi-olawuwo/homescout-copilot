@@ -10,7 +10,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HomeScoutCopilot.ApiService\HomeScoutCopilot.ApiService.csproj" />
-    <ProjectReference Include="..\HomeScoutCopilot.Web\HomeScoutCopilot.Web.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.JavaScript" Version="13.4.6" />
   </ItemGroup>
 
 </Project>

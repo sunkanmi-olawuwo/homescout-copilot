@@ -7,7 +7,7 @@ This page tracks feature inventory across scaffolded, implemented, planned, and 
 | Feature | Status | Notes |
 | --- | --- | --- |
 | Aspire solution scaffold | Implemented | Created from `aspire-starter`. |
-| Blazor web project | Implemented | Starter project with initial HomeScout landing/workspace copy. |
+| React frontend project | Implemented | Vite React project with initial HomeScout comparison workspace shell. |
 | API service project | Implemented | Starter API service; HomeScout tools not yet implemented. |
 | Test project | Implemented | Starter xUnit integration test project. |
 | Wiki structure | Implemented | Canonical docs under `wiki/`. |
@@ -24,7 +24,7 @@ This page tracks feature inventory across scaffolded, implemented, planned, and 
 
 | Course Feature | HomeScout Feature | Status |
 | --- | --- | --- |
-| Blazor chatbot baseline | Property and area comparison workspace | Planned |
+| Course Blazor baseline | React property and area comparison workspace | Planned |
 | Tool calls | Crime, amenities, school, price, cost tools | Planned |
 | Reasoning | Explainable comparison notes and evidence trail | Planned |
 | Streaming | Live report generation | Planned |

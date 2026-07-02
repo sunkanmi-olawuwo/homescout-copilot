@@ -1,6 +1,6 @@
 # HomeScout Copilot
 
-HomeScout Copilot is an AI homebuying due-diligence assistant built with .NET, Aspire, Blazor, and Microsoft Agent Framework patterns.
+HomeScout Copilot is an AI homebuying due-diligence assistant built with .NET, Aspire, React, and Microsoft Foundry Agent Service patterns.
 
 The app helps a buyer compare properties and areas using public data, uploaded documents, and conversational analysis. The MVP focuses on property and area comparison, not regulated mortgage advice.
 
@@ -45,7 +45,7 @@ For each video:
 
 - `HomeScoutCopilot.AppHost`: Aspire app host.
 - `HomeScoutCopilot.ServiceDefaults`: Aspire service defaults.
-- `HomeScoutCopilot.Web`: Blazor frontend.
+- `frontend`: React/Vite frontend.
 - `HomeScoutCopilot.ApiService`: API/service layer for HomeScout data tools.
 - `HomeScoutCopilot.Tests`: integration test project.
 

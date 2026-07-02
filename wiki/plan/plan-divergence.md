@@ -57,7 +57,7 @@ Course/companion shape:
 HomeScout direction:
 
 - HomeScout will be API-first.
-- Blazor will call `HomeScoutCopilot.ApiService`.
+- React will call `HomeScoutCopilot.ApiService`.
 - Agent orchestration will sit behind an API-owned gateway abstraction.
 - The target enterprise agent platform is Microsoft Foundry Agent Service, not the older classic agents path.
 
@@ -70,3 +70,28 @@ Impact:
 
 - Course code should be adapted rather than copied when it places agent logic in Blazor components.
 - Part 3 and later should introduce API/service boundaries before agent-specific details where practical.
+
+### 2026-07-02: React From Part 1
+
+Previous state:
+
+- HomeScout was initially scaffolded with the Aspire Blazor starter.
+- The plan kept React as a likely later frontend option.
+
+New state:
+
+- HomeScout uses React/Vite from the first implementation part.
+- The Blazor project has been removed.
+- The course's Blazor code remains reference material only.
+- The frontend calls `HomeScoutCopilot.ApiService` and does not own agent orchestration.
+
+Reason:
+
+- The product should start with the eventual frontend stack instead of building a Blazor UI and rewriting later.
+- React better matches the desired client direction while the API-first boundary preserves course learning and future Foundry integration.
+
+Impact:
+
+- Part 2 maps the course's Blazor baseline into a React comparison workspace.
+- Course UI patterns should be translated into React components and API calls.
+- HomeScout implementation commits should avoid adding new Blazor code unless explicitly requested.

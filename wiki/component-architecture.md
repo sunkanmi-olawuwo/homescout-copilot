@@ -6,8 +6,8 @@
 HomeScoutCopilot.sln
   HomeScoutCopilot.AppHost
   HomeScoutCopilot.ServiceDefaults
-  HomeScoutCopilot.Web
   HomeScoutCopilot.ApiService
+  frontend
   HomeScoutCopilot.Tests
 ```
 
@@ -25,8 +25,8 @@ Responsibilities:
 Current state:
 
 - Adds `HomeScoutCopilot.ApiService` as `apiservice`.
-- Adds `HomeScoutCopilot.Web` as `webfrontend`.
-- Makes the web frontend wait for the API service.
+- Adds `frontend` as a Vite `webfrontend` resource.
+- Makes the React frontend wait for the API service.
 
 ## ServiceDefaults
 
@@ -39,20 +39,20 @@ Responsibilities:
 - Service discovery defaults.
 - Common resilience behavior from the Aspire template.
 
-## Web
+## Frontend
 
-Project: `HomeScoutCopilot.Web`
+Project: `frontend`
 
 Responsibilities:
 
-- Blazor frontend.
+- React/Vite frontend.
 - User workspace for property and area comparison.
 - Future chat UI, upload controls, saved comparisons, and preference views.
 
 Current state:
 
-- Starter Blazor app customized with a HomeScout landing/workspace shell.
-- Starter `Counter` and `Weather` pages remain as scaffolding and should be replaced as course-aligned features are implemented.
+- React/Vite app customized with a HomeScout comparison workspace shell.
+- The old Blazor project has been removed.
 
 Frontend work must follow [[Frontend Design Guidelines]].
 
@@ -92,9 +92,9 @@ See [[Testing Strategy]].
 
 HomeScout is API-first. The course companion repo begins with a Blazor Server chatbot where the page directly creates and runs agents. HomeScout should learn from that implementation while preserving product-grade boundaries:
 
-- Chat and workspace UI belong in `Web`.
+- Chat and workspace UI belong in `frontend`.
 - Product behavior, data providers, tool wrappers, and agent gateway calls belong in `ApiService` or a future shared/application project.
-- Blazor components must not own Foundry agent orchestration.
+- React components must not own Foundry agent orchestration.
 - Aspire wiring belongs in `AppHost`.
 - Cross-service defaults belong in `ServiceDefaults`.
 

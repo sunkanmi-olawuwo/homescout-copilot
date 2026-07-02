@@ -39,7 +39,7 @@ These may become API routes, internal services, or Microsoft Agent Framework too
 
 ```text
 User prompt/upload
-  -> Blazor workspace
+  -> React workspace
   -> HomeScout API service
   -> agent gateway and HomeScout tool services
   -> Microsoft Foundry Agent Service and/or public-data integrations

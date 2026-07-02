@@ -1,4 +1,4 @@
-# Part 2: Blazor Server Baseline
+# Part 2: Course Blazor Baseline, HomeScout React Baseline
 
 ## Course Implementation
 
@@ -19,7 +19,7 @@ Primary commits/files:
 
 ## HomeScout Translation
 
-Build a comparison workspace, not a generic chat page.
+Build a React comparison workspace, not a generic chat page.
 
 Initial UI should include:
 
@@ -38,5 +38,5 @@ Initial UI should include:
 
 ## Divergence
 
-Adapt. The course baseline is a generic chatbot; HomeScout needs a property comparison workspace from the start.
+Adapt. The course baseline is a generic Blazor chatbot; HomeScout uses React from the first implementation part and keeps product behavior behind the API.
 

@@ -17,12 +17,13 @@
 - Keep agent/tool code testable by wrapping external APIs behind interfaces.
 - Use records for immutable DTO-style data where appropriate.
 
-## Blazor
+## React
 
-- Keep pages thin.
-- Move non-trivial state and data access into services.
+- Keep components focused and product-named.
+- Keep API calls behind typed client modules rather than scattering `fetch` calls through components.
 - Use component names that describe product concepts, such as `ComparisonWorkspace`, `AreaSummaryPanel`, or `SavedSearchList`.
-- Avoid keeping starter-template pages around once their lesson purpose is complete.
+- Keep route-level components thin and move non-trivial state into hooks or services.
+- Avoid keeping starter-template screens around once their lesson purpose is complete.
 
 ## Frontend Design
 

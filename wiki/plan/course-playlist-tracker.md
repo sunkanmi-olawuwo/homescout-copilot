@@ -1,4 +1,4 @@
-# Course Playlist Tracker
+| 2 | Blazor Server Baseline | No | Basic Blazor chatbot | React property and area comparison workspace# Course Playlist Tracker
 
 Last refreshed: 2026-07-02  
 Playlist: https://www.youtube.com/playlist?list=PLhGl0l5La4sZDg1isoXWnFGXBXDyM42sQ  

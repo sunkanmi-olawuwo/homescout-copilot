@@ -50,3 +50,17 @@
 - Fact-checked Microsoft Foundry Agent Service direction against current Microsoft Learn docs.
 - Added [[API-First Foundry Agents]].
 - Updated component architecture, endpoint summary, roadmap, tracker, and plan divergence to make HomeScout API-first and Foundry-agent oriented.
+
+### Pivoted HomeScout To React From Part 1
+
+- Removed the Blazor frontend project from the implementation direction.
+- Added a React/Vite frontend as the product frontend path from the first course implementation part.
+- Updated plan divergence and video notes so course Blazor code is treated as reference material only.
+
+### Replaced Blazor Frontend With React
+
+- Removed `HomeScoutCopilot.Web` from the implementation.
+- Added `frontend/` as a Vite React project.
+- Updated `AppHost` to host the React frontend with `AddViteApp`.
+- Added `/api/status` and `/api/comparison/sample` endpoints to `HomeScoutCopilot.ApiService`.
+- Verified restore, npm install/audit/build, API/AppHost builds, and Aspire integration test.

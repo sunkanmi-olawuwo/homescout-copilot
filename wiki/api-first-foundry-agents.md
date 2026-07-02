@@ -7,13 +7,13 @@ This page records the HomeScout architecture decision to be API-first and to tar
 HomeScout Copilot will use an API-first architecture:
 
 ```text
-Blazor Web UI
+React Web UI
   -> HomeScout API
   -> Foundry agent gateway / tool services
   -> Microsoft Foundry Agent Service and public-data integrations
 ```
 
-The Blazor frontend must not own agent orchestration. It should call backend endpoints and render workspace state.
+The React frontend must not own agent orchestration. It should call backend endpoints and render workspace state.
 
 ## Why
 
@@ -40,7 +40,7 @@ Do not use the old/classic Foundry agents path for new work. Microsoft documenta
 
 ### Frontend
 
-`HomeScoutCopilot.Web`
+`frontend`
 
 Responsibilities:
 
@@ -88,7 +88,7 @@ Possible implementations:
 ### Phase 1: API-First Local Boundary
 
 - Move comparison behavior behind `HomeScoutCopilot.ApiService` endpoints.
-- Keep Blazor as a client of the API.
+- Keep React as a client of the API.
 - Add request/response DTOs.
 - Add tests around deterministic API behavior.
 
@@ -116,10 +116,10 @@ We still follow the course step by step, but translate implementation boundaries
 
 | Course Pattern | HomeScout Translation |
 | --- | --- |
-| Blazor page creates agent | API service calls agent gateway |
-| Blazor page owns tools | API/tool layer owns tools |
-| Blazor conversation storage | API-owned comparison session storage |
-| Blazor streaming response | API streams report updates to frontend |
+| Course Blazor page creates agent | API service calls agent gateway |
+| Course Blazor page owns tools | API/tool layer owns tools |
+| Course Blazor conversation storage | API-owned comparison session storage |
+| Course Blazor streaming response | API streams report updates to frontend |
 | Local Azure OpenAI factory | Foundry Responses API or hosted Foundry agent |
 
 ## Open Questions

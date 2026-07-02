@@ -25,7 +25,7 @@ Use [[Plan Divergence]] whenever HomeScout intentionally differs from the course
 | --- | --- | --- | --- | --- |
 | 0 | Series intro | `README.md`, repo purpose | Confirm HomeScout safety boundary and product scope | Adapt |
 | 1 | Repo + Aspire Solution | `src/AppHost`, `src/ServiceDefaults`, `src/ChatBot.BlazorServerOnly`, commit `421bf76` | Align our Aspire scaffold and config naming | Adapt |
-| 2 | Blazor Server Baseline | `ChatbotPage.razor`, `ChatbotPage.razor.cs`, earlier `Home.razor` commits | Build HomeScout comparison workspace shell | Adapt |
+| 2 | Blazor Server Baseline | `ChatbotPage.razor`, `ChatbotPage.razor.cs`, earlier `Home.razor` commits | Build React comparison workspace shell using the course behavior as reference | Adapt |
 | 3 | Tool Calls | `ChatbotPage.razor.cs`, `FunctionCallContentExtensions.cs`, `FunctionResultContentExtensions.cs`, `SecretKeys.cs` | Add first HomeScout data tool abstractions and one local cost estimator | Adapt |
 | 4 | Reasoning | `AssistantReasoningResponse.razor`, `MidTurnVisuals.razor`, response handling in `ChatbotPage.razor.cs` | Add explainable comparison notes/evidence panel | Adapt |
 | 5 | Streaming | `ChatbotPage.razor.cs`, `MidTurnVisuals.razor`, streaming UI components | Stream generated area comparison reports | Adapt |
@@ -69,7 +69,7 @@ Parts 0-2.
 
 Goal:
 
-- Make the scaffold feel like HomeScout.
+- Make the React scaffold feel like HomeScout.
 - Replace generic template pages with an actual comparison workspace skeleton.
 - Keep AppHost, service defaults, and frontend boundaries understandable.
 
@@ -87,7 +87,7 @@ Parts 3-5.
 Goal:
 
 - Add the course's AI/chat/tool patterns behind API boundaries.
-- Keep Blazor as an API client, not the owner of agent orchestration.
+- Keep React as an API client, not the owner of agent orchestration.
 - Start with a deterministic HomeScout tool before using live public APIs.
 - Add explainable output and streaming report generation.
 - Introduce a Foundry-oriented agent gateway abstraction.
@@ -174,7 +174,7 @@ Suggested commit messages:
 
 - `Plan course intro for HomeScout scope`
 - `Map part 01 Aspire setup to HomeScout scaffold`
-- `Map part 02 Blazor baseline to comparison workspace`
+- `Map part 02 Blazor baseline to React comparison workspace`
 - `Map part 03 tool calls to HomeScout cost tool`
 - `Map part 04 reasoning to comparison evidence notes`
 - `Map part 05 streaming to live area reports`
@@ -187,7 +187,7 @@ Suggested commit messages:
 
 ## Open Decisions
 
-- Whether to use Blazor Server only for the first full MVP or add a React client after the course reaches that point.
+- React is the frontend from Part 1; the open question is how quickly to replace tutorial-shaped Blazor patterns with API-first React flows.
 - Whether the first live public-data tool should be Police.uk crime data, OpenStreetMap amenities, or HM Land Registry price context.
 - Whether generated images should ship in the MVP or stay a documented extension point.
 
