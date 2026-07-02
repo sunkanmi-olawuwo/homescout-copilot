@@ -17,7 +17,8 @@ Course/plan expectation:
 
 Actual implementation:
 
-- Created HomeScout with `dotnet new aspire-starter`, which includes Blazor web, API service, AppHost, ServiceDefaults, and tests.
+- Created HomeScout with `dotnet new aspire-starter`, which initially included Blazor web, API service, AppHost, ServiceDefaults, and tests.
+- This was later superseded by the React-from-Part-1 pivot.
 
 Reason:
 
@@ -25,8 +26,8 @@ Reason:
 
 Impact:
 
-- Some starter pages such as Counter and Weather exist temporarily.
-- These should be replaced as each course feature maps into HomeScout.
+- The old Blazor project and starter UI were removed during the React pivot.
+- Remaining starter influence is limited to Aspire project structure, service defaults, tests, and health endpoints.
 
 ### 2026-07-02: Wiki Canonical Plan Root
 
@@ -95,3 +96,23 @@ Impact:
 - Part 2 maps the course's Blazor baseline into a React comparison workspace.
 - Course UI patterns should be translated into React components and API calls.
 - HomeScout implementation commits should avoid adding new Blazor code unless explicitly requested.
+
+### 2026-07-02: Case-File RAG Instead Of Generic Document Chat
+
+Course/typical RAG expectation:
+
+- A product might index a static document corpus and provide generic "chat with docs" behavior.
+
+HomeScout direction:
+
+- HomeScout uses a user-owned case file for private, per-comparison evidence.
+- HomeScout also uses a curated knowledge base of authored product notes, terminology, assumptions, source guidance, and safety rules.
+- Live public data remains behind tools/API integrations rather than becoming stale indexed documents.
+
+Reason:
+
+- Homebuying decisions depend on a mix of uploaded property evidence, stable explanatory guidance, deterministic calculations, live public data, and explicit missing-information handling.
+
+Impact:
+
+- RAG work enters the plan gradually: curated knowledge starts in Phase 2-3, case-file scoping starts in Phase 5, retrieval arrives in Phase 6, and Azure search/storage planning arrives in Phase 7.

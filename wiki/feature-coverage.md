@@ -8,7 +8,7 @@ This page tracks feature inventory across scaffolded, implemented, planned, and 
 | --- | --- | --- |
 | Aspire solution scaffold | Implemented | Created from `aspire-starter`. |
 | React frontend project | Implemented | Vite React project with initial HomeScout comparison workspace shell. |
-| API service project | Implemented | Starter API service; HomeScout tools not yet implemented. |
+| API service project | Implemented | API service exposes `/api/status` and `/api/comparison/sample`; HomeScout tools not yet implemented. |
 | Test project | Implemented | Starter xUnit integration test project. |
 | Wiki structure | Implemented | Canonical docs under `wiki/`. |
 
@@ -16,9 +16,8 @@ This page tracks feature inventory across scaffolded, implemented, planned, and 
 
 | Feature | Status | Notes |
 | --- | --- | --- |
-| Weather sample | Scaffolded | Template feature; should become data/tool sandbox or be removed. |
-| Counter sample | Scaffolded | Template feature; should become course sandbox or be removed. |
-| Basic Home page | Scaffolded | Product identity exists, but chat/comparison behavior is not implemented. |
+| React comparison workspace shell | Scaffolded | Product layout exists, but generate/attach actions are placeholders. |
+| Sample comparison API | Scaffolded | `/api/comparison/sample` exists as a placeholder, not the real comparison workflow. |
 
 ## Planned From Course Mapping
 

@@ -27,8 +27,6 @@ Run this path as a parallel track beside the video roadmap:
 
 Use [[Phased Learning And Build Plan]] for the concrete order of when to watch each video, when to do each Microsoft Learn module, and when to build.
 
-## Module Mapping
-
 ## Module-By-Module Audit
 
 This section records the actual module structure checked from Microsoft Learn so the HomeScout plan is grounded in the full path, not only the path summary.
@@ -136,6 +134,8 @@ Units checked:
 HomeScout implication:
 
 - Add basic correlation ids early, but complete tracing work after monitoring foundations are in place. Trace spans should cover API requests, model/agent calls, deterministic tools, external data calls, and response assembly.
+
+## HomeScout Module Mapping
 
 ### Plan and prepare a GenAIOps solution
 

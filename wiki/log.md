@@ -93,3 +93,9 @@
 - Updated [[RAG Architecture]] with source rules for the curated HomeScout knowledge base.
 - Clarified that HomeScout should store short authored notes with source metadata, not raw scraped external websites.
 - Listed seed source families including GOV.UK, HM Land Registry, RICS, Police.uk, OpenStreetMap/Overpass, official school datasets, and internal HomeScout safety rules.
+
+### Reviewed Plans For Start Readiness
+
+- Reviewed the phased plan, video roadmap, GenAIOps plan, RAG architecture, product brief, API-first architecture, endpoint summary, feature coverage, testing strategy, and plan divergence notes.
+- Updated stale starter references so docs match the current React/API state.
+- Added [[Readiness Checklist]] as the starting gate for implementation sessions.

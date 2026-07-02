@@ -23,6 +23,7 @@ This wiki is the canonical development memory for HomeScout Copilot.
 - [[Course Playlist Tracker]] - Per-video course-to-HomeScout mapping with companion code references.
 - [[GenAIOps Learning Path Integration]] - Maps Microsoft Learn GenAIOps modules into HomeScout build artifacts, evals, monitoring, and tracing.
 - [[Phased Learning And Build Plan]] - Step-by-step sequence for videos, Microsoft Learn modules, design, build work, tests, evaluations, and Azure deployment.
+- [[Readiness Checklist]] - Current starting gate for implementation sessions and next immediate steps.
 - [[Release Monitoring]] - How to check for new playlist videos and companion repo commits.
 - [[Video Implementation Roadmap]] - Detailed plan for every currently available playlist video.
 - [[Plan Divergence]] - Record of places where implementation diverges from plans or course material.

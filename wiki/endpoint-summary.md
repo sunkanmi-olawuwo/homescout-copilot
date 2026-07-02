@@ -4,13 +4,14 @@ This page tracks routes, external API integrations, and data flow.
 
 ## Current Internal Endpoints
 
-The project currently has starter-template endpoints only.
+The project currently has the first HomeScout-shaped API endpoints plus Aspire default health endpoints.
 
 | Area | Endpoint | Status | Purpose |
 | --- | --- | --- | --- |
 | API health | `/health` | Scaffolded | Health check used by Aspire. |
-| Web health | `/health` | Scaffolded | Health check used by Aspire. |
-| Weather sample | Template route | Scaffolded | Starter sample; expected to be replaced. |
+| API liveness | `/alive` | Scaffolded | Liveness check from Aspire service defaults. |
+| Product status | `/api/status` | Implemented | Confirms HomeScout product identity, React frontend direction, API-first architecture, and planned Foundry Agent Service target. |
+| Sample comparison | `/api/comparison/sample` | Implemented | Placeholder sample response for the first API-first comparison workflow. |
 
 ## Planned HomeScout Tool Endpoints
 
@@ -24,6 +25,9 @@ These may become API routes, internal services, or Microsoft Agent Framework too
 | Price context | postcode, district, or property details | sold-price context and local trend caveats | Planned |
 | Ownership cost estimate | price, deposit, rate, term, fees | monthly estimate and assumptions | Planned |
 | Area comparison | multiple locations | structured comparison report | Planned |
+| Comparison draft | property inputs, buyer priorities, assumptions | structured comparison draft | Planned |
+| User case-file retrieval | comparison/session id, query | cited uploaded-document evidence | Planned |
+| Curated KB retrieval | query, source category | HomeScout-authored guidance with source metadata | Planned |
 
 ## Planned External Integrations
 
@@ -34,6 +38,7 @@ These may become API routes, internal services, or Microsoft Agent Framework too
 | GOV.UK school performance data | School comparison context | Data access needs validation during implementation. |
 | OpenStreetMap Overpass API | Amenities and local points of interest | Use carefully with rate limits and cache results. |
 | TfL Unified API | London commute and transport context | Useful for London-focused MVP. |
+| GOV.UK flood-risk services | Flood-risk context | Use as contextual area/property due-diligence information, not a definitive risk guarantee. |
 
 ## Data Flow Direction
 
@@ -58,4 +63,3 @@ The frontend should call API endpoints. It should not create agents directly. Se
 - Do not provide regulated mortgage advice.
 
 See [[Overview]] and [[Coding Conventions]].
-
