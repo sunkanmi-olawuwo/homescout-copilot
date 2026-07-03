@@ -13,6 +13,11 @@
 - Updated [[Onboarding Article]] to reflect the current comparison workspace shell instead of a bare starting screen.
 - Updated [[Testing Strategy]] to record the successful full-solution and frontend builds.
 
+### Fixed CodeQL Workflow-Permissions Findings
+
+- CodeQL (GitHub Advanced Security default setup) was enabled and flagged 5 medium alerts: each `.github/workflows/*.yml` ran with the broad default `GITHUB_TOKEN` (no `permissions:` block). Added least-privilege `permissions: contents: read` to all five (plan-drift, backend-ci, frontend-ci, external-checks, infra-ci) — they only checkout + build/test, none write to the repo.
+- The separate CodeQL "csharp configuration not found" warning is a default-setup comparison quirk (the C# scan on `main` hadn't completed when the PR was evaluated), not a code defect; it resolves once a C# scan completes on `main`. If C# default-setup analysis fails on net10, switching to advanced setup (a `codeql.yml` with a custom `dotnet build`) is the follow-up.
+
 ### Implemented API Vertical Slices + Validated Options + Shared Rename
 
 - **Renamed** `HomeScoutCopilot.Shared.Application` → `HomeScoutCopilot.Shared` (project, csproj, namespace `HomeScoutCopilot.Shared.Contracts`, all refs, `.slnx`); test project → `HomeScoutCopilot.Shared.Test`.
