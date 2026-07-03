@@ -13,6 +13,17 @@
 - Updated [[Onboarding Article]] to reflect the current comparison workspace shell instead of a bare starting screen.
 - Updated [[Testing Strategy]] to record the successful full-solution and frontend builds.
 
+### RagLab Skeleton Migration — Phase 1 (Quality Gate + Governance)
+
+- Stood up the quality gate before any code moves so Phases 2–4 run inside a green gate.
+- Added `scripts/check-plan-drift.sh` (POSIX; enforces plan-index/link integrity, no stale `wiki/plan/` refs, API-first frontend, FluentResults-not-ErrorOr) and `scripts/quality-gate.sh` (runs drift + backend + frontend). Drift reports 0 fail, 1 forward-looking warn.
+- Added CI workflows `plan-drift`, `backend-ci` (fast non-integration tests), `frontend-ci` (build + lint + unit) and `.github/copilot-instructions.md` → AGENTS.md.
+- Rewrote `AGENTS.md` RagLab-style: Plan Sync Protocol, non-negotiable invariants, git workflow, preserved attribution rule and product/frontend/course rules.
+- Seed tests: backend `ApiContractTests` (in-memory `WebApplicationFactory`, asserts `/api/status` + `/api/comparison/sample` shape; behaviour-lock for later phases); frontend Vitest + Testing Library smoke test for the workspace shell. Categorized the Aspire `WebTests` as `Integration` and added `ApiMarker` so the API can boot without a `Program` type clash.
+- Added `wiki/__plans/04-testing/quality-gate-plan.md`; renamed `NuGet.Config` → `nuget.config`.
+- Verified locally: `scripts/quality-gate.sh` → PASS.
+- Delivered on branch `migration/phase-1-quality-gate`.
+
 ### RagLab Skeleton Migration — Phase 0 (Plan Foundation)
 
 - Decided to restructure HomeScout to mirror the RagLab (`HBK.Insights.Raglab`) skeleton; authored the master sequenced migration plan as the source of truth (`wiki/__plans/00-roadmap/homescout-skeleton-migration-plan.md`).

@@ -128,7 +128,7 @@ Each phase lists **Steps**, **Acceptance criteria** (observable outcome), and
 **Verify** (exact commands / CI job that proves it). A phase is done only when
 every acceptance criterion is verified green.
 
-### Phase 0 — Plan foundation (this phase)
+### Phase 0 — Plan foundation ✅ done (PR #2)
 - **Steps:**
   - Author this master plan. ✅
   - Stand up `wiki/__plans/` with `00-roadmap … 04-testing`.
@@ -144,7 +144,7 @@ every acceptance criterion is verified green.
   - `grep -rn "wiki/plan/" --include='*.md' wiki AGENTS.md README.md | grep -v 'wiki/log.md'` → no output
   - Wikilink integrity grep (same check used in the review) → all resolve.
 
-### Phase 1 — Quality gate + governance (no project moves)
+### Phase 1 — Quality gate + governance (no project moves) — delivered, pending merge
 - **Steps:**
   - Rewrite `AGENTS.md` in RagLab style (Plan-Sync Protocol + invariants above +
     drift-check reference). Keep `CLAUDE.md` symlink.

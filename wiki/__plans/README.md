@@ -71,7 +71,8 @@ API, service-layer, persistence, and backend integration plans.
 
 Cross-cutting QA, quality-gate, and end-to-end test plans.
 
-- [Testing Plans (placeholder)](./04-testing/README.md)
+- [Quality Gate & Test Plan](./04-testing/quality-gate-plan.md)
+- [Testing Plans (overview)](./04-testing/README.md)
 
 ## How To Use These Plans
 
