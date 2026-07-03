@@ -1,5 +1,30 @@
 # Log
 
+## 2026-07-04
+
+### Advanced CodeQL Setup (Repo-Controlled)
+
+- Replaced the CodeQL default setup with a repo-controlled `.github/workflows/codeql.yml`
+  (advanced setup) covering all three shipped languages: `csharp`, `javascript-typescript`,
+  and `actions`. C# uses `build-mode: manual` with a pinned .NET 10 build (matching
+  `backend-ci`) for a thorough, reliable analysis; least-privilege job permissions;
+  `security-extended` queries; PR + push-to-main + weekly triggers. Merged via PR #26 (all
+  checks green, including `Analyze (csharp)`).
+
+### Externalised The Agent Prompt To A Versioned Asset (GenAIOps)
+
+- Moved the Foundry agent's system instructions out of a hardcoded `const` in
+  `FoundryAgentGateway` into a versioned, embedded asset
+  (`HomeScoutCopilot.API.Service/Prompts/homescout.v1.md`) loaded by a new `AgentPrompt`
+  loader (with a `Version` constant). Follows Microsoft's GenAIOps prompt-versioning
+  guidance (treat prompts as first-class, git-taggable assets). Added `AgentPromptTests`
+  (fast) locking the load path + guardrails; all existing contract/BDD/endpoint tests pass
+  unedited (behaviour-lock). Recorded in [[Plan Divergence]] with the Learn links.
+- Confirmed the auth + agent-creation model: we authenticate keyless with
+  `DefaultAzureCredential`; `AsAIAgent(...)` builds an **in-process** agent (Responses
+  path) per gateway construction — it does **not** create/persist a server-side Foundry
+  agent resource, so nothing is created "on startup".
+
 ## 2026-07-03
 
 ### Plan Sync And Readiness Review

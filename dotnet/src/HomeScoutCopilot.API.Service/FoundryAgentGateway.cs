@@ -17,17 +17,8 @@ public sealed class FoundryAgentGateway : IHomeScoutAgentGateway
 {
     private const string AgentName = "HomeScout";
 
-    private const string Instructions =
-        """
-        You are HomeScout, a UK homebuying due-diligence copilot — not a mortgage adviser.
-        Use the tools for any numbers. Call estimate_mortgage for monthly costs; never
-        invent an interest rate — use the buyer's figure or ask for it. Call get_base_rate
-        only for context (it is not a mortgage product rate). Always state the assumptions
-        behind an estimate, and end with: "This is an estimate, not mortgage advice — speak
-        to a qualified mortgage adviser." Never recommend a specific mortgage product, and
-        never label an area simply safe or unsafe.
-        """;
-
+    // The system prompt lives in a versioned, embedded asset (Prompts/homescout.v1.md),
+    // loaded via AgentPrompt — not a hardcoded string. See AgentPrompt for the rationale.
     private static readonly IReadOnlyList<string> Caveats =
     [
         "This is an estimate, not mortgage advice — speak to a qualified mortgage adviser.",
@@ -42,7 +33,7 @@ public sealed class FoundryAgentGateway : IHomeScoutAgentGateway
             .AsAIAgent(
                 model: settings.ModelDeploymentName,
                 name: AgentName,
-                instructions: Instructions,
+                instructions: AgentPrompt.Instructions,
                 tools: tools.Build().ToList());
     }
 

@@ -9,6 +9,37 @@ Use this page whenever implementation differs from:
 
 ## Entries
 
+### 2026-07-04: Agent Prompt Externalised To A Versioned Embedded Asset (GenAIOps)
+
+Previous state:
+
+- The Foundry agent's system instructions were a hardcoded `const` string inside
+  `FoundryAgentGateway.cs` — versioned only implicitly via that file's git history.
+
+New state:
+
+- The prompt is a first-class asset: `dotnet/src/HomeScoutCopilot.API.Service/Prompts/
+  homescout.v1.md`, embedded in the assembly and loaded by `AgentPrompt` (with a `Version`
+  constant). `FoundryAgentGateway` now passes `AgentPrompt.Instructions`. A fast
+  `AgentPromptTests` locks the load path + guardrails.
+
+Reason:
+
+- Aligns with Microsoft's GenAIOps prompt-versioning guidance — treat prompts as
+  first-class, reviewable, git-taggable code assets (version by filename `vN`, tag the
+  deploy that ships each version):
+  [repo structure](https://learn.microsoft.com/en-us/training/modules/prompt-versioning-genaiops/4-github-repository-structure)
+  · [prompt workflow](https://learn.microsoft.com/en-us/training/modules/prompt-versioning-genaiops/5-prompt-workflow-development).
+
+Notes / not-yet:
+
+- The module's mechanics are Python-SDK-oriented (`.txt` read by a deploy script) and its
+  "Foundry auto-increments agent versions" note assumes a **persisted** Foundry agent
+  resource. HomeScout's gateway builds an **in-process** agent via `AIProjectClient.AsAIAgent(...)`
+  (Responses path) — nothing is persisted server-side — so our prompt versioning is
+  file + git-tag, not server-side agent versions. Prompt-quality **evaluation** and
+  dev/prod prompt separation remain follow-ups.
+
 ### 2026-07-03: API Vertical Slices — Project Roles, Options Helper, Shared Rename
 
 RagLab shape:
