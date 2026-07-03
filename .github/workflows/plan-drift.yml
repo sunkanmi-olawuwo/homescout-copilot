@@ -1,0 +1,15 @@
+name: plan-drift
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check plan drift
+        run: bash scripts/check-plan-drift.sh
