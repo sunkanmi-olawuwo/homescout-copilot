@@ -1,0 +1,11 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+name: homescout-copilot
+metadata:
+  template: homescout-copilot@0.1.0
+
+# Slice 1: provisioning only (Foundry account + chat model + project + RBAC).
+# `azd provision` (or `azd up`) applies infra/. Deploying the API as a service is a
+# later slice, added under `services:` then.
+infra:
+  provider: bicep
+  path: infra
