@@ -13,6 +13,11 @@
 - Updated [[Onboarding Article]] to reflect the current comparison workspace shell instead of a bare starting screen.
 - Updated [[Testing Strategy]] to record the successful full-solution and frontend builds.
 
+### Added Engineering Standards To Docs
+
+- Recorded that HomeScout is built as production-grade software to Microsoft's standards.
+- Added a binding "Engineering Standards" section to `AGENTS.md` and a cross-referenced version in [[Coding Conventions]]: follow .NET Framework Design Guidelines / C# conventions, ASP.NET Core + Aspire + Microsoft Foundry Agent Service guidance, the Azure Well-Architected Framework, and Entra/managed-identity least privilege; use current non-deprecated APIs (verify on Microsoft Learn); treat security, accessibility, and observability as first-class.
+
 ### Frontend Switched To pnpm
 
 - Resolved the last open migration decision: frontend now uses **pnpm** (RagLab parity), replacing npm.
