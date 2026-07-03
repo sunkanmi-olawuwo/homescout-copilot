@@ -17,3 +17,9 @@ appsettings.Local.json
 
 # Allure results are produced under bin/ during test runs
 allure-results/
+
+# Playwright
+playwright-report/
+test-results/
+blob-report/
+playwright/.cache/

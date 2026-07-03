@@ -13,6 +13,16 @@
 - Updated [[Onboarding Article]] to reflect the current comparison workspace shell instead of a bare starting screen.
 - Updated [[Testing Strategy]] to record the successful full-solution and frontend builds.
 
+### RagLab Skeleton Migration — Phase 4 (E2E) + migration complete
+
+- Added Playwright (chromium) e2e to `frontend/`: `playwright.config.ts` (build + `vite preview` webServer on :4173), `e2e/workspace.spec.ts` smoke (core regions visible). Added `e2e` npm script.
+- Broadened Vitest component tests (composer textbox + Generate/Attach buttons + evidence items).
+- Made the Vite `/api` proxy conditional on the Aspire target env so standalone `vite preview` (e2e) no longer logs proxy errors.
+- Wired e2e into `frontend-ci.yml` (required step: `playwright install --with-deps chromium` → `npm run e2e`) and into `scripts/quality-gate.sh` (guarded, auto-installs chromium). Gitignored Playwright artifacts.
+- Full quality gate PASS: drift 0/0, backend 8 fast tests, frontend 2 unit + 1 e2e.
+- **Migration complete** — HomeScout now mirrors the RagLab skeleton (dotnet/ + .slnx, layered API with FluentResults, NUnit + Reqnroll BDD + Allure, plan-drift + CI quality gate, per-phase branch→PR→merge), with intentional divergences recorded (frontend at repo root, FluentResults over custom Result, no premature poc/infra/byo scaffolding).
+- Delivered on branch `migration/phase-4-e2e`.
+
 ### RagLab Skeleton Migration — Phase 3 (Backend Layering + Reqnroll BDD)
 
 - Split the API into layered projects (RagLab parity): `.API` (thin minimal-API host), `.API.Service` (`IHomeScoutService`, returns FluentResults), `.API.Client` (typed `HomeScoutApiClient`), `.Shared.Application` (DTOs), `.Functional` (FluentResults→ProblemDetails mappers). Renamed `HomeScoutCopilot.ApiService` → `.API` (Aspire resource kept as `apiservice` so the Vite proxy env is stable).

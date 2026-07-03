@@ -49,8 +49,10 @@ carries plain tests and BDD.
 
 - **Unit/component tests** (Vitest + Testing Library, jsdom) — `src/**/*.test.tsx`.
   The seed test asserts the workspace shell renders its core regions.
-- **E2E** (Playwright) — added in Phase 4: load the workspace and confirm the key
-  regions are visible.
+- **E2E** (Playwright, chromium) — `frontend/e2e/`, run against the built app via
+  `vite preview` (no API; the workspace uses its fallback). Smoke: load the
+  workspace and confirm the core regions are visible. Runs in `quality-gate.sh` and
+  as a required step in `frontend-ci.yml`.
 
 ## Rules
 
