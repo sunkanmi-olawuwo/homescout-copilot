@@ -162,8 +162,12 @@ thread persistence / RAG matter — not piecemeal. Document Intelligence remains
    **Compiles**; `FoundryAgentGatewayLiveTests` `[Category("External")]`+`[Category("Integration")]`
    skips cleanly offline and runs against real Foundry once provisioned (`azd provision`
    + Azure creds). **Not yet live-verified.**
-4. **Endpoint + client** — `POST /api/copilot/ask` + typed client; then the React
-   conversation surface (separate slice).
+4. **Endpoint + client** ✅ built — `POST /api/copilot/ask` (400 on empty message,
+   **503 until Foundry is configured**); DI registers `FoundryAgentGateway` + tools +
+   `TokenCredential` only when a Foundry endpoint is present (from `AZURE_FOUNDRY_*` /
+   `Foundry:*`). `HomeScoutApiClient.AskCopilotAsync`. Offline endpoint tests via a fake
+   gateway (`ConfigureTestServices`). The React conversation surface is the next,
+   separate slice.
 
 ## Out of scope now
 

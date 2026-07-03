@@ -14,6 +14,7 @@ The project currently has the first HomeScout-shaped API endpoints plus Aspire d
 | Sample comparison | `/api/comparison/sample` | Implemented | Placeholder sample response for the first API-first comparison workflow. |
 | Base rate context | `GET /api/mortgage/base-rate` | Implemented | Bank of England base rate for orientation only (not a product rate). Live BoE fetch via `IBaseRateProvider`, ~1-day cache, resilient fallback; always returns 200 with a `Live`/`Cache`/`Fallback` provenance. |
 | Mortgage estimate | `POST /api/mortgage/estimate` | Implemented | Deterministic amortisation via `IMortgageCostEstimator` (repayment + interest-only, +3% stress). Returns monthly payment, totals, assumptions, and a not-mortgage-advice caveat; invalid input → 400 ProblemDetails. |
+| Copilot | `POST /api/copilot/ask` | Implemented (agent live-pending) | Natural-language question → grounded `CopilotAnswer` via `IHomeScoutAgentGateway` (Foundry agent calls the tools). 400 on empty message; **503 until Foundry is provisioned/configured**. Typed client `AskCopilotAsync`. |
 
 ## Planned HomeScout Tool Endpoints
 
