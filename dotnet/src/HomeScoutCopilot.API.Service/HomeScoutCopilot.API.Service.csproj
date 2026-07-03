@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\HomeScoutCopilot.Shared.Application\HomeScoutCopilot.Shared.Application.csproj" />
+    <ProjectReference Include="..\HomeScoutCopilot.Shared\HomeScoutCopilot.Shared.csproj" />
   </ItemGroup>
 
   <!-- Brings HttpClient, IMemoryCache, IOptions, and logging for provider services. -->
@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <PackageReference Include="FluentResults" Version="3.16.0" />
+    <PackageReference Include="FluentValidation" Version="12.1.1" />
     <!-- AIFunctionFactory / AIFunction: provider-agnostic tool definitions (no Azure).
          The Microsoft Agent Framework builds on these; the Foundry agent (Slice 3) is
          handed the same tools. -->

@@ -73,7 +73,7 @@ total interest ≈ £180,216, stress (+3% → 7.5%) ≈ £1,995/month.
 
 ## Inputs and outputs
 
-Contracts live in `HomeScoutCopilot.Shared.Application`; names here are the source
+Contracts live in `HomeScoutCopilot.Shared`; names here are the source
 of truth and must match the code (plan-sync rule).
 
 Request — `MortgageEstimateRequest`:
@@ -119,7 +119,7 @@ endpoint maps them to `400 ProblemDetails` via `.ToHttpResult()`:
 - **`HomeScoutCopilot.API.Service`** — `IMortgageCostEstimator` (pure, deterministic,
   no network) behind the existing `IHomeScoutService` boundary. This is where the
   formula and validation live.
-- **`HomeScoutCopilot.Shared.Application`** — the request/result DTOs above.
+- **`HomeScoutCopilot.Shared`** — the request/result DTOs above.
 - **`HomeScoutCopilot.Functional`** — existing `Result → ProblemDetails` mapping.
 - **`HomeScoutCopilot.API`** — endpoint `POST /api/mortgage/estimate` (thin: bind →
   service → `.ToHttpResult()`). Composable into a future comparison workflow.

@@ -30,7 +30,7 @@
     <ProjectReference Include="..\..\src\HomeScoutCopilot.AppHost\HomeScoutCopilot.AppHost.csproj" />
     <ProjectReference Include="..\..\src\HomeScoutCopilot.API\HomeScoutCopilot.API.csproj" />
     <ProjectReference Include="..\..\src\HomeScoutCopilot.API.Client\HomeScoutCopilot.API.Client.csproj" />
-    <ProjectReference Include="..\..\src\HomeScoutCopilot.Shared.Application\HomeScoutCopilot.Shared.Application.csproj" />
+    <ProjectReference Include="..\..\src\HomeScoutCopilot.Shared\HomeScoutCopilot.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

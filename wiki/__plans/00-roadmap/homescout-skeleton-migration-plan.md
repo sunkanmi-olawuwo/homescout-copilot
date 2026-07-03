@@ -9,7 +9,7 @@ Reference skeleton: `/Users/olaheavy/source/code/netcore/HBK.Insights.Raglab`.
 ## Decisions (locked)
 
 - **Scope:** full clone including backend layering (RagLab's `.API` / `.API.Service`
-  / `.API.Client` / `.Shared.Application` / `.Functional` split).
+  / `.API.Client` / `.Shared` / `.Functional` split).
 - **Frontend location:** stays at repo root `frontend/` (intentional divergence
   from RagLab, which nests Web under `dotnet/src/`). Record in Plan Divergence.
 - **Result type:** third-party **FluentResults** instead of RagLab's custom
@@ -52,11 +52,11 @@ home-scout-pilot/
 │  │  ├─ HomeScoutCopilot.API           # minimal-API host + endpoint definitions
 │  │  ├─ HomeScoutCopilot.API.Service   # application/service layer (agent gateway, tools)
 │  │  ├─ HomeScoutCopilot.API.Client    # typed HTTP client for Web + tests
-│  │  ├─ HomeScoutCopilot.Shared.Application  # DTOs, contracts, shared app types
+│  │  ├─ HomeScoutCopilot.Shared  # DTOs, contracts, shared app types
 │  │  └─ HomeScoutCopilot.Functional    # FluentResults-based Result helpers + mappers
 │  └─ tests/
 │     ├─ HomeScoutCopilot.API.Test
-│     ├─ HomeScoutCopilot.Shared.Application.Test
+│     ├─ HomeScoutCopilot.Shared.Test
 │     └─ HomeScoutCopilot.Functional.Test
 └─ wiki/
    ├─ index.md, log.md, overview.md, coding-conventions.md, component-architecture.md,
@@ -209,12 +209,12 @@ every acceptance criterion is verified green.
 ### Phase 3 — Backend layering (refactor; behaviour unchanged) ✅ done (PR #5)
 - **Steps:**
   - Add `HomeScoutCopilot.Functional` (FluentResults + ProblemDetails mappers).
-  - Add `HomeScoutCopilot.Shared.Application` (DTOs/contracts).
+  - Add `HomeScoutCopilot.Shared` (DTOs/contracts).
   - Split `.ApiService` into `.API` (host + endpoints) and `.API.Service`
     (application layer / agent gateway / tools). Move `/api/status` and
     `/api/comparison/sample` into the new shape **unchanged**.
   - Add `.API.Client` (typed client); wire the frontend/tests to it as chosen.
-  - Split tests into `.API.Test`, `.Shared.Application.Test`, `.Functional.Test`
+  - Split tests into `.API.Test`, `.Shared.Test`, `.Functional.Test`
     (all NUnit); add unit tests for the FluentResults→ProblemDetails mapper and for
     one `.API.Service` handler.
   - **Reqnroll BDD (RagLab parity)** in `.API.Test`: add `Reqnroll.NUnit` +

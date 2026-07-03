@@ -1,6 +1,6 @@
 using Azure.Identity;
 using HomeScoutCopilot.API.Service;
-using HomeScoutCopilot.Shared.Application.Contracts;
+using HomeScoutCopilot.Shared.Contracts;
 using Microsoft.Extensions.Options;
 
 namespace HomeScoutCopilot.API.Test;

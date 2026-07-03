@@ -1,5 +1,5 @@
 using System.ComponentModel;
-using HomeScoutCopilot.Shared.Application.Contracts;
+using HomeScoutCopilot.Shared.Contracts;
 using Microsoft.Extensions.AI;
 
 namespace HomeScoutCopilot.API.Service;

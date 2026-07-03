@@ -1,4 +1,4 @@
-namespace HomeScoutCopilot.Shared.Application.Contracts;
+namespace HomeScoutCopilot.Shared.Contracts;
 
 public enum RepaymentType
 {

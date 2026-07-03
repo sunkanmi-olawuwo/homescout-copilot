@@ -1,5 +1,5 @@
 using HomeScoutCopilot.API.Client;
-using HomeScoutCopilot.Shared.Application.Contracts;
+using HomeScoutCopilot.Shared.Contracts;
 using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace HomeScoutCopilot.API.Test.Drivers;

@@ -13,6 +13,13 @@
 - Updated [[Onboarding Article]] to reflect the current comparison workspace shell instead of a bare starting screen.
 - Updated [[Testing Strategy]] to record the successful full-solution and frontend builds.
 
+### Implemented API Vertical Slices + Validated Options + Shared Rename
+
+- **Renamed** `HomeScoutCopilot.Shared.Application` → `HomeScoutCopilot.Shared` (project, csproj, namespace `HomeScoutCopilot.Shared.Contracts`, all refs, `.slnx`); test project → `HomeScoutCopilot.Shared.Test`.
+- **Vertical slices (RagLab parity):** Carter 10 + MediatR 12.5.0 (pinned free/Apache-2.0; v13+ is commercial) + FluentValidation 12. Moved the four endpoint groups into `.API/Features/{Status,Comparison,Mortgage,Copilot}/` as Carter `ICarterModule`s delegating to MediatR commands/queries/handlers (calling the `.API.Service` services). `Program.cs` is now thin (`AddMediatR` + `AddCarter` + `AddValidatedOptions`; `app.MapCarter()`).
+- **Validated options:** `IValidatedOptions<T>` + `AddValidatedOptions<T>()` helper in `.API.Service/Settings/`; `BaseRateOptions`/`FoundryOptions` moved there, self-declare their section + a FluentValidation validator, validated on startup.
+- **Behaviour-locked:** all 33 fast tests (contract, mortgage BDD, copilot 200/503/400) passed **unedited**, and the Aspire boot test is green — routes/shapes/behaviour unchanged; only structure changed. Recorded divergences (kept project roles, helper in `.API.Service`, deferred request-validation pipeline) in [[Plan Divergence]]; updated [[Component Architecture]] and marked the plan implemented.
+
 ### Studied RagLab's API + Planned Vertical-Slice Parity
 
 - Studied RagLab's API structure: `Features/<X>/` **vertical slices** as Carter `ICarterModule`s with thin endpoints delegating to **MediatR** commands/queries/handlers (co-located DTOs/validation/mapping), rich endpoint metadata, and a `Settings/` **validated-options** convention (`IValidatedOptions<T>` self-declares its section + a FluentValidation validator, validated on startup). Host is `.API.Service`; feature library is `.API` (reverse of HomeScout's naming).

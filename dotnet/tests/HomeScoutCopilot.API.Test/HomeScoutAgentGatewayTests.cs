@@ -1,5 +1,5 @@
 using HomeScoutCopilot.API.Service;
-using HomeScoutCopilot.Shared.Application.Contracts;
+using HomeScoutCopilot.Shared.Contracts;
 
 namespace HomeScoutCopilot.API.Test;
 

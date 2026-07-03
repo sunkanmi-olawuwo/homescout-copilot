@@ -1,6 +1,6 @@
 using System.Net.Http.Json;
 using HomeScoutCopilot.API.Service;
-using HomeScoutCopilot.Shared.Application.Contracts;
+using HomeScoutCopilot.Shared.Contracts;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;

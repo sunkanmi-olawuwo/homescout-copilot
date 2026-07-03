@@ -9,6 +9,35 @@ Use this page whenever implementation differs from:
 
 ## Entries
 
+### 2026-07-03: API Vertical Slices — Project Roles, Options Helper, Shared Rename
+
+RagLab shape:
+
+- `.API` is the feature **library** (Features/Domain/Infrastructure/Settings); `.API.Service`
+  is the **host**. The validated-options helper lives in the shared application project.
+
+HomeScout direction (implemented):
+
+- Adopted RagLab's **internal** organisation — `Features/<X>/` Carter+MediatR vertical slices
+  and the `IValidatedOptions` convention — but **kept HomeScout's project roles**: `.API` is
+  the host, `.API.Service` is the application layer.
+- The validated-options helper lives in **`.API.Service/Settings/`** (not the shared project),
+  so `HomeScoutCopilot.Shared` stays **pure wire contracts** (no FluentValidation/DI deps).
+- Renamed `HomeScoutCopilot.Shared.Application` → **`HomeScoutCopilot.Shared`** (project +
+  namespace `HomeScoutCopilot.Shared.Contracts`).
+- Did **not** add a request-level FluentValidation pipeline yet; existing in-handler checks
+  preserve behaviour (a documented follow-up).
+
+Reason:
+
+- Keeps the layering we already have, keeps contracts dependency-light, and delivers the
+  navigability win without inverting project roles or risking behaviour drift.
+
+Impact:
+
+- Behaviour unchanged — all contract/BDD/endpoint tests pass unedited. MediatR pinned to
+  **12.5.0** (last free/Apache-2.0; v13+ is commercial).
+
 ### 2026-07-03: Basic Foundry Agent Setup (Not RagLab's Standard) For The First Slice
 
 RagLab / reference expectation:

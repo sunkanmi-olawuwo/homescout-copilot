@@ -1,4 +1,4 @@
-namespace HomeScoutCopilot.Shared.Application.Contracts;
+namespace HomeScoutCopilot.Shared.Contracts;
 
 /// <summary>
 /// The Bank of England base rate, provided for orientation only. It is <b>not</b> a

@@ -5,6 +5,17 @@ MediatR), a **validated-options** convention, and **feature/Settings folders** f
 navigation — **without changing behaviour**. The existing contract/endpoint tests are the
 behaviour-lock (they must keep passing unedited).
 
+**Status: implemented.** Carter 10 + MediatR 12.5.0 (pinned free/Apache-2.0) +
+FluentValidation 12; endpoints moved to `Features/{Status,Comparison,Mortgage,Copilot}/`
+Carter modules → MediatR handlers; `BaseRateOptions`/`FoundryOptions` use the
+validated-options convention. All 33 contract/BDD/endpoint tests passed **unedited** and
+the Aspire boot test is green. Two divergences from this plan (recorded in Plan
+Divergence): (1) the validated-options helper lives in **`.API.Service/Settings/`** (not
+`.Shared`), keeping `.Shared` as pure contracts; (2) request-level FluentValidation
+behaviour was **not** added — the existing in-handler checks (mortgage `Result.Fail`
+→ 400; copilot empty → 400, unconfigured → 503) preserve behaviour; a MediatR validation
+pipeline is an easy follow-up.
+
 ## Why
 
 Today all endpoints are inline in `Program.cs` and `.API.Service` is a flat file list;
@@ -17,7 +28,7 @@ route, handler, DTOs, validation) lives in one place and bad config fails fast.
 **Full RagLab parity:** Carter (endpoint modules, auto-discovered) + MediatR
 (commands/queries/handlers) + FluentValidation + a validated-options convention. Keep
 HomeScout's project **roles/names** (`.API` = host, `.API.Service` = application layer,
-`.Shared.Application` = wire contracts, `.Functional` = Result→HTTP). This differs from
+`.Shared` = wire contracts, `.Functional` = Result→HTTP). This differs from
 RagLab's project split (where `.API` is the feature library and `.API.Service` is the
 host) — an intentional, recorded divergence; we adopt the *internal* organisation, not the
 project-role inversion.
@@ -49,14 +60,14 @@ dotnet/src/HomeScoutCopilot.API.Service/          (application/domain layer — 
   (existing services: MortgageCostEstimator, BankOfEnglandBaseRateProvider,
    FoundryAgentGateway, HomeScoutAgentTools, IHomeScoutService — optionally grouped into
    Mortgage/ Copilot/ subfolders)
-dotnet/src/HomeScoutCopilot.Shared.Application/
+dotnet/src/HomeScoutCopilot.Shared/
   Settings/                                       (the small validated-options helper:
     IValidatedOptions.cs, ValidatedOptionsFactory.cs, ValidatedOptions.cs)
   Contracts/                                      (wire DTOs — shared with the client; stay here)
 ```
 
 Wire DTOs (`MortgageEstimateRequest`, `CopilotRequest`, …) **stay in
-`.Shared.Application`** because the typed client and tests consume them — RagLab
+`.Shared`** because the typed client and tests consume them — RagLab
 co-locates DTOs in the feature, but our client shares them, so only the MediatR
 command/query wrappers + validators live in the feature folder.
 
@@ -132,7 +143,7 @@ public sealed class FoundryOptions : IValidatedOptions<FoundryOptions>
 
 ## Migration steps (behaviour-locked; one gated PR, small commits)
 
-1. Add the **validated-options** helper (`.Shared.Application/Settings/`); migrate
+1. Add the **validated-options** helper (`.Shared/Settings/`); migrate
    `BaseRateOptions` + `FoundryOptions` to `.API.Service/Settings/` with validators; swap
    `Program.cs` manual binds for `AddValidatedOptions<T>()`.
 2. Add **MediatR** + **Carter** + **FluentValidation** to `.API`; register in `Program.cs`
