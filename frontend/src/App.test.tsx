@@ -27,4 +27,16 @@ describe('App workspace shell', () => {
     expect(screen.getByRole('heading', { name: 'Evidence' })).toBeTruthy();
     expect(screen.getByText(/not mortgage advice/i)).toBeTruthy();
   });
+
+  it('renders the comparison composer and evidence items', () => {
+    render(<App />);
+
+    expect(screen.getByRole('textbox')).toBeTruthy();
+    expect(
+      screen.getByRole('button', { name: 'Generate comparison' }),
+    ).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Attach listing' })).toBeTruthy();
+    expect(screen.getByText('Crime')).toBeTruthy();
+    expect(screen.getByText('Schools')).toBeTruthy();
+  });
 });

@@ -44,6 +44,14 @@ else
   echo ">> skipped (npm or frontend/ not found)"
 fi
 
+step "Frontend e2e (Playwright)"
+if command -v npm >/dev/null 2>&1 && [[ -d frontend/node_modules/@playwright/test ]]; then
+  ( cd frontend && npx playwright install chromium >/dev/null 2>&1 && npm run e2e )
+  mark $? "frontend e2e"
+else
+  echo ">> skipped (@playwright/test not installed — run 'npm i' in frontend/)"
+fi
+
 echo
 echo "------------------------------------------------------------"
 if [[ "$FAILED" -eq 0 ]]; then

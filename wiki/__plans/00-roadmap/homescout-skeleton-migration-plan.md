@@ -202,7 +202,7 @@ every acceptance criterion is verified green.
   - `cd frontend && npm run build`
   - `bash scripts/quality-gate.sh` → all green
 
-### Phase 3 — Backend layering (refactor; behaviour unchanged) — delivered, pending merge
+### Phase 3 — Backend layering (refactor; behaviour unchanged) ✅ done (PR #5)
 - **Steps:**
   - Add `HomeScoutCopilot.Functional` (FluentResults + ProblemDetails mappers).
   - Add `HomeScoutCopilot.Shared.Application` (DTOs/contracts).
@@ -230,7 +230,7 @@ every acceptance criterion is verified green.
   - The `Status.feature` BDD scenario passes; `ls allure-results` is non-empty.
   - `bash scripts/quality-gate.sh` → all green
 
-### Phase 4 — End-to-end + coverage broadening
+### Phase 4 — End-to-end + coverage broadening — delivered, pending merge
 - **Steps:**
   - Add Playwright to `frontend/` with a smoke e2e (load workspace, key regions
     visible) and add `e2e` to `frontend-ci.yml`.
