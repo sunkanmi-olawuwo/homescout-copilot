@@ -13,6 +13,13 @@
 - Updated [[Onboarding Article]] to reflect the current comparison workspace shell instead of a bare starting screen.
 - Updated [[Testing Strategy]] to record the successful full-solution and frontend builds.
 
+### Wired The Copilot Endpoint (Slice 4)
+
+- Copilot Slice 4: `POST /api/copilot/ask` → `IHomeScoutAgentGateway` → grounded `CopilotAnswer`. DI registers `FoundryAgentGateway` + `HomeScoutAgentTools` + `TokenCredential` (`DefaultAzureCredential`) **only when a Foundry endpoint is configured** (`Foundry:ProjectEndpoint` or the azd output `AZURE_FOUNDRY_PROJECT_ENDPOINT`); scoped to avoid a captive HttpClient.
+- Endpoint returns **503** when the copilot isn't configured and **400** on an empty message. Typed `HomeScoutApiClient.AskCopilotAsync`. Added `Azure.Identity` to `.API`.
+- Offline tests (no Azure): endpoint with a fake gateway via `ConfigureTestServices` → 200 + body; unconfigured → 503; empty message → 400. API.Test now 28 fast tests; quality gate green.
+- Seam-first status: fully offline-testable; the **real endpoint lights up once Foundry is provisioned** (`azd provision` sets `AZURE_FOUNDRY_*`) — live agent path still pending verification. React conversation surface is the next slice.
+
 ### Built The Foundry Agent Gateway (Slice 3)
 
 - Copilot Slice 3: `FoundryAgentGateway` (`.API.Service`) — the real adapter using the new **Microsoft Agent Framework** (`Microsoft.Agents.AI.Foundry` 1.5.0, Responses path): `new AIProjectClient(endpoint, credential).AsAIAgent(model, name, instructions, tools)`, handed the Slice-2 `AIFunction` tools; `AskAsync` runs the agent (framework runs the tool loop) and returns a grounded `CopilotAnswer` with the tool calls made. `FoundryOptions` binds the azd outputs; `TokenCredential` injected.

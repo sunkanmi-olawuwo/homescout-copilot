@@ -26,4 +26,13 @@ public sealed class HomeScoutApiClient(HttpClient httpClient)
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<MortgageEstimateResult>(cancellationToken);
     }
+
+    public async Task<CopilotAnswer?> AskCopilotAsync(
+        CopilotRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var response = await httpClient.PostAsJsonAsync("/api/copilot/ask", request, cancellationToken);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<CopilotAnswer>(cancellationToken);
+    }
 }
