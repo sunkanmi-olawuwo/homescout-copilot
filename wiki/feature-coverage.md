@@ -11,6 +11,7 @@ This page tracks feature inventory across scaffolded, implemented, planned, and 
 | Layered backend | Implemented | `.API`/`.API.Service`/`.API.Client`/`.Shared.Application`/`.Functional`. `/api/status` and `/api/comparison/sample` flow through `IHomeScoutService` (FluentResults) and map via `.ToHttpResult()`. HomeScout tools not yet implemented. |
 | Test suite (NUnit + Reqnroll BDD) | Implemented | Per-project NUnit tests; API contract + Aspire integration + Reqnroll/Allure BDD; Functional mapper and Shared contract unit tests. |
 | Frontend tests (Vitest + Playwright) | Implemented | Vitest + Testing Library component tests for the workspace shell/composer/evidence; Playwright chromium e2e smoke. Both in the CI quality gate. |
+| Base rate context provider | Implemented | `IBaseRateProvider` / `GET /api/mortgage/base-rate`: live Bank of England fetch (series `IUDBEDR`), ~1-day cache, resilient fallback (never throws). Orientation only, not a mortgage product rate. Unit + endpoint tests (no live network). |
 | Wiki structure | Implemented | Canonical docs under `wiki/`. |
 
 ## Scaffolded But Not Product-Ready

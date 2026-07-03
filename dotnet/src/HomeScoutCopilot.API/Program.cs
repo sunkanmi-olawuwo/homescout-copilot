@@ -9,6 +9,16 @@ builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi();
 builder.Services.AddScoped<IHomeScoutService, HomeScoutService>();
 
+builder.Services.AddMemoryCache();
+builder.Services.AddOptions<BaseRateOptions>()
+    .Bind(builder.Configuration.GetSection(BaseRateOptions.SectionName));
+builder.Services.AddHttpClient<IBaseRateProvider, BankOfEnglandBaseRateProvider>(client =>
+{
+    // A descriptive User-Agent; the BoE endpoint rejects requests without one.
+    client.DefaultRequestHeaders.UserAgent.ParseAdd(
+        "HomeScoutCopilot/1.0 (+https://github.com/sunkanmi-olawuwo/homescout-copilot)");
+});
+
 var app = builder.Build();
 
 app.UseExceptionHandler();
@@ -23,6 +33,11 @@ var api = app.MapGroup("/api");
 api.MapGet("/status", (IHomeScoutService service) => service.GetStatus().ToHttpResult());
 
 api.MapGet("/comparison/sample", (IHomeScoutService service) => service.GetComparisonSample().ToHttpResult());
+
+// Base rate is orienting context only (never a mortgage product rate); the provider
+// never throws, so this endpoint always returns 200 with a live/cache/fallback value.
+api.MapGet("/mortgage/base-rate", async (IBaseRateProvider baseRate, CancellationToken cancellationToken)
+    => Results.Ok(await baseRate.GetCurrentAsync(cancellationToken)));
 
 app.MapDefaultEndpoints();
 

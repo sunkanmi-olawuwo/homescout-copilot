@@ -13,6 +13,14 @@
 - Updated [[Onboarding Article]] to reflect the current comparison workspace shell instead of a bare starting screen.
 - Updated [[Testing Strategy]] to record the successful full-solution and frontend builds.
 
+### Implemented The Bank Of England Base-Rate Provider
+
+- Built the live base-rate provider (production-grade) ahead of the estimator: `IBaseRateProvider` in `.API.Service` with `BankOfEnglandBaseRateProvider` — fetches the official Bank Rate series (`IUDBEDR`) from the BoE Interactive Database CSV, caches ~1 day (`IMemoryCache`), and falls back to a configured last-known value; **never throws** (base rate is context-only).
+- Resilience via ServiceDefaults (`AddStandardResilienceHandler` on all HttpClients) + a descriptive User-Agent (the BoE endpoint 403s requests without one). Source URL/series/fallback are configurable (`BaseRateOptions`, `appsettings` `BaseRate` section).
+- Endpoint `GET /api/mortgage/base-rate` (always 200, provenance `Live`/`Cache`/`Fallback`); typed `HomeScoutApiClient.GetBaseRateAsync`; `BaseRate` DTO in `.Shared.Application` (documented as orientation only, not a product rate).
+- Tests (no live network): parser unit tests, live→cache, fallback-on-throw, fallback-on-non-success (via a stub `HttpMessageHandler`), and an endpoint contract test with the provider stubbed (`ConfigureTestServices`). `InternalsVisibleTo` for the parser. API.Test now 9 fast tests; quality gate green.
+- Verified the authoritative source (GOV.UK/BoE) before coding; live connectivity to be validated in a real environment. Updated design page, endpoint summary, component architecture, feature coverage.
+
 ### Designed The Mortgage Cost Estimator (MVP)
 
 - Researched the authoritative UK basis (GOV.UK MaPS Algorithmic Transparency Record, MoneyHelper, FCA MCOB 4, Bank of England) and wrote [Mortgage Cost Estimator — Design (MVP)](../wiki/__plans/03-backend/cost-estimator-mortgage-plan.md) under `03-backend`.
