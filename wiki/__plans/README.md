@@ -65,6 +65,7 @@ React frontend implementation plans and UI wiring guidance.
 
 API, service-layer, persistence, and backend integration plans.
 
+- [Copilot Agent Gateway — Design (Foundry Agent Service)](./03-backend/copilot-agent-gateway-plan.md)
 - [Mortgage Cost Estimator — Design (MVP)](./03-backend/cost-estimator-mortgage-plan.md)
 - [Backend Plans (overview)](./03-backend/README.md)
 

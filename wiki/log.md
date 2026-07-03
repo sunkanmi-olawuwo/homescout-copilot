@@ -13,6 +13,13 @@
 - Updated [[Onboarding Article]] to reflect the current comparison workspace shell instead of a bare starting screen.
 - Updated [[Testing Strategy]] to record the successful full-solution and frontend builds.
 
+### Designed The Copilot Agent Gateway (Foundry Agent Service)
+
+- Reframed the roadmap around the product being a **copilot**, not a form-driven frontend: the deterministic tools (mortgage estimator, base rate) are capabilities the agent *calls*; the frontend is a conversation surface.
+- Decisions: real Foundry Agent Service (`PersistentAgentsClient` + `DefaultAzureCredential`, function tool-calling); reproducible provisioning via **azd + bicep** (justifies `dotnet/infra/` now); companion repo inspiration-only (different framework); first slice = conversational cost answer.
+- Verified the current approach on Microsoft Learn (Foundry function-calling flow: create agent → thread → run → on requires-action execute our tool → submit outputs; azd `azd up` provisioning). `az`/`azd` confirmed installed locally.
+- Wrote [Copilot Agent Gateway — Design](../wiki/__plans/03-backend/copilot-agent-gateway-plan.md): request flow, tool definitions over the built services, agent instructions (prompt governance), azd/bicep provisioning + RBAC/managed identity, `POST /api/copilot/ask` + DTOs, and the verify-don't-assume strategy (offline fake gateway in the gate; live Foundry `[Category("External")]` test where creds exist — the sandbox can't provision/verify Azure). Sequenced into 4 implementation slices.
+
 ### Implemented The Mortgage Cost Estimator (MVP)
 
 - Built HomeScout's first real capability per the design: `IMortgageCostEstimator` (`.API.Service`) — pure, deterministic amortisation (repayment + interest-only, `i=0` edge, +3% stress, LTV), computed in decimal (no floating point). `MortgageEstimateRequest`/`MortgageEstimateResult` DTOs in `.Shared.Application`.
