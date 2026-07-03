@@ -20,8 +20,8 @@ This repository uses `wiki/` as the canonical development memory for HomeScout C
 - HomeScout Copilot is a homebuying due-diligence assistant, not a regulated mortgage adviser.
 - Avoid language that recommends a specific mortgage product or presents estimates as advice.
 - Prefer explainable comparisons, evidence trails, and clear caveats.
-- Keep the course-to-product mapping current in `wiki/plan/course-playlist-tracker.md`.
-- Before course-aligned implementation work, use `wiki/plan/release-monitoring.md` to check for new playlist videos and companion repo commits.
+- Keep the course-to-product mapping current in `wiki/__plans/00-roadmap/course/course-playlist-tracker.md`.
+- Before course-aligned implementation work, use `wiki/__plans/00-roadmap/release-monitoring.md` to check for new playlist videos and companion repo commits.
 
 ## Frontend Design Rules
 
@@ -37,7 +37,7 @@ This repository uses `wiki/` as the canonical development memory for HomeScout C
 
 ## Plan Divergence Workflow
 
-- Canonical plan files live under `wiki/plan/`.
+- Canonical plan files live under `wiki/__plans/`.
 - Do not recreate `docs/` compatibility paths unless explicitly requested.
-- When implementation differs from a plan, update the plan file and record the divergence in `wiki/plan/plan-divergence.md`.
+- When implementation differs from a plan, update the plan file and record the divergence in `wiki/__plans/00-roadmap/plan-divergence.md`.
 

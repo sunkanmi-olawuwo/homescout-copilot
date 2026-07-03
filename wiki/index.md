@@ -18,7 +18,8 @@ This wiki is the canonical development memory for HomeScout Copilot.
 
 ## Plan Pages
 
-- [[Plan Overview]] - How plans are organized and how course videos map into implementation work.
+- [[HomeScout Plans]] - How plans are organized (`wiki/__plans/`, numbered phase folders) and how course videos map into implementation work.
+- [[HomeScout Skeleton Migration]] - Master sequenced plan for restructuring HomeScout to the RagLab skeleton.
 - [[Product Brief]] - Product scope, MVP, target user, and success criteria.
 - [[Course Playlist Tracker]] - Per-video course-to-HomeScout mapping with companion code references.
 - [[GenAIOps Learning Path Integration]] - Maps Microsoft Learn GenAIOps modules into HomeScout build artifacts, evals, monitoring, and tracing.

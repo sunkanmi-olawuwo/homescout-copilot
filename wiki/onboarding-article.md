@@ -33,7 +33,7 @@ Start here:
 1. Read [[Overview]].
 2. Read [[Product Brief]].
 3. Check [[Course Playlist Tracker]] for the next video/course step.
-4. Read the matching note in `wiki/plan/video-notes/`.
+4. Read the matching note in `wiki/__plans/00-roadmap/course/video-notes/`.
 5. Implement the HomeScout translation, not just the tutorial code.
 6. Update [[Feature Coverage]], [[Endpoint Summary]], and [[Log]].
 

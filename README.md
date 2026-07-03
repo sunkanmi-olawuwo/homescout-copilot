@@ -11,10 +11,10 @@ The project wiki is the canonical development memory:
 - `wiki/index.md` - catalog of all wiki pages
 - `wiki/overview.md` - purpose, stack, architecture, and safety boundary
 - `wiki/onboarding-article.md` - narrative guide for returning to the project
-- `wiki/plan/course-playlist-tracker.md` - course-to-HomeScout implementation tracker
+- `wiki/__plans/00-roadmap/course/course-playlist-tracker.md` - course-to-HomeScout implementation tracker
 - `wiki/frontend-design-guidelines.md` - binding frontend design direction
 
-Plan files live under `wiki/plan/`, with `wiki/` as the only documentation home.
+Plan files live under `wiki/__plans/`, with `wiki/` as the only documentation home.
 
 ## Product Direction
 

@@ -28,8 +28,8 @@ Then compare the output with [[Course Playlist Tracker]].
 
 If a new video exists:
 
-1. Add it to `wiki/plan/course-playlist-tracker.md`.
-2. Create a new note under `wiki/plan/video-notes/` using kebab-case naming.
+1. Add it to `wiki/__plans/00-roadmap/course/course-playlist-tracker.md`.
+2. Create a new note under `wiki/__plans/00-roadmap/course/video-notes/` using kebab-case naming.
 3. Add it to [[Video Implementation Roadmap]].
 4. Add an entry to [[Log]].
 5. Commit the wiki update before implementation if it materially changes the plan.
@@ -59,7 +59,7 @@ If new commits exist:
 2. Pull the reference clone with `git -C "$COMPANION_REPO" pull --ff-only`.
 3. Update [[Course Playlist Tracker]] with the latest companion repo state.
 4. Update [[Video Implementation Roadmap]] if new commits clarify or change the mapping.
-5. Update the relevant note under `wiki/plan/video-notes/`.
+5. Update the relevant note under `wiki/__plans/00-roadmap/course/video-notes/`.
 6. If HomeScout should intentionally differ from the companion code, record it in [[Plan Divergence]].
 7. Add an entry to [[Log]].
 

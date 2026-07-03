@@ -13,6 +13,17 @@
 - Updated [[Onboarding Article]] to reflect the current comparison workspace shell instead of a bare starting screen.
 - Updated [[Testing Strategy]] to record the successful full-solution and frontend builds.
 
+### RagLab Skeleton Migration — Phase 0 (Plan Foundation)
+
+- Decided to restructure HomeScout to mirror the RagLab (`HBK.Insights.Raglab`) skeleton; authored the master sequenced migration plan as the source of truth (`wiki/__plans/00-roadmap/homescout-skeleton-migration-plan.md`).
+- Locked decisions: full clone incl. backend layering, frontend stays at repo root, FluentResults for the `.Functional` layer.
+- Stood up `wiki/__plans/` with numbered phase folders (`00-roadmap … 04-testing`) and a `00-roadmap/course/` group for the playlist tracker and video notes.
+- Migrated all existing `wiki/plan/` pages into the new structure with `git mv` (history preserved); added placeholder READMEs for the empty phase folders.
+- Rewrote `wiki/__plans/README.md` as the full index plus a "Detecting Plan Drift" section.
+- Rewired every explicit `wiki/plan/` path reference in `AGENTS.md`, root `README.md`, `wiki/index.md`, and moved plan files to the new locations; historical `wiki/log.md` entries left intact.
+- Verified: all 25 README relative links resolve; no active reference to the old `wiki/plan/` path remains.
+- Delivered on branch `migration/phase-0-plan-foundation` via PR (per-phase branch → PR → merge workflow).
+
 ## 2026-07-02
 
 ### Repository Created

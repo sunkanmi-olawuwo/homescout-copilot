@@ -13,7 +13,7 @@ For day-to-day sequencing across videos, Microsoft Learn modules, design work, t
 For each video:
 
 1. Watch the video.
-2. Read the matching note in `wiki/plan/video-notes/`.
+2. Read the matching note in `wiki/__plans/00-roadmap/course/video-notes/`.
 3. Inspect the listed companion files and commits.
 4. Implement the HomeScout translation.
 5. Update relevant wiki pages.
