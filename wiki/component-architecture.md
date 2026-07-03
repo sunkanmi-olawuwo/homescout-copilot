@@ -88,8 +88,11 @@ Split into layered projects (RagLab parity):
 - `HomeScoutCopilot.API` — minimal-API host. Thin endpoints that resolve
   `IHomeScoutService` and map its `Result<T>` to HTTP via `.ToHttpResult()`. Owns
   OpenAPI, ProblemDetails, static file serving, and Aspire service defaults.
-- `HomeScoutCopilot.API.Service` — application layer. Hosts `IMortgageCostEstimator`
-  (pure, deterministic amortisation) and `IHomeScoutService`, which returns
+- `HomeScoutCopilot.API.Service` — application layer. Hosts the copilot boundary
+  `IHomeScoutAgentGateway` and `HomeScoutAgentTools` (the estimator + base rate exposed
+  as `Microsoft.Extensions.AI` `AIFunction`s for the Foundry agent to call),
+  `IMortgageCostEstimator` (pure, deterministic amortisation), and `IHomeScoutService`,
+  which returns
   FluentResults; future agent-gateway and tool orchestration land behind this
   interface. Also hosts `IBaseRateProvider` (`BankOfEnglandBaseRateProvider`: live
   BoE base-rate fetch with ~1-day cache and a resilient fallback that never throws).
