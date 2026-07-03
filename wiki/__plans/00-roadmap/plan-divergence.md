@@ -9,6 +9,35 @@ Use this page whenever implementation differs from:
 
 ## Entries
 
+### 2026-07-03: Basic Foundry Agent Setup (Not RagLab's Standard) For The First Slice
+
+RagLab / reference expectation:
+
+- RagLab uses the **Standard** Foundry agent setup: bring-your-own Azure Cosmos DB
+  (thread storage) + Azure Storage + Azure AI Search, wired through account and project
+  capability hosts.
+
+HomeScout direction (for now):
+
+- The first conversational cost-answer slice uses the **Basic** agent setup —
+  Microsoft-managed thread/file/vector storage; no capability host, no Cosmos.
+
+Reason:
+
+- Verified against Microsoft docs (capability hosts / standard agent setup) that there
+  is **no Cosmos-only** option — the project capability host requires Cosmos **and**
+  AI Search **and** Storage together, or none (all Microsoft-managed). The cost-answer
+  slice needs none of tenant-owned threads, RAG, or file uploads yet, so Basic ships it
+  with minimal infra and cost.
+
+Impact:
+
+- Threads are stored in Microsoft's managed store, not our tenant, until we upgrade.
+- **Upgrade to Standard** (Cosmos ≥3000 RU/s + Storage + AI Search + Key Vault + two
+  capability hosts + RBAC) as a dedicated step before data residency / server-side
+  thread persistence / RAG matter, grounded in `foundry-samples/43-standard-agent-setup`
+  + RagLab. Document Intelligence is separate (RAG) and deferred independently.
+
 ### 2026-07-02: Aspire Starter Instead Of Exact Companion Repo Shape
 
 Course/plan expectation:

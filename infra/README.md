@@ -32,3 +32,7 @@ A later slice reads them as `FoundryOptions`.
   mitigation for the "provisioning state is not terminal" conflict.
 - **RBAC:** the deployer gets the **Foundry User** role for local-dev agent access; the
   app's managed-identity assignment is added when the API is deployed as a service.
+- **Basic vs Standard:** this is the **Basic** setup — threads use Microsoft-managed
+  storage. There is no Cosmos-only option; tenant-owned threads require the full
+  **Standard** setup (Cosmos + Storage + AI Search + Key Vault + capability hosts + RBAC),
+  added as a dedicated step later. See the backend plan and Plan Divergence.

@@ -97,10 +97,17 @@ Resources for the cost-answer slice (informed by RagLab's bicep):
 - **RBAC** — the API's managed identity gets the Foundry user/developer role on the
   account; a deployer assignment covers local dev.
 
-Deferred (added with their phases, as RagLab has them): **Cosmos DB** (agent thread
-storage) when we add server-side conversation persistence; **Azure AI Search +
-Document Intelligence + Storage** when RAG / document upload land. The cost-answer slice
-needs none of these.
+**Agent setup: Basic for Slice 1** (decided after checking the docs). Threads use the
+**Microsoft-managed** store — no capability host, no Cosmos. Verified there is **no
+Cosmos-only** option: the project capability host *requires* Cosmos **+** AI Search **+**
+Storage together (only your-own-Azure-OpenAI is optional) — or none, in which case all
+three are Microsoft-managed. So tenant-owned threads means the **full Standard setup**:
+Cosmos (≥3000 RU/s) + Storage + AI Search + Key Vault + account & project capability
+hosts + RBAC. That is added as a **dedicated step** before data-residency / server-side
+thread persistence / RAG matter — not piecemeal. Document Intelligence remains separate
+(RAG ingestion). This is a documented divergence from RagLab (which uses Standard); see
+[[Plan Divergence]]. Sources: [capability hosts](https://learn.microsoft.com/en-us/azure/foundry/agents/concepts/capability-hosts),
+[standard agent setup](https://learn.microsoft.com/en-us/azure/foundry/agents/concepts/standard-agent-setup).
 
 - `azure.yaml` + `azd up` provision + deploy reproducibly; each environment has its own
   `.env`. Reference `Azure-Samples/azd-ai-starter-basic` + the azd AI agent extension.
