@@ -21,6 +21,9 @@
          The Microsoft Agent Framework builds on these; the Foundry agent (Slice 3) is
          handed the same tools. -->
     <PackageReference Include="Microsoft.Extensions.AI" Version="10.7.0" />
+    <!-- The new Foundry agent SDK (Microsoft Agent Framework). Brings Microsoft.Agents.AI
+         + Azure.AI.Projects transitively. Not the classic PersistentAgentsClient. -->
+    <PackageReference Include="Microsoft.Agents.AI.Foundry" Version="1.5.0" />
   </ItemGroup>
 
   <ItemGroup>
