@@ -19,7 +19,7 @@
 - Converted `HomeScoutCopilot.sln` → `dotnet/HomeScoutCopilot.slnx` with `/src` and `/tests` solution folders.
 - Fixed the only broken references: Tests project refs (`..\..\src\...`), AppHost's Vite path (`../frontend` → `../../../frontend`), and `aspire.config.json` appHost path.
 - Updated `backend-ci.yml` to the `.slnx`; `quality-gate.sh` auto-detects it; `check-plan-drift.sh` scans repo-wide so needed no path change.
-- Added `dotnet/poc/`, `dotnet/infra/`, and `scripts/byo/` scaffolding READMEs (companion-repo vendoring still an open decision).
+- Deliberately did **not** mirror RagLab's `dotnet/poc/`, `dotnet/infra/`, or `scripts/byo/` as empty scaffolding; recorded in the plan that infra/byo arrive with Azure deployment (Phase 7) and poc only if we spike experiments. Companion repo stays an external reference.
 - Updated root `README.md` and [[Component Architecture]] to the `dotnet/` layout.
 - Verified: `dotnet build`/`dotnet test dotnet/HomeScoutCopilot.slnx` green (3/3, incl. the Aspire integration test which launched Vite from the new path); `scripts/quality-gate.sh` PASS.
 - Delivered on branch `migration/phase-2-relocation`.

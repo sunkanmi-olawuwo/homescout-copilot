@@ -49,7 +49,6 @@ For each video:
 - `dotnet/src/HomeScoutCopilot.ServiceDefaults`: Aspire service defaults.
 - `dotnet/src/HomeScoutCopilot.ApiService`: API/service layer for HomeScout data tools.
 - `dotnet/tests/HomeScoutCopilot.Tests`: NUnit test project (contract + Aspire integration).
-- `dotnet/poc/`, `dotnet/infra/`: proof-of-concept and infrastructure scaffolding.
 - `frontend`: React/Vite frontend (at the repo root).
 
 Build and test: `dotnet test dotnet/HomeScoutCopilot.slnx`. Run all quality-gate
