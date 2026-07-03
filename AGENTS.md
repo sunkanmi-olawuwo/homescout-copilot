@@ -12,6 +12,26 @@ domain/application failures use **FluentResults**, not exceptions. `wiki/` is th
 canonical development memory; `CLAUDE.md` is a symlink to this file so Claude,
 Codex, Copilot, and other agents follow the same rules.
 
+## Engineering Standards
+
+HomeScout is built as production-grade software, to Microsoft's standards — not
+tutorial or throwaway code.
+
+- **Production-grade by default.** Correct error handling, tests, observability,
+  security, and maintainability are part of every change, not afterthoughts. No dead
+  code, no "temporary" hacks on `main`, no tutorial scaffolding shipped as product.
+- **Follow Microsoft's official guidance for the stack:**
+  - .NET Framework Design Guidelines and the C#/.NET coding conventions.
+  - ASP.NET Core / minimal APIs, .NET Aspire, and Microsoft Foundry Agent Service
+    guidance and samples.
+  - Azure Well-Architected Framework (reliability, security, cost optimization,
+    operational excellence, performance efficiency) for cloud and deployment work.
+  - Microsoft Entra identity with managed identity and least-privilege access.
+- **Use the current, documented, non-deprecated API surface.** Verify against
+  Microsoft Learn at implementation time rather than relying on memory; pin package
+  versions deliberately.
+- **Security, accessibility, and observability are first-class**, not optional extras.
+
 ## Plan Sync Protocol
 
 The plans and the code must not drift apart. Whenever you implement, change, or

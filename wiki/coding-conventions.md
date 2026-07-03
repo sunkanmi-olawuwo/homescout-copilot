@@ -1,5 +1,16 @@
 # Coding Conventions
 
+## Engineering Standards
+
+HomeScout is production-grade software built to Microsoft's standards, not tutorial
+or throwaway code. Follow Microsoft's official guidance for the stack — the .NET
+Framework Design Guidelines and C#/.NET coding conventions, ASP.NET Core / Aspire /
+Microsoft Foundry Agent Service guidance, and the Azure Well-Architected Framework —
+and prefer the current, documented, non-deprecated API surface (verify on Microsoft
+Learn at implementation time). Correctness, tests, security, accessibility, and
+observability are part of every change, not afterthoughts. See `AGENTS.md` >
+"Engineering Standards" for the binding rule.
+
 ## General
 
 - Prefer clear, product-specific names over tutorial names.
