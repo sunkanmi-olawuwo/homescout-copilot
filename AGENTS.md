@@ -31,6 +31,14 @@ tutorial or throwaway code.
   Microsoft Learn at implementation time rather than relying on memory; pin package
   versions deliberately.
 - **Security, accessibility, and observability are first-class**, not optional extras.
+- **Verify, don't assume — especially external dependencies.** Never ship an
+  integration you have not seen succeed; a "live" call nobody has watched work is
+  just a hidden fallback. Prove it end-to-end with a live test, keep that test out
+  of the blocking gate (a third-party outage must not block merges — tag it
+  `[Category("External")]` and run it on a schedule), degrade gracefully on failure,
+  and make production report which path served the value (e.g. `Live`/`Cache`/
+  `Fallback` provenance + a log on fallback). The bar is: *we know it works, and
+  we'll know the moment it stops* — not *we hope it works*.
 
 ## Plan Sync Protocol
 

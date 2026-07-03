@@ -13,6 +13,10 @@
 - Updated [[Onboarding Article]] to reflect the current comparison workspace shell instead of a bare starting screen.
 - Updated [[Testing Strategy]] to record the successful full-solution and frontend builds.
 
+### Made "Verify, Don't Assume" A Binding Instruction
+
+- Added the external-dependency verification principle to `AGENTS.md` > Engineering Standards: prove integrations end-to-end with a live test, keep it out of the blocking gate (`[Category("External")]` + scheduled run), degrade gracefully, and make prod report the served path. Bar: "we know it works, and we'll know the moment it stops" — not "we hope it works".
+
 ### Verified The Live Base-Rate Fetch (Not Just The Fallback)
 
 - Point taken: don't ship a live integration we've never seen succeed. The earlier 403 was WebFetch's restricted fetcher, not reality — a real HTTP client with a browser User-Agent gets `HTTP 200` + CSV from the BoE endpoint (confirmed via `curl`, including the exact URL format the code builds).
