@@ -13,6 +13,12 @@
 - Updated [[Onboarding Article]] to reflect the current comparison workspace shell instead of a bare starting screen.
 - Updated [[Testing Strategy]] to record the successful full-solution and frontend builds.
 
+### Confirmed Basic Agent Setup After Cosmos Docs Check
+
+- Checked whether Foundry agents need Cosmos (they do for BYO/Standard). Verified via Microsoft docs (capability hosts + standard agent setup) that there is **no Cosmos-only** path: the project capability host requires Cosmos **+** AI Search **+** Storage together (only your-own-Azure-OpenAI optional), or none (all Microsoft-managed).
+- Decision: keep **Basic** setup for the cost-answer slice (Microsoft-managed threads; the bicep I authored is unchanged). Upgrade to full **Standard** (Cosmos ≥3000 RU/s + Storage + AI Search + Key Vault + 2 capability hosts + RBAC) as a dedicated step before data residency / server-side threads / RAG matter.
+- Recorded the finding + upgrade path in the design plan and as a [[Plan Divergence]] entry (Basic vs RagLab's Standard, with rationale). No code change.
+
 ### Authored Foundry Provisioning (Slice 1, azd + bicep)
 
 - Copilot Slice 1: reproducible provisioning. `azure.yaml` + `infra/` bicep (`main.bicep` subscription-scope → `modules/foundry-account.bicep` + `modules/foundry-project.bicep`): Foundry account (`Microsoft.CognitiveServices/accounts`, AIServices, S0, custom subdomain, system-assigned identity) → chat model deployment (`gpt-4.1-mini`, Standard quota) → Foundry project (separate module after the account settles) → RBAC (deployer gets **Foundry User** `53ca6127-…` for local-dev agent data-plane access). Grounded in RagLab's bicep; deferred Cosmos/AI Search/Document Intelligence.
