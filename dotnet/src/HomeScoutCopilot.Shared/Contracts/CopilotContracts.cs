@@ -1,4 +1,4 @@
-namespace HomeScoutCopilot.Shared.Application.Contracts;
+namespace HomeScoutCopilot.Shared.Contracts;
 
 /// <summary>A natural-language question for the HomeScout copilot.</summary>
 public record CopilotRequest(string Message);

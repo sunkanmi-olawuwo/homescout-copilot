@@ -10,11 +10,13 @@
     <ProjectReference Include="..\HomeScoutCopilot.ServiceDefaults\HomeScoutCopilot.ServiceDefaults.csproj" />
     <ProjectReference Include="..\HomeScoutCopilot.API.Service\HomeScoutCopilot.API.Service.csproj" />
     <ProjectReference Include="..\HomeScoutCopilot.Functional\HomeScoutCopilot.Functional.csproj" />
-    <ProjectReference Include="..\HomeScoutCopilot.Shared.Application\HomeScoutCopilot.Shared.Application.csproj" />
+    <ProjectReference Include="..\HomeScoutCopilot.Shared\HomeScoutCopilot.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.21.0" />
+    <PackageReference Include="Carter" Version="10.0.0" />
+    <PackageReference Include="MediatR" Version="12.5.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.8" />
     <PackageReference Include="Microsoft.OpenApi" Version="2.9.0" />
   </ItemGroup>

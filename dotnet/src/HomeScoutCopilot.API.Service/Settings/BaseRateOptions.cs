@@ -1,3 +1,5 @@
+using FluentValidation;
+
 namespace HomeScoutCopilot.API.Service;
 
 /// <summary>
@@ -5,9 +7,9 @@ namespace HomeScoutCopilot.API.Service;
 /// series code are configurable so the authoritative endpoint can be tuned without a
 /// code change; the fallback is the last-known value shown when the source is unreachable.
 /// </summary>
-public sealed class BaseRateOptions
+public sealed class BaseRateOptions : IValidatedOptions<BaseRateOptions>
 {
-    public const string SectionName = "BaseRate";
+    public static string SectionName => "BaseRate";
 
     /// <summary>
     /// Bank of England Interactive Database CSV endpoint. Format args: {0} = date-from,
@@ -30,4 +32,17 @@ public sealed class BaseRateOptions
     public decimal FallbackRatePercent { get; set; } = 3.75m;
 
     public DateOnly FallbackEffectiveDate { get; set; } = new(2026, 6, 19);
+
+    public IValidator<BaseRateOptions> GetValidator() => new Validator();
+
+    private sealed class Validator : AbstractValidator<BaseRateOptions>
+    {
+        public Validator()
+        {
+            RuleFor(x => x.EndpointFormat).NotEmpty();
+            RuleFor(x => x.SeriesCode).NotEmpty();
+            RuleFor(x => x.LookbackDays).GreaterThan(0);
+            RuleFor(x => x.FallbackRatePercent).InclusiveBetween(0m, 25m);
+        }
+    }
 }

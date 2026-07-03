@@ -1,7 +1,7 @@
 using System.Text.Json;
-using HomeScoutCopilot.Shared.Application.Contracts;
+using HomeScoutCopilot.Shared.Contracts;
 
-namespace HomeScoutCopilot.Shared.Application.Test;
+namespace HomeScoutCopilot.Shared.Test;
 
 // Locks the wire contract: DTOs must serialize to the camelCase property names the
 // React frontend and the typed API client depend on.

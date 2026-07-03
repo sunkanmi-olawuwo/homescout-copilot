@@ -8,7 +8,7 @@ This page tracks feature inventory across scaffolded, implemented, planned, and 
 | --- | --- | --- |
 | Aspire solution scaffold | Implemented | Created from `aspire-starter`. |
 | React frontend project | Implemented | Vite React project with initial HomeScout comparison workspace shell. |
-| Layered backend | Implemented | `.API`/`.API.Service`/`.API.Client`/`.Shared.Application`/`.Functional`. `/api/status` and `/api/comparison/sample` flow through `IHomeScoutService` (FluentResults) and map via `.ToHttpResult()`. HomeScout tools not yet implemented. |
+| Layered backend | Implemented | `.API`/`.API.Service`/`.API.Client`/`.Shared`/`.Functional`. `/api/status` and `/api/comparison/sample` flow through `IHomeScoutService` (FluentResults) and map via `.ToHttpResult()`. HomeScout tools not yet implemented. |
 | Test suite (NUnit + Reqnroll BDD) | Implemented | Per-project NUnit tests; API contract + Aspire integration + Reqnroll/Allure BDD; Functional mapper and Shared contract unit tests. |
 | Frontend tests (Vitest + Playwright) | Implemented | Vitest + Testing Library component tests for the workspace shell/composer/evidence; Playwright chromium e2e smoke. Both in the CI quality gate. |
 | Foundry provisioning (azd + bicep) | Authored | `azure.yaml` + `infra/` bicep: Foundry account (AIServices) → chat model deployment → project → RBAC (Foundry User). Compiles (`az bicep build`, `infra-ci.yml`); not yet `azd up`-verified. Cosmos/Search/DocIntelligence deferred. |

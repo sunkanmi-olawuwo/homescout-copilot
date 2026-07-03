@@ -50,9 +50,9 @@ For each video:
 - `dotnet/src/HomeScoutCopilot.API`: minimal-API host (thin endpoints).
 - `dotnet/src/HomeScoutCopilot.API.Service`: application layer (returns FluentResults).
 - `dotnet/src/HomeScoutCopilot.API.Client`: typed HTTP client over the API.
-- `dotnet/src/HomeScoutCopilot.Shared.Application`: DTOs / wire contracts.
+- `dotnet/src/HomeScoutCopilot.Shared`: DTOs / wire contracts.
 - `dotnet/src/HomeScoutCopilot.Functional`: FluentResults → ProblemDetails mappers.
-- `dotnet/tests/*`: NUnit test projects (API contract + Aspire integration + Reqnroll BDD, plus Functional and Shared.Application unit tests).
+- `dotnet/tests/*`: NUnit test projects (API contract + Aspire integration + Reqnroll BDD, plus Functional and Shared unit tests).
 - `frontend`: React/Vite frontend (at the repo root; uses **pnpm**).
 
 Build and test: `dotnet test dotnet/HomeScoutCopilot.slnx`. Run all quality-gate

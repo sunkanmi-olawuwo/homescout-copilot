@@ -4,13 +4,13 @@
     <Project Path="src/HomeScoutCopilot.API/HomeScoutCopilot.API.csproj" />
     <Project Path="src/HomeScoutCopilot.API.Service/HomeScoutCopilot.API.Service.csproj" />
     <Project Path="src/HomeScoutCopilot.API.Client/HomeScoutCopilot.API.Client.csproj" />
-    <Project Path="src/HomeScoutCopilot.Shared.Application/HomeScoutCopilot.Shared.Application.csproj" />
+    <Project Path="src/HomeScoutCopilot.Shared/HomeScoutCopilot.Shared.csproj" />
     <Project Path="src/HomeScoutCopilot.Functional/HomeScoutCopilot.Functional.csproj" />
     <Project Path="src/HomeScoutCopilot.ServiceDefaults/HomeScoutCopilot.ServiceDefaults.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/HomeScoutCopilot.API.Test/HomeScoutCopilot.API.Test.csproj" />
-    <Project Path="tests/HomeScoutCopilot.Shared.Application.Test/HomeScoutCopilot.Shared.Application.Test.csproj" />
+    <Project Path="tests/HomeScoutCopilot.Shared.Test/HomeScoutCopilot.Shared.Test.csproj" />
     <Project Path="tests/HomeScoutCopilot.Functional.Test/HomeScoutCopilot.Functional.Test.csproj" />
   </Folder>
 </Solution>

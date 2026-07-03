@@ -1,5 +1,5 @@
 using HomeScoutCopilot.API.Test.Drivers;
-using HomeScoutCopilot.Shared.Application.Contracts;
+using HomeScoutCopilot.Shared.Contracts;
 using Reqnroll;
 
 namespace HomeScoutCopilot.API.Test.StepDefinitions;

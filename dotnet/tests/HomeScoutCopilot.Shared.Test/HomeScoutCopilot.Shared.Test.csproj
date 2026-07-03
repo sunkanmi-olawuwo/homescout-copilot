@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\HomeScoutCopilot.Shared.Application\HomeScoutCopilot.Shared.Application.csproj" />
+    <ProjectReference Include="..\..\src\HomeScoutCopilot.Shared\HomeScoutCopilot.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>
