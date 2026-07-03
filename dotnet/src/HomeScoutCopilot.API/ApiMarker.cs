@@ -1,4 +1,4 @@
-namespace HomeScoutCopilot.ApiService;
+namespace HomeScoutCopilot.API;
 
 /// <summary>
 /// Public marker type in the API assembly. Used by the test project as the

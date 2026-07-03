@@ -6,16 +6,35 @@
 dotnet/
   HomeScoutCopilot.slnx
   src/
-    HomeScoutCopilot.AppHost
-    HomeScoutCopilot.ServiceDefaults
-    HomeScoutCopilot.ApiService
+    HomeScoutCopilot.AppHost            (Aspire orchestration)
+    HomeScoutCopilot.ServiceDefaults    (shared Aspire defaults)
+    HomeScoutCopilot.API                (minimal-API host + endpoints)
+    HomeScoutCopilot.API.Service        (application layer; returns FluentResults)
+    HomeScoutCopilot.API.Client         (typed HTTP client over the API)
+    HomeScoutCopilot.Shared.Application (DTOs / wire contracts)
+    HomeScoutCopilot.Functional         (FluentResults -> ProblemDetails mappers)
   tests/
-    HomeScoutCopilot.Tests
+    HomeScoutCopilot.API.Test           (NUnit contract + Aspire integration + Reqnroll BDD)
+    HomeScoutCopilot.Shared.Application.Test
+    HomeScoutCopilot.Functional.Test
 frontend/         (React/Vite, at repo root)
 ```
 
 .NET projects live under `dotnet/` (RagLab skeleton parity); the React frontend
-stays at the repo root. The `AppHost` references the frontend at `../../../frontend`.
+stays at the repo root. The `AppHost` references the frontend at `../../../frontend`
+and the API resource is still named `apiservice` (so the Vite proxy env is stable).
+
+### Request flow
+
+```text
+React (frontend)  ->  HomeScoutCopilot.API (endpoints)
+                        -> HomeScoutCopilot.API.Service (IHomeScoutService, returns Result<T>)
+                        -> HomeScoutCopilot.Functional (Result -> IResult / ProblemDetails)
+Shared DTOs (HomeScoutCopilot.Shared.Application) are used by API, API.Client, and tests.
+```
+
+Endpoints stay thin: they call `IHomeScoutService` and map the `Result<T>` to HTTP
+via `.ToHttpResult()`. Expected failures become ProblemDetails, not exceptions.
 
 ## AppHost
 
@@ -62,11 +81,23 @@ Current state:
 
 Frontend work must follow [[Frontend Design Guidelines]].
 
-## ApiService
+## API and application layer
 
-Project: `HomeScoutCopilot.ApiService`
+Split into layered projects (RagLab parity):
 
-Responsibilities:
+- `HomeScoutCopilot.API` — minimal-API host. Thin endpoints that resolve
+  `IHomeScoutService` and map its `Result<T>` to HTTP via `.ToHttpResult()`. Owns
+  OpenAPI, ProblemDetails, static file serving, and Aspire service defaults.
+- `HomeScoutCopilot.API.Service` — application layer. `IHomeScoutService` returns
+  FluentResults; future agent-gateway and tool orchestration land behind this
+  interface.
+- `HomeScoutCopilot.API.Client` — typed HTTP client (`HomeScoutApiClient`) over the
+  API, consumed by server-to-server callers and the API test project's BDD driver.
+- `HomeScoutCopilot.Shared.Application` — DTOs / wire contracts shared by API,
+  client, and tests.
+- `HomeScoutCopilot.Functional` — FluentResults → `IResult`/ProblemDetails mappers.
+
+Responsibilities of the API/service layer:
 
 - API routes.
 - HomeScout data tools.

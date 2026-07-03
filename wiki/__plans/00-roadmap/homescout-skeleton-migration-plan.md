@@ -182,7 +182,7 @@ every acceptance criterion is verified green.
   - `bash scripts/quality-gate.sh` → all green
   - First PR shows the three required checks passing in GitHub Actions.
 
-### Phase 2 — Directory relocation (mechanical; gate stays green) — delivered, pending merge
+### Phase 2 — Directory relocation (mechanical; gate stays green) ✅ done (PR #4)
 - **Steps:**
   - Create `dotnet/`; move `HomeScoutCopilot.AppHost`, `.ServiceDefaults`,
     `.ApiService`, and the test project under `dotnet/src` and `dotnet/tests`
@@ -202,7 +202,7 @@ every acceptance criterion is verified green.
   - `cd frontend && npm run build`
   - `bash scripts/quality-gate.sh` → all green
 
-### Phase 3 — Backend layering (refactor; behaviour unchanged)
+### Phase 3 — Backend layering (refactor; behaviour unchanged) — delivered, pending merge
 - **Steps:**
   - Add `HomeScoutCopilot.Functional` (FluentResults + ProblemDetails mappers).
   - Add `HomeScoutCopilot.Shared.Application` (DTOs/contracts).

@@ -8,8 +8,8 @@ This page tracks feature inventory across scaffolded, implemented, planned, and 
 | --- | --- | --- |
 | Aspire solution scaffold | Implemented | Created from `aspire-starter`. |
 | React frontend project | Implemented | Vite React project with initial HomeScout comparison workspace shell. |
-| API service project | Implemented | API service exposes `/api/status` and `/api/comparison/sample`; HomeScout tools not yet implemented. |
-| Test project | Implemented | Starter xUnit integration test project. |
+| Layered backend | Implemented | `.API`/`.API.Service`/`.API.Client`/`.Shared.Application`/`.Functional`. `/api/status` and `/api/comparison/sample` flow through `IHomeScoutService` (FluentResults) and map via `.ToHttpResult()`. HomeScout tools not yet implemented. |
+| Test suite (NUnit + Reqnroll BDD) | Implemented | Per-project NUnit tests; API contract + Aspire integration + Reqnroll/Allure BDD; Functional mapper and Shared contract unit tests. |
 | Wiki structure | Implemented | Canonical docs under `wiki/`. |
 
 ## Scaffolded But Not Product-Ready

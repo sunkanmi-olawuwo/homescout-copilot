@@ -17,11 +17,19 @@
     <PackageReference Include="NUnit" Version="4.6.1" />
     <PackageReference Include="NUnit3TestAdapter" Version="6.2.0" />
     <PackageReference Include="NUnit.Analyzers" Version="4.13.0" />
+    <PackageReference Include="Reqnroll.NUnit" Version="3.3.4" />
+    <PackageReference Include="Allure.Reqnroll" Version="2.15.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="allureConfig.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\HomeScoutCopilot.AppHost\HomeScoutCopilot.AppHost.csproj" />
-    <ProjectReference Include="..\..\src\HomeScoutCopilot.ApiService\HomeScoutCopilot.ApiService.csproj" />
+    <ProjectReference Include="..\..\src\HomeScoutCopilot.API\HomeScoutCopilot.API.csproj" />
+    <ProjectReference Include="..\..\src\HomeScoutCopilot.API.Client\HomeScoutCopilot.API.Client.csproj" />
+    <ProjectReference Include="..\..\src\HomeScoutCopilot.Shared.Application\HomeScoutCopilot.Shared.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>

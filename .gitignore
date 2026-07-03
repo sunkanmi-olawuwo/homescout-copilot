@@ -12,3 +12,8 @@ TestResults/
 appsettings.Local.json
 *.ncrunch*
 
+# Reqnroll generates .feature.cs from .feature on build
+*.feature.cs
+
+# Allure results are produced under bin/ during test runs
+allure-results/
