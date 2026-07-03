@@ -6,8 +6,8 @@ against a living plan in [`wiki/__plans/`](wiki/__plans/). The master sequence i
 the source of truth:
 [`wiki/__plans/00-roadmap/homescout-skeleton-migration-plan.md`](wiki/__plans/00-roadmap/homescout-skeleton-migration-plan.md).
 
-Backend: .NET Aspire (AppHost + ServiceDefaults + API). Frontend: React + Vite at
-`frontend/`. Target agent platform: **Microsoft Foundry Agent Service**. Expected
+Backend: .NET Aspire (AppHost + ServiceDefaults + API). Frontend: React + Vite +
+**pnpm** at `frontend/`. Target agent platform: **Microsoft Foundry Agent Service**. Expected
 domain/application failures use **FluentResults**, not exceptions. `wiki/` is the
 canonical development memory; `CLAUDE.md` is a symlink to this file so Claude,
 Codex, Copilot, and other agents follow the same rules.

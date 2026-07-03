@@ -5,6 +5,7 @@ var apiService = builder.AddProject<Projects.HomeScoutCopilot_API>("apiservice")
     .WithExternalHttpEndpoints();
 
 var webfrontend = builder.AddViteApp("webfrontend", "../../../frontend")
+    .WithPnpm()
     .WithReference(apiService)
     .WaitFor(apiService);
 

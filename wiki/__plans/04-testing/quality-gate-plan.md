@@ -12,8 +12,8 @@ any project moved — so every later phase runs inside a green gate. It is
 | --- | --- | --- | --- |
 | Plan drift | `scripts/check-plan-drift.sh` | `plan-drift.yml` | Phase 1 |
 | Backend build + fast tests (NUnit; incl. BDD from Phase 3) | `dotnet test --filter "Category!=Integration"` | `backend-ci.yml` | Phase 1 |
-| Frontend build + lint + unit test | `npm run build && npm run lint && npm run test` | `frontend-ci.yml` | Phase 1 |
-| Frontend e2e smoke | `npm run e2e` | `frontend-ci.yml` | Phase 4 |
+| Frontend build + lint + unit test | `pnpm run build && pnpm run lint && pnpm run test` | `frontend-ci.yml` | Phase 1 |
+| Frontend e2e smoke | `pnpm run e2e` | `frontend-ci.yml` | Phase 4 |
 | Backend integration (Aspire) | `dotnet test --filter "Category=Integration"` | (deferred) | Phase 4 |
 
 Run everything locally at once with `scripts/quality-gate.sh` — it produces the
