@@ -1,0 +1,23 @@
+name: infra-ci
+
+# Validates the bicep compiles (offline, no Azure creds) on any change to infra.
+# Not a required gate check (it only runs on infra changes); actual provisioning is
+# verified by running `azd up`.
+
+on:
+  push:
+    branches: [main]
+    paths: ['infra/**', 'azure.yaml', '.github/workflows/infra-ci.yml']
+  pull_request:
+    paths: ['infra/**', 'azure.yaml', '.github/workflows/infra-ci.yml']
+
+jobs:
+  bicep-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile bicep
+        run: |
+          az bicep install
+          az bicep build --file infra/main.bicep --stdout > /dev/null

@@ -13,6 +13,12 @@
 - Updated [[Onboarding Article]] to reflect the current comparison workspace shell instead of a bare starting screen.
 - Updated [[Testing Strategy]] to record the successful full-solution and frontend builds.
 
+### Authored Foundry Provisioning (Slice 1, azd + bicep)
+
+- Copilot Slice 1: reproducible provisioning. `azure.yaml` + `infra/` bicep (`main.bicep` subscription-scope → `modules/foundry-account.bicep` + `modules/foundry-project.bicep`): Foundry account (`Microsoft.CognitiveServices/accounts`, AIServices, S0, custom subdomain, system-assigned identity) → chat model deployment (`gpt-4.1-mini`, Standard quota) → Foundry project (separate module after the account settles) → RBAC (deployer gets **Foundry User** `53ca6127-…` for local-dev agent data-plane access). Grounded in RagLab's bicep; deferred Cosmos/AI Search/Document Intelligence.
+- Outputs wired for azd → `.env`: `AZURE_FOUNDRY_PROJECT_ENDPOINT`, `AZURE_FOUNDRY_MODEL_DEPLOYMENT` (a later slice reads them as `FoundryOptions`).
+- Seam-first verification: bicep **compiles** (`az bicep build`, exit 0) and is enforced by a new `infra-ci.yml`; **not yet `azd up`-verified** — provisioning is proven by running `azd provision` with Azure creds (user/CI; the sandbox can't). Added `infra/README.md` with the `azd` steps. `infra/` is now justified (real Azure need), consistent with the earlier "no premature scaffolding" deferral.
+
 ### Made "Seam-First" A Binding Instruction
 
 - Codified the Slice-2 approach as an engineering standard in `AGENTS.md`: for external/hard-to-provision dependencies, prove the shape + real logic offline behind an interface, use a test-double fake (never shipped) for wiring, then implement the real adapter last and verify it live (`[Category("External")]`). The fake proves the shape, not the dependency — it never substitutes for verifying the real thing (pairs with "verify, don't assume").

@@ -139,8 +139,10 @@ needs none of these.
 
 ## Implementation slices
 
-1. **Infra** — `azure.yaml` + bicep for Foundry project + model deployment + RBAC;
-   `azd up`-able. Verified by running `azd up` (user/CI with Azure access).
+1. **Infra** — authored (`azure.yaml` + `infra/` bicep: Foundry account → chat model →
+   project → RBAC). **Compiles** (`az bicep build`, enforced by `infra-ci.yml`); **not
+   yet `azd up`-verified** — provisioning is proven by running `azd provision` with
+   Azure credentials (user/CI). Cosmos/Search/DocIntelligence deferred.
 2. **Gateway + tools + offline tests** ✅ done — `IHomeScoutAgentGateway`,
    `CopilotRequest`/`CopilotAnswer` DTOs, `HomeScoutAgentTools` (real `AIFunction`s via
    `AIFunctionFactory.Create` over the estimator + base rate), and a `FakeHomeScoutAgentGateway`
