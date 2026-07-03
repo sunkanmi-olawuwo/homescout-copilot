@@ -1,5 +1,8 @@
 name: infra-ci
 
+permissions:
+  contents: read
+
 # Validates the bicep compiles (offline, no Azure creds) on any change to infra.
 # Not a required gate check (it only runs on infra changes); actual provisioning is
 # verified by running `azd up`.

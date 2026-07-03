@@ -1,5 +1,8 @@
 name: external-checks
 
+permissions:
+  contents: read
+
 # Verifies live external dependencies (e.g. the Bank of England base-rate fetch).
 # These make real network calls, so they are NOT part of the PR quality gate — a
 # third-party outage must not block merges. This runs them on a schedule (and on
