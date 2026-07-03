@@ -75,9 +75,22 @@ they are built.
 The system instructions encode the safety boundary and behaviour: use tools for any
 number (never invent a rate — the rate is the buyer's input, or ask for it); always
 return assumptions + the not-mortgage-advice caveat; no product recommendation; no
-simplistic safe/unsafe area label. The prompt is a **versioned file** (first entry of
-the prompt inventory) so changes are reviewable — ties to the phased plan's prompt
-governance phase.
+simplistic safe/unsafe area label.
+
+**Implemented (2026-07-04):** the prompt is now a **versioned, first-class asset** —
+`dotnet/src/HomeScoutCopilot.API.Service/Prompts/homescout.v1.md`, embedded in the
+assembly and loaded by `AgentPrompt` (which carries the `Version` constant), instead of
+a hardcoded C# string. This follows Microsoft's GenAIOps prompt-versioning guidance —
+treat prompts as first-class code assets, version them by filename (`vN`), and tag the
+deploy that ships each version so *git tag ↔ prompt version ↔ behaviour* line up:
+
+- [Organize prompts in GitHub repositories](https://learn.microsoft.com/en-us/training/modules/prompt-versioning-genaiops/4-github-repository-structure)
+- [Develop safe prompt deployment workflows](https://learn.microsoft.com/en-us/training/modules/prompt-versioning-genaiops/5-prompt-workflow-development)
+
+A fast unit test (`AgentPromptTests`) locks that the prompt loads from the embedded asset
+and keeps the non-negotiable guardrails. To evolve the prompt: add `homescout.vN.md`, bump
+`AgentPrompt.Version`, and git-tag the deploy. Evaluation of prompt *quality* (beyond the
+guardrail smoke test) and dev/prod prompt separation remain follow-ups per unit 5.
 
 ## Reproducible provisioning (azd + bicep)
 

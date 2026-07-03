@@ -93,7 +93,9 @@ Split into layered projects (RagLab parity):
   static files, Aspire defaults.
 - `HomeScoutCopilot.API.Service` — application layer. Hosts the copilot boundary
   `IHomeScoutAgentGateway` (with `FoundryAgentGateway` — Microsoft Agent Framework over
-  `AIProjectClient.AsAIAgent`) and `HomeScoutAgentTools` (the estimator + base rate exposed
+  `AIProjectClient.AsAIAgent`, keyless via `DefaultAzureCredential`; its system prompt loads
+  from a versioned embedded asset `Prompts/homescout.v1.md` via `AgentPrompt`, not a
+  hardcoded string) and `HomeScoutAgentTools` (the estimator + base rate exposed
   as `Microsoft.Extensions.AI` `AIFunction`s for the Foundry agent to call),
   `IMortgageCostEstimator` (pure, deterministic amortisation), and `IHomeScoutService`,
   which returns

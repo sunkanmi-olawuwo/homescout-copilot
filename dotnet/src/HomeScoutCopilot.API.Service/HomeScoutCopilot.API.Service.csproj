@@ -10,6 +10,13 @@
     <ProjectReference Include="..\HomeScoutCopilot.Shared\HomeScoutCopilot.Shared.csproj" />
   </ItemGroup>
 
+  <!-- Agent system prompts as versioned, first-class assets (GenAIOps). Embedded so they
+       ship in the assembly and load regardless of the working directory. LogicalName is
+       pinned so AgentPrompt's resource lookup is stable. -->
+  <ItemGroup>
+    <EmbeddedResource Include="Prompts\homescout.v1.md" LogicalName="HomeScoutCopilot.API.Service.Prompts.homescout.v1.md" />
+  </ItemGroup>
+
   <!-- Brings HttpClient, IMemoryCache, IOptions, and logging for provider services. -->
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
