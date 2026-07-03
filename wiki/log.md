@@ -13,6 +13,13 @@
 - Updated [[Onboarding Article]] to reflect the current comparison workspace shell instead of a bare starting screen.
 - Updated [[Testing Strategy]] to record the successful full-solution and frontend builds.
 
+### Corrected The Agent SDK To The Microsoft Agent Framework
+
+- Correction: the copilot uses the **new Microsoft Agent Framework** (1.0 GA), not the classic `PersistentAgentsClient` (`Azure.AI.Agents.Persistent`, being phased out). Verified on Microsoft Learn.
+- SDK: `Microsoft.Agents.AI` + `Microsoft.Agents.AI.Foundry` + `Azure.AI.Projects` + `Azure.Identity`; `AIProjectClient.AsAIAgent()` / `CreateAIAgent(...)`; tools are C# methods wrapped with `AIFunctionFactory.Create(...)` and the framework runs the tool-call loop (no manual submit-outputs).
+- Studied RagLab's bicep for the resource set and recorded the concrete provisioning shape for the cost-answer slice: Foundry account (`Microsoft.CognitiveServices/accounts`, kind AIServices) → chat model deployment (stable role-label name; SKU/quota caveats) → Foundry project (`.../accounts/projects`, deployed as a separate module after the account settles) → RBAC/managed identity. Deferred Cosmos (thread storage) + AI Search + Document Intelligence to their phases (RAG/persistence).
+- Updated [[Copilot Agent Gateway]] and [[API-First Foundry Agents]].
+
 ### Designed The Copilot Agent Gateway (Foundry Agent Service)
 
 - Reframed the roadmap around the product being a **copilot**, not a form-driven frontend: the deterministic tools (mortgage estimator, base rate) are capabilities the agent *calls*; the frontend is a conversation surface.

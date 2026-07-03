@@ -23,8 +23,13 @@ not-mortgage-advice caveat. This uses only tools we already have.
 
 ## Decisions (locked)
 
-- **Real Foundry Agent Service** (not a stub, not the lighter OpenAI-SDK path):
-  `PersistentAgentsClient` + `DefaultAzureCredential`, function tool-calling.
+- **Real Foundry via the new Microsoft Agent Framework** (1.0 GA) — not a stub, and
+  **not** the classic `PersistentAgentsClient` (`Azure.AI.Agents.Persistent`), which is
+  being phased out. Packages: `Microsoft.Agents.AI` + `Microsoft.Agents.AI.Foundry` +
+  `Azure.AI.Projects` + `Azure.Identity`. Create the agent with
+  `AIProjectClient.AsAIAgent(...)` / `CreateAIAgent(model, instructions, name)`; tools
+  are plain C# methods wrapped with `AIFunctionFactory.Create(...)`, and the framework
+  runs the tool-call loop.
 - **Reproducible provisioning** via **azd + bicep** (`azd up`), per-environment. This
   is the real need that justifies `dotnet/infra/` + `azure.yaml` (the earlier
   "no premature scaffolding" rule deferred infra *until* a real need — this is it).
@@ -41,12 +46,11 @@ not-mortgage-advice caveat. This uses only tools we already have.
 React (conversation)  ->  POST /api/copilot/ask
   -> HomeScoutCopilot.API (thin endpoint)
   -> IHomeScoutAgentGateway (.API.Service)
-       -> FoundryAgentGateway: PersistentAgentsClient + DefaultAzureCredential
-          create agent (model + instructions) -> thread -> run -> poll
-          on RequiresAction: execute the requested function tool locally
-            estimate_mortgage -> IMortgageCostEstimator
-            get_base_rate     -> IBaseRateProvider
-          submit tool outputs -> continue until completed
+       -> FoundryAgentGateway: AIProjectClient(projectEndpoint, DefaultAzureCredential)
+          .AsAIAgent(modelDeployment, instructions) with tools:
+            AIFunctionFactory.Create(estimate_mortgage -> IMortgageCostEstimator)
+            AIFunctionFactory.Create(get_base_rate     -> IBaseRateProvider)
+          agent.RunAsync(message) — the Agent Framework runs the tool-call loop
   -> CopilotAnswer { text, toolCalls[], assumptions[], caveats[] }
 ```
 
@@ -56,7 +60,8 @@ evidence trail is explicit — we can see the agent reasoned with tools, not hal
 
 ## Tools exposed to the agent
 
-Function tool definitions wrapping the already-built, tested services:
+Registered as `AIFunction`s via `AIFunctionFactory.Create(...)` over the already-built,
+tested services (the framework marshals args and invokes them):
 
 - `estimate_mortgage(propertyPrice, deposit, annualInterestRatePercent, termYears, repaymentType)`
   → `MortgageEstimateResult` (via `IMortgageCostEstimator`).
@@ -76,22 +81,40 @@ governance phase.
 
 ## Reproducible provisioning (azd + bicep)
 
-- `azure.yaml` + `infra/` bicep: a **Foundry project/account**, a **model deployment**
-  (name/version/capacity — pin at implementation time), and **RBAC** for the API's
-  managed identity (e.g. Azure AI Developer / Cognitive Services User). Outputs
-  (project endpoint, model deployment name) flow into app config. Reference the
-  `Azure-Samples/azd-ai-starter-basic` template and the azd AI agent extension.
-- `azd up` provisions + deploys reproducibly; each environment has its own `.env`.
+Resources for the cost-answer slice (informed by RagLab's bicep):
+
+- **Foundry account** — `Microsoft.CognitiveServices/accounts`, kind `AIServices`, SKU
+  `S0`.
+- **Chat model deployment** — `Microsoft.CognitiveServices/accounts/deployments`. The
+  deployment name is a stable role label (e.g. `chat`) decoupled from the underlying
+  model, so swapping models is a deploy-param change, not a code change. Mind SKU/quota:
+  regional `Standard` has default quota; `GlobalStandard` (e.g. gpt-5-*) often starts at
+  0 and needs a quota grant.
+- **Foundry project** — `Microsoft.CognitiveServices/accounts/projects`, system-assigned
+  identity. Deploy the **project as a separate module *after* the account + model
+  deployment settle** (avoids a `RequestConflict` provisioning error — RagLab's hard-won
+  lesson).
+- **RBAC** — the API's managed identity gets the Foundry user/developer role on the
+  account; a deployer assignment covers local dev.
+
+Deferred (added with their phases, as RagLab has them): **Cosmos DB** (agent thread
+storage) when we add server-side conversation persistence; **Azure AI Search +
+Document Intelligence + Storage** when RAG / document upload land. The cost-answer slice
+needs none of these.
+
+- `azure.yaml` + `azd up` provision + deploy reproducibly; each environment has its own
+  `.env`. Reference `Azure-Samples/azd-ai-starter-basic` + the azd AI agent extension.
 - **Local dev:** `az login` + `DefaultAzureCredential`; config via user-secrets/env
   (project endpoint + model deployment name). No secrets committed.
 
 ## Config & identity
 
 `FoundryOptions { ProjectEndpoint, ModelDeploymentName }` bound from config.
-`DefaultAzureCredential` — managed identity in Azure, `az login` locally. Package:
-verify the exact Foundry agent SDK at implementation time (candidates:
-`Azure.AI.Agents.Persistent` for `PersistentAgentsClient`, or `Azure.AI.Projects[.Agents]`)
-plus `Azure.Identity`.
+`DefaultAzureCredential` — managed identity in Azure, `az login` locally. SDK:
+**Microsoft Agent Framework** (`Microsoft.Agents.AI`, `Microsoft.Agents.AI.Foundry`,
+`Azure.AI.Projects`, `Azure.Identity`) — pin exact versions at implementation time
+(verify on Microsoft Learn). The classic `PersistentAgentsClient`
+(`Azure.AI.Agents.Persistent`) is being phased out; do not use it.
 
 ## API, client, DTOs
 
@@ -120,8 +143,9 @@ plus `Azure.Identity`.
    `azd up`-able. Verified by running `azd up` (user/CI with Azure access).
 2. **Gateway + tools + offline tests** — `IHomeScoutAgentGateway`, tool definitions,
    `FakeAgentGateway`, wiring unit tests. Fast gate green, no Azure.
-3. **FoundryAgentGateway** — `PersistentAgentsClient` run loop + live `External` test
-   + creds-gated workflow. Verified against real Foundry where creds exist.
+3. **FoundryAgentGateway** — `AIProjectClient.AsAIAgent()` + `AIFunctionFactory` tools
+   (the Agent Framework runs the tool loop) + live `External` test + creds-gated
+   workflow. Verified against real Foundry where creds exist.
 4. **Endpoint + client** — `POST /api/copilot/ask` + typed client; then the React
    conversation surface (separate slice).
 
@@ -132,7 +156,10 @@ and voice — each a later slice once the first tool-calling loop is proven.
 
 ## Sources
 
-- Foundry Agent Service function calling (C#): https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/tools/function-calling
+- Microsoft Agent Framework overview (the agent SDK): https://learn.microsoft.com/en-us/agent-framework/overview/
+- Agent Framework — Microsoft Foundry provider (.NET, `AsAIAgent`/`AIFunctionFactory`): https://learn.microsoft.com/en-us/agent-framework/agents/providers/microsoft-foundry
+- Agentic app with Agent Framework or Foundry Agent Service (.NET tutorial): https://learn.microsoft.com/en-us/azure/app-service/tutorial-ai-agent-web-app-semantic-kernel-foundry-dotnet
+- Foundry Agent Service function calling (concepts): https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/tools/function-calling
 - What is Foundry Agent Service: https://learn.microsoft.com/en-us/azure/foundry/agents/overview
 - Foundry SDK overview (C#): https://learn.microsoft.com/en-us/azure/foundry/how-to/develop/sdk-overview
 - azd Azure AI Foundry extension: https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/extensions/azure-ai-foundry-extension
