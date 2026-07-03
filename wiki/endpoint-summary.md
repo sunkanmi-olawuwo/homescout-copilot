@@ -23,7 +23,8 @@ These may become API routes, internal services, Foundry Agent Service tools, or 
 | Amenities lookup | postcode or lat/lon, radius | nearby amenities grouped by type | Planned |
 | School context | postcode or lat/lon | nearby schools and key public metrics | Planned |
 | Price context | postcode, district, or property details | sold-price context and local trend caveats | Planned |
-| Ownership cost estimate | price, deposit, rate, term, fees | monthly estimate and assumptions | Planned |
+| Mortgage estimate (`POST /api/mortgage/estimate`) | price, deposit, rate, term, repayment type | monthly repayment, total interest, +3% stress, assumptions, caveats | Designed — mortgage-only MVP ([backend plan](__plans/03-backend/cost-estimator-mortgage-plan.md)) |
+| Ownership cost estimate (full) | price, deposit, rate, term, fees, council tax, insurance | monthly estimate and assumptions | Planned |
 | Area comparison | multiple locations | structured comparison report | Planned |
 | Comparison draft | property inputs, buyer priorities, assumptions | structured comparison draft | Planned |
 | User case-file retrieval | comparison/session id, query | cited uploaded-document evidence | Planned |

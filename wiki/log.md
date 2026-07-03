@@ -13,6 +13,13 @@
 - Updated [[Onboarding Article]] to reflect the current comparison workspace shell instead of a bare starting screen.
 - Updated [[Testing Strategy]] to record the successful full-solution and frontend builds.
 
+### Designed The Mortgage Cost Estimator (MVP)
+
+- Researched the authoritative UK basis (GOV.UK MaPS Algorithmic Transparency Record, MoneyHelper, FCA MCOB 4, Bank of England) and wrote [Mortgage Cost Estimator — Design (MVP)](../wiki/__plans/03-backend/cost-estimator-mortgage-plan.md) under `03-backend`.
+- Scope: mortgage repayment only. Standard amortisation (monthly rate = annual/12, 2dp rounding, +3% stress test — mirroring MaPS); repayment and interest-only; request/result DTOs; FluentResults validation → ProblemDetails; placement behind `IHomeScoutService` with a `POST /api/mortgage/estimate` endpoint and a typed client method; unit + Reqnroll BDD test plan.
+- Safety: framed as a generic illustrative calculator (information, not FCA-regulated advice — no named product, user-supplied rate, assumptions + "not mortgage advice" caveat). BoE base rate (3.75%, June 2026) noted as rate *context only*, not a computed default.
+- Indexed the plan in `wiki/__plans/README.md` and `03-backend/README.md`; updated readiness checklist, phased plan, and endpoint summary; full monthly cost-of-ownership deferred.
+
 ### Added Engineering Standards To Docs
 
 - Recorded that HomeScout is built as production-grade software to Microsoft's standards.
