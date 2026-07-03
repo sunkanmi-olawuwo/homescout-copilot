@@ -3,13 +3,21 @@
 ## Solution Layout
 
 ```text
-HomeScoutCopilot.sln
-  HomeScoutCopilot.AppHost
-  HomeScoutCopilot.ServiceDefaults
-  HomeScoutCopilot.ApiService
-  frontend
-  HomeScoutCopilot.Tests
+dotnet/
+  HomeScoutCopilot.slnx
+  src/
+    HomeScoutCopilot.AppHost
+    HomeScoutCopilot.ServiceDefaults
+    HomeScoutCopilot.ApiService
+  tests/
+    HomeScoutCopilot.Tests
+  poc/            (proof-of-concept / course reference scaffolding)
+  infra/          (Aspire/Azure infrastructure scaffolding)
+frontend/         (React/Vite, at repo root)
 ```
+
+.NET projects live under `dotnet/` (RagLab skeleton parity); the React frontend
+stays at the repo root. The `AppHost` references the frontend at `../../../frontend`.
 
 ## AppHost
 

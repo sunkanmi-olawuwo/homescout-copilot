@@ -147,7 +147,7 @@ every acceptance criterion is verified green.
   - `grep -rn "wiki/plan/" --include='*.md' wiki AGENTS.md README.md | grep -v 'wiki/log.md'` → no output
   - Wikilink integrity grep (same check used in the review) → all resolve.
 
-### Phase 1 — Quality gate + governance (no project moves) — delivered, pending merge
+### Phase 1 — Quality gate + governance (no project moves) ✅ done (PR #3)
 - **Steps:**
   - Rewrite `AGENTS.md` in RagLab style (Plan-Sync Protocol + invariants above +
     drift-check reference). Keep `CLAUDE.md` symlink.
@@ -179,7 +179,7 @@ every acceptance criterion is verified green.
   - `bash scripts/quality-gate.sh` → all green
   - First PR shows the three required checks passing in GitHub Actions.
 
-### Phase 2 — Directory relocation (mechanical; gate stays green)
+### Phase 2 — Directory relocation (mechanical; gate stays green) — delivered, pending merge
 - **Steps:**
   - Create `dotnet/`; move `HomeScoutCopilot.AppHost`, `.ServiceDefaults`,
     `.ApiService`, and the test project under `dotnet/src` and `dotnet/tests`

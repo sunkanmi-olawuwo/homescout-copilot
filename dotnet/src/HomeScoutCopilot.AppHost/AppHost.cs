@@ -4,7 +4,7 @@ var apiService = builder.AddProject<Projects.HomeScoutCopilot_ApiService>("apise
     .WithHttpHealthCheck("/health")
     .WithExternalHttpEndpoints();
 
-var webfrontend = builder.AddViteApp("webfrontend", "../frontend")
+var webfrontend = builder.AddViteApp("webfrontend", "../../../frontend")
     .WithReference(apiService)
     .WaitFor(apiService);
 

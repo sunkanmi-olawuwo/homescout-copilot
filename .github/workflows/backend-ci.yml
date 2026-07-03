@@ -16,12 +16,12 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Restore
-        run: dotnet restore HomeScoutCopilot.sln
+        run: dotnet restore dotnet/HomeScoutCopilot.slnx
 
       - name: Build
-        run: dotnet build HomeScoutCopilot.sln --no-restore --configuration Release
+        run: dotnet build dotnet/HomeScoutCopilot.slnx --no-restore --configuration Release
 
       - name: Test (fast, non-integration)
         run: >-
-          dotnet test HomeScoutCopilot.sln --no-build --configuration Release
+          dotnet test dotnet/HomeScoutCopilot.slnx --no-build --configuration Release
           --filter "Category!=Integration"

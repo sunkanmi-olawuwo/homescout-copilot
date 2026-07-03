@@ -1,5 +1,5 @@
 {
   "appHost": {
-    "path": "HomeScoutCopilot.AppHost/HomeScoutCopilot.AppHost.csproj"
+    "path": "dotnet/src/HomeScoutCopilot.AppHost/HomeScoutCopilot.AppHost.csproj"
   }
 }
