@@ -24,7 +24,7 @@ The repo currently has a clean .NET Aspire starter structure:
 - `HomeScoutCopilot.ApiService` is where service endpoints and data-tool APIs can grow.
 - `HomeScoutCopilot.Tests` is the integration test project.
 
-The frontend is not the final product yet. It has a HomeScout-branded starting screen, but the chat, comparison workspace, saved searches, and tools still need to be built.
+The frontend is not the final product yet. It has a HomeScout comparison workspace shell (saved-searches sidebar, comparison request composer, draft-report panel, and evidence panel), all wired to placeholder data and a live `/api/status` call. The real chat/comparison generation, saved-search loading, evidence linking, and data tools still need to be built.
 
 ## How To Resume Work
 

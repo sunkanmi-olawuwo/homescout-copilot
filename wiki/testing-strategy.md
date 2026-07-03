@@ -12,7 +12,8 @@ The template uses an Aspire-oriented test project. It should become the place fo
 
 - `dotnet restore HomeScoutCopilot.sln` succeeded on 2026-07-02.
 - `dotnet list HomeScoutCopilot.sln package --vulnerable --include-transitive` returned no vulnerable packages on 2026-07-02.
-- Full `dotnet build HomeScoutCopilot.sln --no-restore` was attempted, but the process became stuck in the sandbox and could not be killed due restricted process controls.
+- Full `dotnet build HomeScoutCopilot.sln` succeeded on 2026-07-03 with 0 warnings and 0 errors (an earlier 2026-07-02 attempt had stalled in the sandbox; that limitation no longer applies).
+- `npm install` and `npm run build` in `frontend/` succeeded on 2026-07-03 (Vite production build, 0 errors).
 
 ## Coverage Expectations
 

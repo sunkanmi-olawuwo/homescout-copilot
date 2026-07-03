@@ -1,5 +1,18 @@
 # Log
 
+## 2026-07-03
+
+### Plan Sync And Readiness Review
+
+- Reviewed the whole repository against the plan set to confirm the plans are in sync and ready to work on.
+- Verified link integrity: all `[[wikilinks]]` across the wiki resolve to existing pages.
+- Verified the full `dotnet build HomeScoutCopilot.sln` now succeeds (0 warnings, 0 errors); the earlier 2026-07-02 sandbox stall no longer applies.
+- Verified `npm install` + `npm run build` in `frontend/` produce a clean Vite production build.
+- Confirmed code matches plan claims: API exposes only `/api/status` and `/api/comparison/sample`; React workspace shell present; no Blazor; no Foundry packages yet.
+- Fixed a corrupted stray table row fused onto the title in [[Course Playlist Tracker]].
+- Updated [[Onboarding Article]] to reflect the current comparison workspace shell instead of a bare starting screen.
+- Updated [[Testing Strategy]] to record the successful full-solution and frontend builds.
+
 ## 2026-07-02
 
 ### Repository Created
