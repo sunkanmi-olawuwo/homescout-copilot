@@ -16,6 +16,9 @@ Reference skeleton: `/Users/olaheavy/source/code/netcore/HBK.Insights.Raglab`.
   `HBK.Insights.Functional.Result`. HomeScout's `.Functional` project is a thin
   extensions layer over FluentResults (typed `Error`/`Success` reasons +
   HTTP/ProblemDetails mappers), not a new monad.
+- **Test framework:** **NUnit** across all test projects (RagLab parity), with
+  **Reqnroll** for BDD/Gherkin and **Allure** reporting introduced in Phase 3. Do
+  not mix xUnit into the test assemblies.
 
 ## Target Structure
 
@@ -154,9 +157,10 @@ every acceptance criterion is verified green.
   - Add `.github/workflows/` (`backend-ci`, `frontend-ci`, `plan-drift`) and
     `.github/copilot-instructions.md` → AGENTS.md.
   - **Seed the first real tests so the gate has teeth immediately:**
-    - Backend: API contract test asserting `GET /api/status` and
-      `GET /api/comparison/sample` status + JSON shape (extend
-      `HomeScoutCopilot.Tests`).
+    - Backend: switch `HomeScoutCopilot.Tests` to **NUnit** and add an in-memory
+      `WebApplicationFactory` contract test asserting `GET /api/status` and
+      `GET /api/comparison/sample` status + JSON shape. (Reqnroll BDD is added in
+      Phase 3; NUnit here is the shared framework.)
     - Frontend: add Vitest + Testing Library; a smoke test that `App` renders the
       workspace regions (sidebar, comparison composer, evidence panel); add
       `test` and `lint` npm scripts.
@@ -205,17 +209,24 @@ every acceptance criterion is verified green.
     (application layer / agent gateway / tools). Move `/api/status` and
     `/api/comparison/sample` into the new shape **unchanged**.
   - Add `.API.Client` (typed client); wire the frontend/tests to it as chosen.
-  - Split tests into `.API.Test`, `.Shared.Application.Test`, `.Functional.Test`;
-    add unit tests for the FluentResults→ProblemDetails mapper and for one
-    `.API.Service` handler.
+  - Split tests into `.API.Test`, `.Shared.Application.Test`, `.Functional.Test`
+    (all NUnit); add unit tests for the FluentResults→ProblemDetails mapper and for
+    one `.API.Service` handler.
+  - **Reqnroll BDD (RagLab parity)** in `.API.Test`: add `Reqnroll.NUnit` +
+    `Allure.Reqnroll`, a `Features/` Gherkin suite with a first `Status.feature`
+    scenario for `GET /api/status`, `StepDefinitions/`, `Drivers/` (an `ApiDriver`
+    over `WebApplicationFactory`), and `Hooks/` (report + API log). Add `Bogus` for
+    fake data; defer `Testcontainers.PostgreSql` until persistence exists.
 - **Acceptance criteria:**
   - Solution builds; the Phase 1 contract tests pass **without edits** (endpoints
     behave identically).
   - Each new project has ≥1 test; the result→ProblemDetails mapping is covered.
+  - The first `.feature` scenario passes and Allure results are produced.
   - Drift check 0 fail; CI green.
 - **Verify:**
   - `dotnet test dotnet/HomeScoutCopilot.slnx`
   - Contract tests for `/api/status` + `/api/comparison/sample` still pass.
+  - The `Status.feature` BDD scenario passes; `ls allure-results` is non-empty.
   - `bash scripts/quality-gate.sh` → all green
 
 ### Phase 4 — End-to-end + coverage broadening

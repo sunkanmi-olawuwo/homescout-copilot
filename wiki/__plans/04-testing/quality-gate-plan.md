@@ -11,7 +11,7 @@ any project moved — so every later phase runs inside a green gate. It is
 | Check | Local command | CI workflow | Since |
 | --- | --- | --- | --- |
 | Plan drift | `scripts/check-plan-drift.sh` | `plan-drift.yml` | Phase 1 |
-| Backend build + fast tests | `dotnet test --filter "Category!=Integration"` | `backend-ci.yml` | Phase 1 |
+| Backend build + fast tests (NUnit; incl. BDD from Phase 3) | `dotnet test --filter "Category!=Integration"` | `backend-ci.yml` | Phase 1 |
 | Frontend build + lint + unit test | `npm run build && npm run lint && npm run test` | `frontend-ci.yml` | Phase 1 |
 | Frontend e2e smoke | `npm run e2e` | `frontend-ci.yml` | Phase 4 |
 | Backend integration (Aspire) | `dotnet test --filter "Category=Integration"` | (deferred) | Phase 4 |
@@ -23,18 +23,23 @@ check blocks merge. Configure branch protection on `main` to require `plan-drift
 
 ## Test Layers
 
-### Backend
+All backend test projects use **NUnit** (RagLab parity), so a single framework
+carries plain tests and BDD.
 
-- **Contract tests** (`ApiContractTests`) — boot the API in-memory with
+- **Contract tests** (`ApiContractTests`, NUnit) — boot the API in-memory with
   `WebApplicationFactory` (node-free, ~sub-second) and assert the public response
   shape of `GET /api/status` and `GET /api/comparison/sample`. These are the
   **behaviour-lock**: they must keep passing *unedited* while projects move
   (Phase 2) and `.ApiService` is split into `.API`/`.API.Service` (Phase 3),
   proving the endpoints did not change.
-- **Integration tests** (`WebTests`, `[Trait("Category","Integration")]`) — boot the
-  full Aspire AppHost (API + Vite frontend as processes). Slower and need Node, so
-  they are excluded from the fast required gate and run locally / in a dedicated CI
-  job added in Phase 4.
+- **Integration tests** (`WebTests`, `[Category("Integration")]`) — boot the full
+  Aspire AppHost (API + Vite frontend as processes). Slower and need Node, so they
+  are excluded from the fast required gate (`--filter "Category!=Integration"`) and
+  run locally / in a dedicated CI job added in Phase 4.
+- **BDD** (Reqnroll.NUnit + Allure, added Phase 3) — Gherkin `Features/` with
+  `StepDefinitions/`, `Drivers/` (an `ApiDriver` over `WebApplicationFactory`), and
+  `Hooks/`. First scenario: `Status.feature` for `GET /api/status`. `Bogus` supplies
+  fake data; `Testcontainers.PostgreSql` is added only once persistence exists.
 - **Unit tests** — arrive with the service layer in Phase 3 (FluentResults →
   ProblemDetails mapping, `.API.Service` handlers, deterministic tools such as the
   cost estimator).

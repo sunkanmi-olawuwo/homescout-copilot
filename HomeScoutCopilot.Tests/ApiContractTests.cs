@@ -6,41 +6,44 @@ namespace HomeScoutCopilot.Tests;
 // Fast, node-free contract tests: boot the API in-memory and assert the public
 // response shape. These are the behaviour-lock through the relocation/layering
 // phases — they must keep passing unedited while projects move and split.
-public class ApiContractTests : IClassFixture<WebApplicationFactory<HomeScoutCopilot.ApiService.ApiMarker>>
+[TestFixture]
+public class ApiContractTests
 {
-    private readonly WebApplicationFactory<HomeScoutCopilot.ApiService.ApiMarker> _factory;
+    private WebApplicationFactory<HomeScoutCopilot.ApiService.ApiMarker> _factory = null!;
 
-    public ApiContractTests(WebApplicationFactory<HomeScoutCopilot.ApiService.ApiMarker> factory) => _factory = factory;
+    [OneTimeSetUp]
+    public void SetUp() => _factory = new WebApplicationFactory<HomeScoutCopilot.ApiService.ApiMarker>();
 
-    [Fact]
+    [OneTimeTearDown]
+    public void TearDown() => _factory.Dispose();
+
+    [Test]
     public async Task Status_returns_ok_with_expected_shape()
     {
         var client = _factory.CreateClient();
 
-        var response = await client.GetAsync("/api/status", TestContext.Current.CancellationToken);
+        var response = await client.GetAsync("/api/status");
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var json = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-        using var doc = JsonDocument.Parse(json);
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         var root = doc.RootElement;
-        Assert.Equal("HomeScout Copilot", root.GetProperty("product").GetString());
-        Assert.Equal("React", root.GetProperty("frontend").GetString());
-        Assert.Equal("API-first", root.GetProperty("architecture").GetString());
-        Assert.False(string.IsNullOrWhiteSpace(root.GetProperty("agentPlatform").GetString()));
+        Assert.That(root.GetProperty("product").GetString(), Is.EqualTo("HomeScout Copilot"));
+        Assert.That(root.GetProperty("frontend").GetString(), Is.EqualTo("React"));
+        Assert.That(root.GetProperty("architecture").GetString(), Is.EqualTo("API-first"));
+        Assert.That(root.GetProperty("agentPlatform").GetString(), Is.Not.Null.And.Not.Empty);
     }
 
-    [Fact]
+    [Test]
     public async Task ComparisonSample_returns_ok_with_title_and_summary()
     {
         var client = _factory.CreateClient();
 
-        var response = await client.GetAsync("/api/comparison/sample", TestContext.Current.CancellationToken);
+        var response = await client.GetAsync("/api/comparison/sample");
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var json = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-        using var doc = JsonDocument.Parse(json);
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         var root = doc.RootElement;
-        Assert.False(string.IsNullOrWhiteSpace(root.GetProperty("title").GetString()));
-        Assert.False(string.IsNullOrWhiteSpace(root.GetProperty("summary").GetString()));
+        Assert.That(root.GetProperty("title").GetString(), Is.Not.Null.And.Not.Empty);
+        Assert.That(root.GetProperty("summary").GetString(), Is.Not.Null.And.Not.Empty);
     }
 }

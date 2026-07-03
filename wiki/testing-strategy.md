@@ -8,6 +8,8 @@ Current test project:
 
 The template uses an Aspire-oriented test project. It should become the place for integration tests that verify the app host, web frontend, API service, and future tool endpoints.
 
+Backend test projects use **NUnit** (RagLab parity), so one framework carries plain tests and **Reqnroll** BDD/Gherkin (added in Phase 3, with Allure reporting). The quality-gate detail lives in [[Quality Gate & Test Plan]] (`wiki/__plans/04-testing/quality-gate-plan.md`).
+
 ## Current Verification State
 
 - `dotnet restore HomeScoutCopilot.sln` succeeded on 2026-07-02.

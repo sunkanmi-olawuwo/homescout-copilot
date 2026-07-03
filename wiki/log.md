@@ -19,7 +19,8 @@
 - Added `scripts/check-plan-drift.sh` (POSIX; enforces plan-index/link integrity, no stale `wiki/plan/` refs, API-first frontend, FluentResults-not-ErrorOr) and `scripts/quality-gate.sh` (runs drift + backend + frontend). Drift reports 0 fail, 1 forward-looking warn.
 - Added CI workflows `plan-drift`, `backend-ci` (fast non-integration tests), `frontend-ci` (build + lint + unit) and `.github/copilot-instructions.md` → AGENTS.md.
 - Rewrote `AGENTS.md` RagLab-style: Plan Sync Protocol, non-negotiable invariants, git workflow, preserved attribution rule and product/frontend/course rules.
-- Seed tests: backend `ApiContractTests` (in-memory `WebApplicationFactory`, asserts `/api/status` + `/api/comparison/sample` shape; behaviour-lock for later phases); frontend Vitest + Testing Library smoke test for the workspace shell. Categorized the Aspire `WebTests` as `Integration` and added `ApiMarker` so the API can boot without a `Program` type clash.
+- Seed tests: switched `HomeScoutCopilot.Tests` to **NUnit** (RagLab parity, ahead of Reqnroll BDD in Phase 3); backend `ApiContractTests` (NUnit, in-memory `WebApplicationFactory`, asserts `/api/status` + `/api/comparison/sample` shape; behaviour-lock for later phases); frontend Vitest + Testing Library smoke test for the workspace shell. Categorized the Aspire `WebTests` as `[Category("Integration")]` and added `ApiMarker` so the API can boot without a `Program` type clash.
+- Recorded the test-framework decision (NUnit + Reqnroll + Allure) and a Phase 3 Reqnroll BDD workstream in the master migration plan; answered that HomeScout did not yet have raglab's Reqnroll BDD tests.
 - Added `wiki/__plans/04-testing/quality-gate-plan.md`; renamed `NuGet.Config` → `nuget.config`.
 - Verified locally: `scripts/quality-gate.sh` → PASS.
 - Delivered on branch `migration/phase-1-quality-gate`.
