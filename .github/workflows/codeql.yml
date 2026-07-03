@@ -1,0 +1,65 @@
+# CodeQL advanced setup (repo-controlled). Replaces the default setup so a single
+# workflow covers every language HomeScout ships: the .NET backend (csharp), the
+# React/Vite frontend (javascript-typescript), and the GitHub Actions workflows
+# themselves (actions — this is what surfaces "workflow does not contain permissions").
+name: "CodeQL"
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    - cron: '31 11 * * 2'
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write   # upload CodeQL results
+      packages: read           # fetch CodeQL packs
+      actions: read
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # The GitHub Actions workflows.
+          - language: actions
+            build-mode: none
+          # .NET 10 backend — a real build (build-mode: manual) is more thorough
+          # than buildless and reliable here because backend-ci already builds the
+          # solution with the same pinned SDK.
+          - language: csharp
+            build-mode: manual
+          # React/Vite frontend — buildless analysis.
+          - language: javascript-typescript
+            build-mode: none
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        if: matrix.language == 'csharp'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+          queries: security-extended
+
+      - name: Build (.NET)
+        if: matrix.language == 'csharp'
+        run: dotnet build dotnet/HomeScoutCopilot.slnx --configuration Release
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:${{ matrix.language }}"
