@@ -59,7 +59,10 @@ Product rules, UX decisions, domain shape, and design-level plans.
 
 React frontend implementation plans and UI wiring guidance.
 
-- [Frontend Plans (placeholder)](./02-frontend/README.md)
+- [HomeScout Copilot — Design Brief](./02-frontend/design-brief.md) — the full,
+  design-agent-ready specification (vision, IA, all screens/flows, copilot UX, design
+  system, states, accessibility, deliverables).
+- [Frontend Plans (overview)](./02-frontend/README.md)
 
 ### 03-backend
 
