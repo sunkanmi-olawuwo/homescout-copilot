@@ -13,6 +13,13 @@
 - Updated [[Onboarding Article]] to reflect the current comparison workspace shell instead of a bare starting screen.
 - Updated [[Testing Strategy]] to record the successful full-solution and frontend builds.
 
+### Built The Agent Gateway + Tools (Slice 2, offline)
+
+- Copilot Slice 2 (no Azure): `IHomeScoutAgentGateway` boundary + `CopilotRequest`/`CopilotAnswer`/`CopilotToolCall` DTOs (`.Shared.Application`).
+- `HomeScoutAgentTools` (`.API.Service`) exposes the estimator + base rate as real `Microsoft.Extensions.AI` `AIFunction`s via `AIFunctionFactory.Create` (`estimate_mortgage`, `get_base_rate`) — the same tools the Foundry agent (Microsoft Agent Framework) will be handed in Slice 3.
+- `FakeHomeScoutAgentGateway` test double for offline contract/endpoint tests. Tests invoke the `AIFunction`s directly and assert routing (estimate → £1,500.75, base rate → 3.75%) with no LLM/Azure; API.Test now 25 fast tests, gate green.
+- Added `Microsoft.Extensions.AI` 10.7.0 to `.API.Service`. Updated the design (Slice 2 done), component architecture, feature coverage.
+
 ### Corrected The Agent SDK To The Microsoft Agent Framework
 
 - Correction: the copilot uses the **new Microsoft Agent Framework** (1.0 GA), not the classic `PersistentAgentsClient` (`Azure.AI.Agents.Persistent`, being phased out). Verified on Microsoft Learn.

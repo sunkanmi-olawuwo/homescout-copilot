@@ -141,8 +141,11 @@ needs none of these.
 
 1. **Infra** — `azure.yaml` + bicep for Foundry project + model deployment + RBAC;
    `azd up`-able. Verified by running `azd up` (user/CI with Azure access).
-2. **Gateway + tools + offline tests** — `IHomeScoutAgentGateway`, tool definitions,
-   `FakeAgentGateway`, wiring unit tests. Fast gate green, no Azure.
+2. **Gateway + tools + offline tests** ✅ done — `IHomeScoutAgentGateway`,
+   `CopilotRequest`/`CopilotAnswer` DTOs, `HomeScoutAgentTools` (real `AIFunction`s via
+   `AIFunctionFactory.Create` over the estimator + base rate), and a `FakeHomeScoutAgentGateway`
+   test double. Tool tests invoke the `AIFunction`s directly (offline, no Azure) and
+   assert they route to the services. Fast gate green.
 3. **FoundryAgentGateway** — `AIProjectClient.AsAIAgent()` + `AIFunctionFactory` tools
    (the Agent Framework runs the tool loop) + live `External` test + creds-gated
    workflow. Verified against real Foundry where creds exist.

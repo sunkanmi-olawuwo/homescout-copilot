@@ -17,6 +17,10 @@
 
   <ItemGroup>
     <PackageReference Include="FluentResults" Version="3.16.0" />
+    <!-- AIFunctionFactory / AIFunction: provider-agnostic tool definitions (no Azure).
+         The Microsoft Agent Framework builds on these; the Foundry agent (Slice 3) is
+         handed the same tools. -->
+    <PackageReference Include="Microsoft.Extensions.AI" Version="10.7.0" />
   </ItemGroup>
 
   <ItemGroup>
