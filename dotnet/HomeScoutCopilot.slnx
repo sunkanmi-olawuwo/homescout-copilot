@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/HomeScoutCopilot.AppHost/HomeScoutCopilot.AppHost.csproj" />
+    <Project Path="src/HomeScoutCopilot.ApiService/HomeScoutCopilot.ApiService.csproj" />
+    <Project Path="src/HomeScoutCopilot.ServiceDefaults/HomeScoutCopilot.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/HomeScoutCopilot.Tests/HomeScoutCopilot.Tests.csproj" />
+  </Folder>
+</Solution>

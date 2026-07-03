@@ -13,6 +13,17 @@
 - Updated [[Onboarding Article]] to reflect the current comparison workspace shell instead of a bare starting screen.
 - Updated [[Testing Strategy]] to record the successful full-solution and frontend builds.
 
+### RagLab Skeleton Migration — Phase 2 (Directory Relocation)
+
+- Moved all .NET projects under `dotnet/` (`git mv` → `dotnet/src/{AppHost,ServiceDefaults,ApiService}`, `dotnet/tests/HomeScoutCopilot.Tests`); history preserved.
+- Converted `HomeScoutCopilot.sln` → `dotnet/HomeScoutCopilot.slnx` with `/src` and `/tests` solution folders.
+- Fixed the only broken references: Tests project refs (`..\..\src\...`), AppHost's Vite path (`../frontend` → `../../../frontend`), and `aspire.config.json` appHost path.
+- Updated `backend-ci.yml` to the `.slnx`; `quality-gate.sh` auto-detects it; `check-plan-drift.sh` scans repo-wide so needed no path change.
+- Deliberately did **not** mirror RagLab's `dotnet/poc/`, `dotnet/infra/`, or `scripts/byo/` as empty scaffolding; recorded in the plan that infra/byo arrive with Azure deployment (Phase 7) and poc only if we spike experiments. Companion repo stays an external reference.
+- Updated root `README.md` and [[Component Architecture]] to the `dotnet/` layout.
+- Verified: `dotnet build`/`dotnet test dotnet/HomeScoutCopilot.slnx` green (3/3, incl. the Aspire integration test which launched Vite from the new path); `scripts/quality-gate.sh` PASS.
+- Delivered on branch `migration/phase-2-relocation`.
+
 ### RagLab Skeleton Migration — Phase 1 (Quality Gate + Governance)
 
 - Stood up the quality gate before any code moves so Phases 2–4 run inside a green gate.

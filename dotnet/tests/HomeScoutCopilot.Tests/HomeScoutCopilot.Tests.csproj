@@ -20,8 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\HomeScoutCopilot.AppHost\HomeScoutCopilot.AppHost.csproj" />
-    <ProjectReference Include="..\HomeScoutCopilot.ApiService\HomeScoutCopilot.ApiService.csproj" />
+    <ProjectReference Include="..\..\src\HomeScoutCopilot.AppHost\HomeScoutCopilot.AppHost.csproj" />
+    <ProjectReference Include="..\..\src\HomeScoutCopilot.ApiService\HomeScoutCopilot.ApiService.csproj" />
   </ItemGroup>
 
   <ItemGroup>

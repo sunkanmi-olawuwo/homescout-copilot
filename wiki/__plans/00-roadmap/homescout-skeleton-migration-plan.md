@@ -19,6 +19,12 @@ Reference skeleton: `/Users/olaheavy/source/code/netcore/HBK.Insights.Raglab`.
 - **Test framework:** **NUnit** across all test projects (RagLab parity), with
   **Reqnroll** for BDD/Gherkin and **Allure** reporting introduced in Phase 3. Do
   not mix xUnit into the test assemblies.
+- **No premature scaffolding.** RagLab's `dotnet/poc/`, `dotnet/infra/`, and
+  `scripts/byo/` are *not* mirrored as empty folders. Infrastructure (`infra/`,
+  `scripts/byo/`) is added only when Azure deployment work begins (Phase 7 of the
+  [phased learning and build plan](./phased-learning-build-plan.md)); an experiment
+  sandbox (`poc/`) is added only if/when we actually spike retrieval/agent work. The
+  course companion (`rwjdk/chatbot`) stays an external reference, not vendored.
 
 ## Target Structure
 
@@ -30,8 +36,7 @@ home-scout-pilot/
 ├─ frontend/                            # React/Vite stays at root (+ Vitest, Playwright e2e)
 ├─ scripts/
 │  ├─ check-plan-drift.sh               # CI-enforced drift check (HomeScout invariants)
-│  ├─ byo/                              # infra bicep (bring-your-own Azure)
-│  └─ migration/                        # db import/export (when persistence lands)
+│  └─ quality-gate.sh                   # runs drift + backend + frontend locally
 ├─ .github/
 │  ├─ copilot-instructions.md           # points to AGENTS.md
 │  └─ workflows/                        # backend-ci.yml, frontend-ci.yml, plan-drift.yml
@@ -45,12 +50,10 @@ home-scout-pilot/
 │  │  ├─ HomeScoutCopilot.API.Client    # typed HTTP client for Web + tests
 │  │  ├─ HomeScoutCopilot.Shared.Application  # DTOs, contracts, shared app types
 │  │  └─ HomeScoutCopilot.Functional    # FluentResults-based Result helpers + mappers
-│  ├─ tests/
-│  │  ├─ HomeScoutCopilot.API.Test
-│  │  ├─ HomeScoutCopilot.Shared.Application.Test
-│  │  └─ HomeScoutCopilot.Functional.Test
-│  ├─ poc/                              # vendored course companion chatbot (reference only)
-│  └─ infra/                            # Aspire/Azure infra assets
+│  └─ tests/
+│     ├─ HomeScoutCopilot.API.Test
+│     ├─ HomeScoutCopilot.Shared.Application.Test
+│     └─ HomeScoutCopilot.Functional.Test
 └─ wiki/
    ├─ index.md, log.md, overview.md, coding-conventions.md, component-architecture.md,
    │  backend-architecture.md, endpoint-summary.md, feature-coverage.md,
@@ -147,7 +150,7 @@ every acceptance criterion is verified green.
   - `grep -rn "wiki/plan/" --include='*.md' wiki AGENTS.md README.md | grep -v 'wiki/log.md'` → no output
   - Wikilink integrity grep (same check used in the review) → all resolve.
 
-### Phase 1 — Quality gate + governance (no project moves) — delivered, pending merge
+### Phase 1 — Quality gate + governance (no project moves) ✅ done (PR #3)
 - **Steps:**
   - Rewrite `AGENTS.md` in RagLab style (Plan-Sync Protocol + invariants above +
     drift-check reference). Keep `CLAUDE.md` symlink.
@@ -179,7 +182,7 @@ every acceptance criterion is verified green.
   - `bash scripts/quality-gate.sh` → all green
   - First PR shows the three required checks passing in GitHub Actions.
 
-### Phase 2 — Directory relocation (mechanical; gate stays green)
+### Phase 2 — Directory relocation (mechanical; gate stays green) — delivered, pending merge
 - **Steps:**
   - Create `dotnet/`; move `HomeScoutCopilot.AppHost`, `.ServiceDefaults`,
     `.ApiService`, and the test project under `dotnet/src` and `dotnet/tests`
@@ -187,10 +190,8 @@ every acceptance criterion is verified green.
   - Convert `HomeScoutCopilot.sln` → `dotnet/HomeScoutCopilot.slnx` with `/src`
     and `/tests` folders. Fix `..` project reference paths and `AppHost`'s Vite
     path to the root `frontend/`.
-  - Update `backend-ci.yml`, `check-plan-drift.sh` (`CODE=dotnet/src`), and
-    `quality-gate.sh` to the new paths.
-  - Add `dotnet/poc/` (vendor the `rwjdk/chatbot` companion as reference) and
-    `dotnet/infra/` + `scripts/byo/`.
+  - Update `backend-ci.yml` to the `.slnx`; `quality-gate.sh` auto-detects it;
+    `check-plan-drift.sh` scans repo-wide (no path change).
 - **Acceptance criteria:**
   - Solution builds from the new location; all Phase 1 tests still pass unchanged.
   - Frontend build still passes; Aspire AppHost still launches API + frontend.
@@ -244,8 +245,6 @@ every acceptance criterion is verified green.
 
 ## Open Decisions
 
-- Vendor the POC companion code in-repo (`dotnet/poc/`) vs keep it an external
-  clone reference — RagLab vendors it; confirm for HomeScout.
 - npm vs pnpm for the frontend (RagLab uses pnpm).
 
 ## How To Update This Plan

@@ -43,11 +43,16 @@ For each video:
 
 ## Current Scaffold
 
-- `HomeScoutCopilot.AppHost`: Aspire app host.
-- `HomeScoutCopilot.ServiceDefaults`: Aspire service defaults.
-- `frontend`: React/Vite frontend.
-- `HomeScoutCopilot.ApiService`: API/service layer for HomeScout data tools.
-- `HomeScoutCopilot.Tests`: integration test project.
+.NET code lives under `dotnet/` (solution: `dotnet/HomeScoutCopilot.slnx`):
+
+- `dotnet/src/HomeScoutCopilot.AppHost`: Aspire app host.
+- `dotnet/src/HomeScoutCopilot.ServiceDefaults`: Aspire service defaults.
+- `dotnet/src/HomeScoutCopilot.ApiService`: API/service layer for HomeScout data tools.
+- `dotnet/tests/HomeScoutCopilot.Tests`: NUnit test project (contract + Aspire integration).
+- `frontend`: React/Vite frontend (at the repo root).
+
+Build and test: `dotnet test dotnet/HomeScoutCopilot.slnx`. Run all quality-gate
+checks at once with `scripts/quality-gate.sh`.
 
 ## Safety Boundary
 
