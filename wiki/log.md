@@ -13,6 +13,11 @@
 - Updated [[Onboarding Article]] to reflect the current comparison workspace shell instead of a bare starting screen.
 - Updated [[Testing Strategy]] to record the successful full-solution and frontend builds.
 
+### Studied RagLab's API + Planned Vertical-Slice Parity
+
+- Studied RagLab's API structure: `Features/<X>/` **vertical slices** as Carter `ICarterModule`s with thin endpoints delegating to **MediatR** commands/queries/handlers (co-located DTOs/validation/mapping), rich endpoint metadata, and a `Settings/` **validated-options** convention (`IValidatedOptions<T>` self-declares its section + a FluentValidation validator, validated on startup). Host is `.API.Service`; feature library is `.API` (reverse of HomeScout's naming).
+- Decision: **full parity** (Carter + MediatR + FluentValidation + validated options), **plan first**. Wrote [API Vertical Slices + Validated Options — Plan](../wiki/__plans/03-backend/api-vertical-slice-plan.md): target structure, endpoint/handler/validation/options patterns, feature inventory (Status/Comparison/Mortgage/Copilot), packages (flagged **MediatR v13+ commercial licensing** → pin v12 free), behaviour-locked migration steps (existing contract/BDD/endpoint tests must pass unedited), acceptance criteria. Keep HomeScout's project roles (`.API` host, `.API.Service` app layer) — a recorded divergence from RagLab's inverted split.
+
 ### Authored The Full Design Brief (Design-Agent Ready)
 
 - Wrote `wiki/__plans/02-frontend/design-brief.md` — a complete, design-agent-ready specification for a premium, world-class, full-scope design: product vision & positioning, brand voice, personas/JTBD, design principles, full information architecture, every screen/region + the copilot conversation UX in depth, data/trust primitives (source badge, provenance, assumption callout, fact/estimate/assumption/missing), key flows, data-viz, a design-system token spec (colour incl. light/dark, type, spacing, motion), component inventory, all states, responsive/breakpoints, WCAG 2.2 AA accessibility, microcopy, constraints, anti-patterns, and explicit deliverables.

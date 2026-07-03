@@ -2,6 +2,8 @@
 
 API, service-layer, persistence, and backend integration plans.
 
+- [API Vertical Slices + Validated Options — Plan](./api-vertical-slice-plan.md) —
+  restructure to RagLab parity (Carter + MediatR slices, validated options, Features folders).
 - [Copilot Agent Gateway — Design (Foundry Agent Service)](./copilot-agent-gateway-plan.md)
   — the agent layer (the copilot); tool-calling over the deterministic tools.
 - [Mortgage Cost Estimator — Design (MVP)](./cost-estimator-mortgage-plan.md) — the
