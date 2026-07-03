@@ -90,7 +90,8 @@ Split into layered projects (RagLab parity):
   OpenAPI, ProblemDetails, static file serving, and Aspire service defaults.
 - `HomeScoutCopilot.API.Service` — application layer. `IHomeScoutService` returns
   FluentResults; future agent-gateway and tool orchestration land behind this
-  interface.
+  interface. Also hosts `IBaseRateProvider` (`BankOfEnglandBaseRateProvider`: live
+  BoE base-rate fetch with ~1-day cache and a resilient fallback that never throws).
 - `HomeScoutCopilot.API.Client` — typed HTTP client (`HomeScoutApiClient`) over the
   API, consumed by server-to-server callers and the API test project's BDD driver.
 - `HomeScoutCopilot.Shared.Application` — DTOs / wire contracts shared by API,

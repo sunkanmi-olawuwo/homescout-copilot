@@ -121,9 +121,13 @@ endpoint maps them to `400 ProblemDetails` via `.ToHttpResult()`:
   service → `.ToHttpResult()`). Composable into a future comparison workflow.
 - **`HomeScoutCopilot.API.Client`** — `EstimateMortgageAsync(request)` typed method.
 
-No external calls: the estimator is fully offline and deterministic. The BoE base
-rate (3.75% as of June 2026) may later be surfaced as **rate context only** (base
-rate ≠ product rate) — not a default the tool computes with.
+No external calls in the estimator itself: it is fully offline and deterministic.
+The BoE base rate is surfaced **separately** as *rate context only* via
+`IBaseRateProvider` / `GET /api/mortgage/base-rate` — a live Bank of England
+Interactive-Database fetch (series `IUDBEDR`), cached ~1 day, with a resilient
+fallback to a configured last-known value; it never throws and is never used as a
+default the estimator computes with (base rate ≠ product rate). Implemented ahead of
+the estimator; see [[Component Architecture]] and [[Endpoint Summary]].
 
 ## Testing
 

@@ -12,6 +12,7 @@ The project currently has the first HomeScout-shaped API endpoints plus Aspire d
 | API liveness | `/alive` | Scaffolded | Liveness check from Aspire service defaults. |
 | Product status | `/api/status` | Implemented | Confirms HomeScout product identity, React frontend direction, API-first architecture, and planned Foundry Agent Service target. |
 | Sample comparison | `/api/comparison/sample` | Implemented | Placeholder sample response for the first API-first comparison workflow. |
+| Base rate context | `GET /api/mortgage/base-rate` | Implemented | Bank of England base rate for orientation only (not a product rate). Live BoE fetch via `IBaseRateProvider`, ~1-day cache, resilient fallback; always returns 200 with a `Live`/`Cache`/`Fallback` provenance. |
 
 ## Planned HomeScout Tool Endpoints
 

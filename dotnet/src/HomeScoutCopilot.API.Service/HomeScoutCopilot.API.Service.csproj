@@ -10,8 +10,17 @@
     <ProjectReference Include="..\HomeScoutCopilot.Shared.Application\HomeScoutCopilot.Shared.Application.csproj" />
   </ItemGroup>
 
+  <!-- Brings HttpClient, IMemoryCache, IOptions, and logging for provider services. -->
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="FluentResults" Version="3.16.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="HomeScoutCopilot.API.Test" />
   </ItemGroup>
 
 </Project>
