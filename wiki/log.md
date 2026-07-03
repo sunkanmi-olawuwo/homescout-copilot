@@ -13,6 +13,13 @@
 - Updated [[Onboarding Article]] to reflect the current comparison workspace shell instead of a bare starting screen.
 - Updated [[Testing Strategy]] to record the successful full-solution and frontend builds.
 
+### Verified The Live Base-Rate Fetch (Not Just The Fallback)
+
+- Point taken: don't ship a live integration we've never seen succeed. The earlier 403 was WebFetch's restricted fetcher, not reality — a real HTTP client with a browser User-Agent gets `HTTP 200` + CSV from the BoE endpoint (confirmed via `curl`, including the exact URL format the code builds).
+- Aligned the code to the verified request (`CSVF=TN`) and added `BaseRateLiveTests` — a live test that fetches through the fully-wired app and asserts `Provenance == "Live"` (a `Fallback` result is the failure signal). **It passes** — the live path genuinely works end-to-end.
+- Kept it out of the PR gate (`[Category("External")]` + `[Category("Integration")]`) so a third-party outage can't block merges, and added `.github/workflows/external-checks.yml` (nightly + on demand) to run `--filter Category=External` and alert if BoE blocks us or changes format.
+- General principle recorded in [[Quality Gate & Test Plan]]: external dependencies are verified (live test) not assumed, kept out of the blocking gate, degrade gracefully (fallback), and are observable in prod (Live/Cache/Fallback provenance).
+
 ### Implemented The Bank Of England Base-Rate Provider
 
 - Built the live base-rate provider (production-grade) ahead of the estimator: `IBaseRateProvider` in `.API.Service` with `BankOfEnglandBaseRateProvider` — fetches the official Bank Rate series (`IUDBEDR`) from the BoE Interactive Database CSV, caches ~1 day (`IMemoryCache`), and falls back to a configured last-known value; **never throws** (base rate is context-only).

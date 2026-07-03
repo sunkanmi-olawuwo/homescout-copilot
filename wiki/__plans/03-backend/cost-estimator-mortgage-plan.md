@@ -127,7 +127,9 @@ The BoE base rate is surfaced **separately** as *rate context only* via
 Interactive-Database fetch (series `IUDBEDR`), cached ~1 day, with a resilient
 fallback to a configured last-known value; it never throws and is never used as a
 default the estimator computes with (base rate ≠ product rate). Implemented ahead of
-the estimator; see [[Component Architecture]] and [[Endpoint Summary]].
+the estimator; see [[Component Architecture]] and [[Endpoint Summary]]. The live
+fetch is **verified end-to-end** (real BoE call through the wired app) and kept
+verified by the nightly `external-checks.yml` workflow.
 
 ## Testing
 
