@@ -23,6 +23,7 @@ This wiki is the canonical development memory for HomeScout Copilot.
 - [[Product Brief]] - Product scope, MVP, target user, and success criteria.
 - [[Course Playlist Tracker]] - Per-video course-to-HomeScout mapping with companion code references.
 - [[GenAIOps Learning Path Integration]] - Maps Microsoft Learn GenAIOps modules into HomeScout build artifacts, evals, monitoring, and tracing.
+- [[GenAIOps Reference Implementation]] - Concrete, adoptable patterns from Microsoft's official GenAIOps lab repo (`mslearn-genaiops`) — versioned agents, prompt manifest, cloud evals, batch experiments, CI eval gate — mapped to HomeScout phases.
 - [[Phased Learning And Build Plan]] - Step-by-step sequence for videos, Microsoft Learn modules, design, build work, tests, evaluations, and Azure deployment.
 - [[Readiness Checklist]] - Current starting gate for implementation sessions and next immediate steps.
 - [[Release Monitoring]] - How to check for new playlist videos and companion repo commits.

@@ -4,6 +4,12 @@ This page maps Microsoft's "Operationalize generative AI applications (GenAIOps)
 
 Source: [Operationalize generative AI applications (GenAIOps)](https://learn.microsoft.com/en-us/training/paths/operationalize-gen-ai-apps/)
 
+Reference implementation: [[GenAIOps Reference Implementation]] distills the path's
+official lab repo (`MicrosoftLearning/mslearn-genaiops`) into concrete, adoptable patterns
+(versioned agents, `agent.yaml` manifest, cloud evals, batch experiments, CI eval gate)
+mapped to HomeScout's .NET stack and owning phases. Read it alongside the module audit
+below.
+
 Module-by-module source check completed: 2026-07-02.
 
 ## Why This Fits HomeScout

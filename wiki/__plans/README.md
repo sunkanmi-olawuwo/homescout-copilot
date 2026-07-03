@@ -54,6 +54,7 @@ Product rules, UX decisions, domain shape, and design-level plans.
 
 - [Product Brief](./01-design/product-brief.md)
 - [GenAIOps Learning Path Integration](./01-design/genaiops-learning-path.md)
+- [GenAIOps Reference Implementation (mslearn-genaiops)](./01-design/genaiops-reference-implementation.md) — concrete, adoptable patterns from Microsoft's official GenAIOps lab repo, mapped to HomeScout phases.
 
 ### 02-frontend
 
