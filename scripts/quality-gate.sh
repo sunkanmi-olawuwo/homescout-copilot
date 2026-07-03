@@ -38,7 +38,7 @@ fi
 
 step "Frontend build + lint + unit test"
 if command -v npm >/dev/null 2>&1 && [[ -d frontend ]]; then
-  ( cd frontend && npm run build && npm run lint && npm run test )
+  ( cd frontend && pnpm install --frozen-lockfile && pnpm run build && pnpm run lint && pnpm run test )
   mark $? "frontend build/lint/test"
 else
   echo ">> skipped (npm or frontend/ not found)"
@@ -46,7 +46,7 @@ fi
 
 step "Frontend e2e (Playwright)"
 if command -v npm >/dev/null 2>&1 && [[ -d frontend/node_modules/@playwright/test ]]; then
-  ( cd frontend && npx playwright install chromium >/dev/null 2>&1 && npm run e2e )
+  ( cd frontend && pnpm exec playwright install chromium >/dev/null 2>&1 && pnpm run e2e )
   mark $? "frontend e2e"
 else
   echo ">> skipped (@playwright/test not installed — run 'npm i' in frontend/)"

@@ -25,6 +25,10 @@ Reference skeleton: `/Users/olaheavy/source/code/netcore/HBK.Insights.Raglab`.
   [phased learning and build plan](./phased-learning-build-plan.md)); an experiment
   sandbox (`poc/`) is added only if/when we actually spike retrieval/agent work. The
   course companion (`rwjdk/chatbot`) stays an external reference, not vendored.
+- **Frontend package manager:** **pnpm** (RagLab parity). The version is pinned via
+  `packageManager` in `frontend/package.json`; pnpm settings (build allowlist,
+  overrides) live in `frontend/pnpm-workspace.yaml`; Aspire's `AddViteApp` uses
+  `.WithPnpm()`.
 
 ## Target Structure
 
@@ -93,8 +97,8 @@ The gate has four required checks, run locally via one command and enforced in C
 | --- | --- | --- | --- |
 | Plan drift | `scripts/check-plan-drift.sh` | `plan-drift.yml` | 1 |
 | Backend build + test | `dotnet test` (sln/slnx) | `backend-ci.yml` | 1 |
-| Frontend build + lint + unit test | `npm run build && npm run lint && npm run test` | `frontend-ci.yml` | 1 |
-| Frontend e2e smoke | `npm run e2e` | `frontend-ci.yml` | 4 |
+| Frontend build + lint + unit test | `pnpm run build && pnpm run lint && pnpm run test` | `frontend-ci.yml` | 1 |
+| Frontend e2e smoke | `pnpm run e2e` | `frontend-ci.yml` | 4 |
 
 - A single local pre-flight script (`scripts/quality-gate.sh`) runs all
   currently-active checks so contributors get the same result as CI.
@@ -166,7 +170,7 @@ every acceptance criterion is verified green.
       Phase 3; NUnit here is the shared framework.)
     - Frontend: add Vitest + Testing Library; a smoke test that `App` renders the
       workspace regions (sidebar, comparison composer, evidence panel); add
-      `test` and `lint` npm scripts.
+      `test` and `lint` package.json scripts.
   - Create `wiki/__plans/04-testing/quality-gate-plan.md` (test matrix + gate).
   - Rename `NuGet.Config` → `nuget.config`.
 - **Acceptance criteria:**
@@ -178,7 +182,7 @@ every acceptance criterion is verified green.
 - **Verify:**
   - `bash scripts/check-plan-drift.sh` → exit 0
   - `dotnet test HomeScoutCopilot.sln`
-  - `cd frontend && npm run build && npm run lint && npm run test`
+  - `cd frontend && pnpm run build && pnpm run lint && pnpm run test`
   - `bash scripts/quality-gate.sh` → all green
   - First PR shows the three required checks passing in GitHub Actions.
 
@@ -199,7 +203,7 @@ every acceptance criterion is verified green.
 - **Verify:**
   - `dotnet build dotnet/HomeScoutCopilot.slnx`
   - `dotnet test dotnet/HomeScoutCopilot.slnx`
-  - `cd frontend && npm run build`
+  - `cd frontend && pnpm run build`
   - `bash scripts/quality-gate.sh` → all green
 
 ### Phase 3 — Backend layering (refactor; behaviour unchanged) ✅ done (PR #5)
@@ -236,16 +240,16 @@ every acceptance criterion is verified green.
     visible) and add `e2e` to `frontend-ci.yml`.
   - Broaden component tests for the comparison composer and evidence panel.
 - **Acceptance criteria:**
-  - `npm run test` (unit/component) and `npm run e2e` (Playwright smoke) pass
+  - `pnpm run test` (unit/component) and `pnpm run e2e` (Playwright smoke) pass
     locally and in CI.
   - Frontend e2e is a required check in `frontend-ci.yml`.
 - **Verify:**
-  - `cd frontend && npm run test && npm run e2e`
+  - `cd frontend && pnpm run test && pnpm run e2e`
   - CI shows the e2e job green and required.
 
 ## Open Decisions
 
-- npm vs pnpm for the frontend (RagLab uses pnpm).
+None — all migration decisions are resolved (see Decisions (locked)).
 
 ## How To Update This Plan
 

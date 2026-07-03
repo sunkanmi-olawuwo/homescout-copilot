@@ -53,7 +53,7 @@ For each video:
 - `dotnet/src/HomeScoutCopilot.Shared.Application`: DTOs / wire contracts.
 - `dotnet/src/HomeScoutCopilot.Functional`: FluentResults → ProblemDetails mappers.
 - `dotnet/tests/*`: NUnit test projects (API contract + Aspire integration + Reqnroll BDD, plus Functional and Shared.Application unit tests).
-- `frontend`: React/Vite frontend (at the repo root).
+- `frontend`: React/Vite frontend (at the repo root; uses **pnpm**).
 
 Build and test: `dotnet test dotnet/HomeScoutCopilot.slnx`. Run all quality-gate
 checks at once with `scripts/quality-gate.sh`.

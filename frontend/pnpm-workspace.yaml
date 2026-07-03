@@ -1,0 +1,6 @@
+# pnpm settings (moved here from package.json's "pnpm" field in pnpm 10+).
+# esbuild's postinstall fetches its platform binary; Vite needs it.
+allowBuilds:
+  esbuild: true
+overrides:
+  postcss: 8.5.10

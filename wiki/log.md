@@ -13,6 +13,13 @@
 - Updated [[Onboarding Article]] to reflect the current comparison workspace shell instead of a bare starting screen.
 - Updated [[Testing Strategy]] to record the successful full-solution and frontend builds.
 
+### Frontend Switched To pnpm
+
+- Resolved the last open migration decision: frontend now uses **pnpm** (RagLab parity), replacing npm.
+- Added `packageManager: pnpm@11.1.3` to `frontend/package.json`; moved pnpm settings to `frontend/pnpm-workspace.yaml` (`allowBuilds: esbuild: true`, `overrides.postcss`) since pnpm 10+ no longer reads the package.json `pnpm` field; generated `pnpm-lock.yaml`, removed `package-lock.json`.
+- AppHost `AddViteApp(...).WithPnpm()`; `playwright.config` webServer uses pnpm; `scripts/quality-gate.sh` and `frontend-ci.yml` use pnpm (`pnpm/action-setup@v4`, `pnpm install --frozen-lockfile`, `pnpm exec playwright install`).
+- Verified: pnpm build/lint/test/e2e all pass; Aspire integration test launches Vite via pnpm; full quality gate PASS. Updated plan (open decisions now none), AGENTS, README.
+
 ### RagLab Skeleton Migration — Phase 4 (E2E) + migration complete
 
 - Added Playwright (chromium) e2e to `frontend/`: `playwright.config.ts` (build + `vite preview` webServer on :4173), `e2e/workspace.spec.ts` smoke (core regions visible). Added `e2e` npm script.
