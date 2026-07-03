@@ -39,6 +39,14 @@ tutorial or throwaway code.
   and make production report which path served the value (e.g. `Live`/`Cache`/
   `Fallback` provenance + a log on fallback). The bar is: *we know it works, and
   we'll know the moment it stops* — not *we hope it works*.
+- **Seam-first: prove the shape offline, implement the external adapter last, verify
+  it live.** For a hard-to-provision or external dependency: (1) define the interface
+  + DTOs; (2) build and *fully test offline* everything that doesn't need the
+  dependency — including the real logic/tools; (3) put a test-double *fake* behind the
+  interface for wiring tests (in the test project, never shipped); (4) then implement
+  the real adapter and verify it against the real dependency with a live
+  `[Category("External")]` test. The fake proves the *shape*, not the dependency — it
+  is never a substitute for verifying the real thing (see "verify, don't assume").
 
 ## Plan Sync Protocol
 
