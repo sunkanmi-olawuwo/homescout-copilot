@@ -38,9 +38,7 @@ Next implementation session:
 
 ## Not Yet Started
 
-- Real `POST /api/comparisons/draft` endpoint.
-- Deterministic mortgage cost estimator — designed ([Mortgage Cost Estimator](../03-backend/cost-estimator-mortgage-plan.md)); not yet implemented.
-- Prompt inventory.
+- Real `POST /api/comparisons/draft` endpoint.- Prompt inventory.
 - Foundry agent gateway abstraction.
 - Exact package versions for OpenAI SDK, Foundry SDK, and Azure Identity.
 - Curated knowledge-base folder.

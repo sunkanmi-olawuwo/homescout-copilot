@@ -17,4 +17,13 @@ public sealed class HomeScoutApiClient(HttpClient httpClient)
 
     public Task<BaseRate?> GetBaseRateAsync(CancellationToken cancellationToken = default) =>
         httpClient.GetFromJsonAsync<BaseRate>("/api/mortgage/base-rate", cancellationToken);
+
+    public async Task<MortgageEstimateResult?> EstimateMortgageAsync(
+        MortgageEstimateRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var response = await httpClient.PostAsJsonAsync("/api/mortgage/estimate", request, cancellationToken);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<MortgageEstimateResult>(cancellationToken);
+    }
 }

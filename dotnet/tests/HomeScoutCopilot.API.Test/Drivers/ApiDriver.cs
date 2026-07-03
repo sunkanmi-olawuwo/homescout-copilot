@@ -18,7 +18,12 @@ public sealed class ApiDriver : IDisposable
 
     public HomeScoutStatus? Status { get; private set; }
 
+    public MortgageEstimateResult? Estimate { get; private set; }
+
     public async Task FetchStatusAsync() => Status = await _client.GetStatusAsync();
+
+    public async Task EstimateMortgageAsync(MortgageEstimateRequest request)
+        => Estimate = await _client.EstimateMortgageAsync(request);
 
     public void Dispose() => _factory.Dispose();
 }

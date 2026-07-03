@@ -13,6 +13,13 @@
 - Updated [[Onboarding Article]] to reflect the current comparison workspace shell instead of a bare starting screen.
 - Updated [[Testing Strategy]] to record the successful full-solution and frontend builds.
 
+### Implemented The Mortgage Cost Estimator (MVP)
+
+- Built HomeScout's first real capability per the design: `IMortgageCostEstimator` (`.API.Service`) — pure, deterministic amortisation (repayment + interest-only, `i=0` edge, +3% stress, LTV), computed in decimal (no floating point). `MortgageEstimateRequest`/`MortgageEstimateResult` DTOs in `.Shared.Application`.
+- FluentResults validation → 400 ProblemDetails (price/deposit/rate/term/type rules); `POST /api/mortgage/estimate` (thin endpoint); `HomeScoutApiClient.EstimateMortgageAsync`; string-enum JSON for `RepaymentType`.
+- Tests: unit vectors (£270k/4.5%/25y ≈ £1,500.75, interest-only £1,012.50, zero-rate £1,000.00, monotonicity, 6 validation cases) + `MortgageEstimate.feature` BDD through the wired endpoint + client. API.Test now 20 fast tests; quality gate green.
+- Safety: generic illustrative calculator on the buyer's own rate, assumptions + not-mortgage-advice caveat in every result. Updated design page (status: implemented), endpoint summary, component architecture, feature coverage, readiness.
+
 ### Made "Verify, Don't Assume" A Binding Instruction
 
 - Added the external-dependency verification principle to `AGENTS.md` > Engineering Standards: prove integrations end-to-end with a live test, keep it out of the blocking gate (`[Category("External")]` + scheduled run), degrade gracefully, and make prod report the served path. Bar: "we know it works, and we'll know the moment it stops" — not "we hope it works".

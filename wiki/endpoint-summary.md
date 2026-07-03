@@ -13,6 +13,7 @@ The project currently has the first HomeScout-shaped API endpoints plus Aspire d
 | Product status | `/api/status` | Implemented | Confirms HomeScout product identity, React frontend direction, API-first architecture, and planned Foundry Agent Service target. |
 | Sample comparison | `/api/comparison/sample` | Implemented | Placeholder sample response for the first API-first comparison workflow. |
 | Base rate context | `GET /api/mortgage/base-rate` | Implemented | Bank of England base rate for orientation only (not a product rate). Live BoE fetch via `IBaseRateProvider`, ~1-day cache, resilient fallback; always returns 200 with a `Live`/`Cache`/`Fallback` provenance. |
+| Mortgage estimate | `POST /api/mortgage/estimate` | Implemented | Deterministic amortisation via `IMortgageCostEstimator` (repayment + interest-only, +3% stress). Returns monthly payment, totals, assumptions, and a not-mortgage-advice caveat; invalid input → 400 ProblemDetails. |
 
 ## Planned HomeScout Tool Endpoints
 
@@ -24,8 +25,7 @@ These may become API routes, internal services, Foundry Agent Service tools, or 
 | Amenities lookup | postcode or lat/lon, radius | nearby amenities grouped by type | Planned |
 | School context | postcode or lat/lon | nearby schools and key public metrics | Planned |
 | Price context | postcode, district, or property details | sold-price context and local trend caveats | Planned |
-| Mortgage estimate (`POST /api/mortgage/estimate`) | price, deposit, rate, term, repayment type | monthly repayment, total interest, +3% stress, assumptions, caveats | Designed — mortgage-only MVP ([backend plan](__plans/03-backend/cost-estimator-mortgage-plan.md)) |
-| Ownership cost estimate (full) | price, deposit, rate, term, fees, council tax, insurance | monthly estimate and assumptions | Planned |
+| Ownership cost estimate (full) | price, deposit, rate, term, fees, council tax, insurance | monthly estimate and assumptions | Planned (extends the implemented mortgage estimate) |
 | Area comparison | multiple locations | structured comparison report | Planned |
 | Comparison draft | property inputs, buyer priorities, assumptions | structured comparison draft | Planned |
 | User case-file retrieval | comparison/session id, query | cited uploaded-document evidence | Planned |

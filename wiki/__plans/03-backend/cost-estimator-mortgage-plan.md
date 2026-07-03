@@ -6,6 +6,10 @@ the [phased learning and build plan](../00-roadmap/phased-learning-build-plan.md
 (Phase 2) and the recommended first tool in the
 [video roadmap](../00-roadmap/video-implementation-roadmap.md).
 
+**Status: implemented** — `IMortgageCostEstimator` (`.API.Service`), `POST
+/api/mortgage/estimate`, `HomeScoutApiClient.EstimateMortgageAsync`, with unit tests
+and a `MortgageEstimate.feature` BDD scenario. This page remains the specification.
+
 Scope for MVP is **mortgage repayment only**. Council tax, insurance, service
 charge/ground rent, stamp duty, and energy are deliberately out of scope here and
 tracked as the future full "cost of ownership" composition.
