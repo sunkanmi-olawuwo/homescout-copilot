@@ -65,7 +65,8 @@ React frontend implementation plans and UI wiring guidance.
 
 API, service-layer, persistence, and backend integration plans.
 
-- [Backend Plans (placeholder)](./03-backend/README.md)
+- [Mortgage Cost Estimator — Design (MVP)](./03-backend/cost-estimator-mortgage-plan.md)
+- [Backend Plans (overview)](./03-backend/README.md)
 
 ### 04-testing
 
