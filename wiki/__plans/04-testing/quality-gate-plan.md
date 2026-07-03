@@ -36,10 +36,11 @@ carries plain tests and BDD.
   Aspire AppHost (API + Vite frontend as processes). Slower and need Node, so they
   are excluded from the fast required gate (`--filter "Category!=Integration"`) and
   run locally / in a dedicated CI job added in Phase 4.
-- **BDD** (Reqnroll.NUnit + Allure, added Phase 3) — Gherkin `Features/` with
-  `StepDefinitions/`, `Drivers/` (an `ApiDriver` over `WebApplicationFactory`), and
-  `Hooks/`. First scenario: `Status.feature` for `GET /api/status`. `Bogus` supplies
-  fake data; `Testcontainers.PostgreSql` is added only once persistence exists.
+- **BDD** (Reqnroll.NUnit + Allure) — Gherkin `Features/` with `StepDefinitions/`
+  and `Drivers/` (an `ApiDriver` over `WebApplicationFactory` + the typed
+  `HomeScoutApiClient`). First scenario: `Status.feature` for `GET /api/status`.
+  Allure writes results under the test `bin/` (gitignored). `Bogus` and
+  `Testcontainers.PostgreSql` are added only when a scenario needs fake data / a DB.
 - **Unit tests** — arrive with the service layer in Phase 3 (FluentResults →
   ProblemDetails mapping, `.API.Service` handlers, deterministic tools such as the
   cost estimator).

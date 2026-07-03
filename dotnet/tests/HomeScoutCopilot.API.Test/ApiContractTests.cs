@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc.Testing;
 
-namespace HomeScoutCopilot.Tests;
+namespace HomeScoutCopilot.API.Test;
 
 // Fast, node-free contract tests: boot the API in-memory and assert the public
 // response shape. These are the behaviour-lock through the relocation/layering
@@ -9,10 +9,10 @@ namespace HomeScoutCopilot.Tests;
 [TestFixture]
 public class ApiContractTests
 {
-    private WebApplicationFactory<HomeScoutCopilot.ApiService.ApiMarker> _factory = null!;
+    private WebApplicationFactory<HomeScoutCopilot.API.ApiMarker> _factory = null!;
 
     [OneTimeSetUp]
-    public void SetUp() => _factory = new WebApplicationFactory<HomeScoutCopilot.ApiService.ApiMarker>();
+    public void SetUp() => _factory = new WebApplicationFactory<HomeScoutCopilot.API.ApiMarker>();
 
     [OneTimeTearDown]
     public void TearDown() => _factory.Dispose();

@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\HomeScoutCopilot.ApiService\HomeScoutCopilot.ApiService.csproj" />
+    <ProjectReference Include="..\HomeScoutCopilot.API\HomeScoutCopilot.API.csproj" />
   </ItemGroup>
 
   <ItemGroup>

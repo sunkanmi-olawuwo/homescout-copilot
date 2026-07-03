@@ -1,0 +1,31 @@
+using FluentResults;
+using HomeScoutCopilot.Shared.Application.Contracts;
+
+namespace HomeScoutCopilot.API.Service;
+
+/// <summary>
+/// Application-layer boundary for HomeScout behaviour. Returns FluentResults so
+/// expected failures are values, not exceptions. Future agent-gateway and tool
+/// orchestration lands behind this interface.
+/// </summary>
+public interface IHomeScoutService
+{
+    Result<HomeScoutStatus> GetStatus();
+
+    Result<ComparisonSample> GetComparisonSample();
+}
+
+public sealed class HomeScoutService : IHomeScoutService
+{
+    public Result<HomeScoutStatus> GetStatus() =>
+        Result.Ok(new HomeScoutStatus(
+            Product: "HomeScout Copilot",
+            Frontend: "React",
+            Architecture: "API-first",
+            AgentPlatform: "Microsoft Foundry Agent Service planned"));
+
+    public Result<ComparisonSample> GetComparisonSample() =>
+        Result.Ok(new ComparisonSample(
+            Title: "Greenwich vs Croydon",
+            Summary: "Sample placeholder for the first API-first comparison workflow."));
+}

@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HomeScoutCopilot.ServiceDefaults\HomeScoutCopilot.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\HomeScoutCopilot.API.Service\HomeScoutCopilot.API.Service.csproj" />
+    <ProjectReference Include="..\HomeScoutCopilot.Functional\HomeScoutCopilot.Functional.csproj" />
+    <ProjectReference Include="..\HomeScoutCopilot.Shared.Application\HomeScoutCopilot.Shared.Application.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.8" />
+    <PackageReference Include="Microsoft.OpenApi" Version="2.9.0" />
+  </ItemGroup>
+
+</Project>

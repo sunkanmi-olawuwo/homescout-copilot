@@ -13,6 +13,16 @@
 - Updated [[Onboarding Article]] to reflect the current comparison workspace shell instead of a bare starting screen.
 - Updated [[Testing Strategy]] to record the successful full-solution and frontend builds.
 
+### RagLab Skeleton Migration — Phase 3 (Backend Layering + Reqnroll BDD)
+
+- Split the API into layered projects (RagLab parity): `.API` (thin minimal-API host), `.API.Service` (`IHomeScoutService`, returns FluentResults), `.API.Client` (typed `HomeScoutApiClient`), `.Shared.Application` (DTOs), `.Functional` (FluentResults→ProblemDetails mappers). Renamed `HomeScoutCopilot.ApiService` → `.API` (Aspire resource kept as `apiservice` so the Vite proxy env is stable).
+- Endpoints now resolve `IHomeScoutService` and map `Result<T>` via `.ToHttpResult()`; the Phase 1 contract tests passed **unchanged** (behaviour-lock held).
+- Split tests: `.API.Test` (contract + Aspire integration + BDD), `.Shared.Application.Test` (contract serialization), `.Functional.Test` (mapper: Ok→200, Fail→400 ProblemDetails, Ok→204). All NUnit.
+- Added Reqnroll BDD to `.API.Test`: `Reqnroll.NUnit` + `Allure.Reqnroll`, `Features/Status.feature`, `StepDefinitions/`, `Drivers/ApiDriver` (WebApplicationFactory + typed client). Scenario passes; Allure writes results under `bin/`. Deferred `Bogus`/`Testcontainers` until a scenario needs them.
+- Chose FluentResults 3.16.0; drift check FluentResults convergence warn cleared to ok (0 fail, 0 warn). Gitignored generated `*.feature.cs` and `allure-results/`.
+- Updated [[Component Architecture]], [[Feature Coverage]], README, quality-gate-plan.
+- Delivered on branch `migration/phase-3-layering`.
+
 ### RagLab Skeleton Migration — Phase 2 (Directory Relocation)
 
 - Moved all .NET projects under `dotnet/` (`git mv` → `dotnet/src/{AppHost,ServiceDefaults,ApiService}`, `dotnet/tests/HomeScoutCopilot.Tests`); history preserved.

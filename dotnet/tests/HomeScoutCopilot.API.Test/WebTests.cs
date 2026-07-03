@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 
-namespace HomeScoutCopilot.Tests;
+namespace HomeScoutCopilot.API.Test;
 
 [Category("Integration")]
 public class WebTests
