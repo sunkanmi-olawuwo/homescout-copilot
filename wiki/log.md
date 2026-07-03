@@ -13,6 +13,10 @@
 - Updated [[Onboarding Article]] to reflect the current comparison workspace shell instead of a bare starting screen.
 - Updated [[Testing Strategy]] to record the successful full-solution and frontend builds.
 
+### Made "Seam-First" A Binding Instruction
+
+- Codified the Slice-2 approach as an engineering standard in `AGENTS.md`: for external/hard-to-provision dependencies, prove the shape + real logic offline behind an interface, use a test-double fake (never shipped) for wiring, then implement the real adapter last and verify it live (`[Category("External")]`). The fake proves the shape, not the dependency — it never substitutes for verifying the real thing (pairs with "verify, don't assume").
+
 ### Built The Agent Gateway + Tools (Slice 2, offline)
 
 - Copilot Slice 2 (no Azure): `IHomeScoutAgentGateway` boundary + `CopilotRequest`/`CopilotAnswer`/`CopilotToolCall` DTOs (`.Shared.Application`).
