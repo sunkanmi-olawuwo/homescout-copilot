@@ -155,9 +155,13 @@ thread persistence / RAG matter — not piecemeal. Document Intelligence remains
    `AIFunctionFactory.Create` over the estimator + base rate), and a `FakeHomeScoutAgentGateway`
    test double. Tool tests invoke the `AIFunction`s directly (offline, no Azure) and
    assert they route to the services. Fast gate green.
-3. **FoundryAgentGateway** — `AIProjectClient.AsAIAgent()` + `AIFunctionFactory` tools
-   (the Agent Framework runs the tool loop) + live `External` test + creds-gated
-   workflow. Verified against real Foundry where creds exist.
+3. **FoundryAgentGateway** ✅ built — `AIProjectClient(endpoint, credential).AsAIAgent(model,
+   name, instructions, tools)` (Microsoft.Agents.AI.Foundry 1.5.0, Responses path);
+   `AskAsync` runs the agent (framework runs the tool loop) and returns a grounded
+   `CopilotAnswer` with the tool calls made. `FoundryOptions` binds the azd outputs.
+   **Compiles**; `FoundryAgentGatewayLiveTests` `[Category("External")]`+`[Category("Integration")]`
+   skips cleanly offline and runs against real Foundry once provisioned (`azd provision`
+   + Azure creds). **Not yet live-verified.**
 4. **Endpoint + client** — `POST /api/copilot/ask` + typed client; then the React
    conversation surface (separate slice).
 

@@ -89,7 +89,8 @@ Split into layered projects (RagLab parity):
   `IHomeScoutService` and map its `Result<T>` to HTTP via `.ToHttpResult()`. Owns
   OpenAPI, ProblemDetails, static file serving, and Aspire service defaults.
 - `HomeScoutCopilot.API.Service` — application layer. Hosts the copilot boundary
-  `IHomeScoutAgentGateway` and `HomeScoutAgentTools` (the estimator + base rate exposed
+  `IHomeScoutAgentGateway` (with `FoundryAgentGateway` — Microsoft Agent Framework over
+  `AIProjectClient.AsAIAgent`) and `HomeScoutAgentTools` (the estimator + base rate exposed
   as `Microsoft.Extensions.AI` `AIFunction`s for the Foundry agent to call),
   `IMortgageCostEstimator` (pure, deterministic amortisation), and `IHomeScoutService`,
   which returns

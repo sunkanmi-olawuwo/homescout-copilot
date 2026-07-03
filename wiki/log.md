@@ -13,6 +13,13 @@
 - Updated [[Onboarding Article]] to reflect the current comparison workspace shell instead of a bare starting screen.
 - Updated [[Testing Strategy]] to record the successful full-solution and frontend builds.
 
+### Built The Foundry Agent Gateway (Slice 3)
+
+- Copilot Slice 3: `FoundryAgentGateway` (`.API.Service`) — the real adapter using the new **Microsoft Agent Framework** (`Microsoft.Agents.AI.Foundry` 1.5.0, Responses path): `new AIProjectClient(endpoint, credential).AsAIAgent(model, name, instructions, tools)`, handed the Slice-2 `AIFunction` tools; `AskAsync` runs the agent (framework runs the tool loop) and returns a grounded `CopilotAnswer` with the tool calls made. `FoundryOptions` binds the azd outputs; `TokenCredential` injected.
+- Verified the exact API on Microsoft Learn before coding; used `dotnet build` as the offline verification loop (one fix: `AsAIAgent(tools:)` wants `IList<AITool>`). Full solution compiles; fast gate green (API.Test 25 fast tests).
+- `FoundryAgentGatewayLiveTests` `[Category("External")]`+`[Category("Integration")]` — reads `AZURE_FOUNDRY_PROJECT_ENDPOINT`/`AZURE_FOUNDRY_MODEL_DEPLOYMENT`, asserts the agent calls `estimate_mortgage` + the not-advice caveat. **Skips cleanly** when unset (confirmed), so it runs live only where Foundry is provisioned + creds exist. Added `Azure.Identity` to the test project.
+- Seam-first honest status: gateway **compiles**, **not yet live-verified** (needs `azd provision` + Azure creds; CI OIDC wiring deferred). DI registration + `POST /api/copilot/ask` endpoint are Slice 4.
+
 ### Confirmed Basic Agent Setup After Cosmos Docs Check
 
 - Checked whether Foundry agents need Cosmos (they do for BYO/Standard). Verified via Microsoft docs (capability hosts + standard agent setup) that there is **no Cosmos-only** path: the project capability host requires Cosmos **+** AI Search **+** Storage together (only your-own-Azure-OpenAI optional), or none (all Microsoft-managed).
