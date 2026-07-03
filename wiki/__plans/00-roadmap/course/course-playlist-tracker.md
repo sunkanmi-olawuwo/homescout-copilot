@@ -29,7 +29,7 @@ When new videos are released:
 
 1. Check the RSS feed.
 2. Add the video to this table as `Watched = No`.
-3. Create a note in `wiki/plan/video-notes/`.
+3. Create a note in `wiki/__plans/00-roadmap/course/video-notes/`.
 4. Add the companion code files/commits after inspecting the repo.
 5. Watch the video.
 6. Record the course implementation.

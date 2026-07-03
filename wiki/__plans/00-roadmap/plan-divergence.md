@@ -38,9 +38,9 @@ Previous state:
 
 New state:
 
-- Canonical plans live under `wiki/plan/`.
+- Canonical plans live under `wiki/__plans/`.
 - The `docs/` compatibility layer has been removed.
-- Plan divergence checks should read `wiki/plan/` directly.
+- Plan divergence checks should read `wiki/__plans/` directly.
 
 Reason:
 
