@@ -14,7 +14,7 @@ public sealed class BaseRateOptions
     /// {1} = date-to (both dd/MMM/yyyy), {2} = series code.
     /// </summary>
     public string EndpointFormat { get; set; } =
-        "https://www.bankofengland.co.uk/boeapps/database/_iadb-fromshowcolumns.asp?csv.x=yes&Datefrom={0}&Dateto={1}&SeriesCodes={2}&CSVF=CN&UsingCodes=Y&VPD=Y&VFD=N";
+        "https://www.bankofengland.co.uk/boeapps/database/_iadb-fromshowcolumns.asp?csv.x=yes&Datefrom={0}&Dateto={1}&SeriesCodes={2}&CSVF=TN&UsingCodes=Y&VPD=Y&VFD=N";
 
     /// <summary>Official Bank Rate series code.</summary>
     public string SeriesCode { get; set; } = "IUDBEDR";

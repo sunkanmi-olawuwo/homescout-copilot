@@ -1,0 +1,26 @@
+name: external-checks
+
+# Verifies live external dependencies (e.g. the Bank of England base-rate fetch).
+# These make real network calls, so they are NOT part of the PR quality gate — a
+# third-party outage must not block merges. This runs them on a schedule (and on
+# demand) so we find out promptly if a source blocks us or changes its format.
+
+on:
+  schedule:
+    - cron: '17 6 * * *' # daily, 06:17 UTC
+  workflow_dispatch:
+
+jobs:
+  external:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: External dependency tests
+        run: >-
+          dotnet test dotnet/HomeScoutCopilot.slnx --configuration Release
+          --filter "Category=External"

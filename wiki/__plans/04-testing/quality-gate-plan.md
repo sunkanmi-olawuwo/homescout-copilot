@@ -15,11 +15,19 @@ any project moved — so every later phase runs inside a green gate. It is
 | Frontend build + lint + unit test | `pnpm run build && pnpm run lint && pnpm run test` | `frontend-ci.yml` | Phase 1 |
 | Frontend e2e smoke | `pnpm run e2e` | `frontend-ci.yml` | Phase 4 |
 | Backend integration (Aspire) | `dotnet test --filter "Category=Integration"` | (deferred) | Phase 4 |
+| External dependency checks (live BoE base rate) | `dotnet test --filter "Category=External"` | `external-checks.yml` (nightly + on demand, **non-blocking**) | — |
 
 Run everything locally at once with `scripts/quality-gate.sh` — it produces the
 same result as CI. CI triggers on every PR and on push to `main`; a red required
 check blocks merge. Configure branch protection on `main` to require `plan-drift`,
 `backend-ci`, and `frontend-ci`.
+
+**External dependencies are verified, not assumed.** Tests that make real
+third-party calls carry `[Category("External")]` and are kept out of the PR gate (a
+provider outage must not block merges). The `external-checks.yml` workflow runs them
+on a schedule so we find out promptly if a source starts blocking us or changes its
+format. The app also degrades gracefully (resilient fallback) and reports which path
+served a value (`Live`/`Cache`/`Fallback` provenance) so production is observable.
 
 ## Test Layers
 
@@ -36,6 +44,11 @@ carries plain tests and BDD.
   Aspire AppHost (API + Vite frontend as processes). Slower and need Node, so they
   are excluded from the fast required gate (`--filter "Category!=Integration"`) and
   run locally / in a dedicated CI job added in Phase 4.
+- **External/live tests** (`BaseRateLiveTests`, `[Category("Integration")]` +
+  `[Category("External")]`) — make a real call through the wired app (e.g. the live
+  Bank of England base-rate fetch) and assert a non-fallback (`Live`) result. Excluded
+  from the PR gate; run by `external-checks.yml` nightly. Verified working
+  end-to-end; a `Fallback` result here is the signal that the live path has broken.
 - **BDD** (Reqnroll.NUnit + Allure) — Gherkin `Features/` with `StepDefinitions/`
   and `Drivers/` (an `ApiDriver` over `WebApplicationFactory` + the typed
   `HomeScoutApiClient`). First scenario: `Status.feature` for `GET /api/status`.
