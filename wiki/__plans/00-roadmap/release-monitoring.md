@@ -6,7 +6,8 @@ Use this page to check whether the course has new videos or the companion repo h
 
 - Playlist: https://www.youtube.com/playlist?list=PLhGl0l5La4sZDg1isoXWnFGXBXDyM42sQ
 - Playlist RSS: https://www.youtube.com/feeds/videos.xml?playlist_id=PLhGl0l5La4sZDg1isoXWnFGXBXDyM42sQ
-- Companion repo: https://github.com/rwjdk/chatbot
+- Companion repo (course/videos): https://github.com/rwjdk/chatbot
+- GenAIOps reference repo (Microsoft Learn lab): https://github.com/MicrosoftLearning/mslearn-genaiops — the reference implementation behind [[GenAIOps Reference Implementation]]. Watch it for new GenAIOps patterns (agent versioning, evals, CI).
 
 ## Check For New Videos
 
@@ -69,6 +70,7 @@ Use this before starting a new course session:
 
 - [ ] Check playlist RSS for new videos.
 - [ ] Check companion repo for new commits.
+- [ ] Check the GenAIOps reference repo (`mslearn-genaiops`) for new patterns; update [[GenAIOps Reference Implementation]] if adopted.
 - [ ] Update [[Course Playlist Tracker]].
 - [ ] Update [[Video Implementation Roadmap]] if mapping changed.
 - [ ] Update or create the relevant video note.

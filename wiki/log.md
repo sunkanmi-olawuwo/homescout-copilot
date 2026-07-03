@@ -11,6 +11,25 @@
   `security-extended` queries; PR + push-to-main + weekly triggers. Merged via PR #26 (all
   checks green, including `Analyze (csharp)`).
 
+### Infused mslearn-genaiops Patterns Into The Phased Plan + Added As A Reference
+
+- Studied Microsoft's official GenAIOps lab repo (`MicrosoftLearning/mslearn-genaiops`):
+  agent deploy script (`agents.create_version` + `PromptAgentDefinition`), declarative
+  `agent.yaml`, versioned prompt files, cloud-eval pipeline (Foundry Evals API, built-in
+  intent/relevance/groundedness evaluators), batch experiment harness (token/cost capture),
+  and the CI eval-as-PR-comment workflow (Azure OIDC login).
+- Authored [[GenAIOps Reference Implementation]] — a patterns catalog mapping each to
+  HomeScout's .NET translation and owning phase, with the key contrast that we build the
+  agent **in-process** (`AsAIAgent`) vs the lab's **persisted, versioned** agent
+  (`create_version` + reference-by-name), and an open .NET-SDK spike + eval-tooling-language
+  decision.
+- Infused concrete "reference pattern" callouts into [[Phased Learning And Build Plan]]
+  phases 3 (agent manifest, persisted versioned agent, cloud-eval harness), 4 (batch
+  experiments), 6 (CI eval gate w/ OIDC, non-blocking), 7 (fuller azd/bicep infra).
+- Added the repo as a reference: linked from [[GenAIOps Learning Path Integration]], indexed
+  in the plans README + [[Wiki Index]], and added to [[Release Monitoring]] as a watched repo.
+- Drift check 0 fail; all wikilinks + relative links resolve.
+
 ### Externalised The Agent Prompt To A Versioned Asset (GenAIOps)
 
 - Moved the Foundry agent's system instructions out of a hardcoded `const` in

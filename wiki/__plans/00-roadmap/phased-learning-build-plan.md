@@ -10,7 +10,7 @@ This is the step-by-step operating plan for HomeScout Copilot. It combines:
 
 The rule: do not only watch, and do not only build. Each phase has a watch block, a learn block, a build block, and an evidence block.
 
-This plan was checked against all six Microsoft Learn modules on 2026-07-02. See [[GenAIOps Learning Path Integration]] for the module-by-module audit.
+This plan was checked against all six Microsoft Learn modules on 2026-07-02. See [[GenAIOps Learning Path Integration]] for the module-by-module audit, and [[GenAIOps Reference Implementation]] for the **concrete, adoptable patterns** (versioned agents, prompt manifest, cloud evals, batch experiments, CI eval gate) distilled from Microsoft's official lab repo `MicrosoftLearning/mslearn-genaiops`. Phases 3–7 below cite specific reference patterns to implement.
 
 ## Phase 0: Orientation And Product Contract
 
@@ -135,18 +135,32 @@ Microsoft Learn:
 
 Build:
 
-- First prompt inventory folder.
+- First prompt inventory folder. ✅ done — `Prompts/homescout.v1.md` embedded + loaded by `AgentPrompt` (reference pattern 3).
 - First prompt/agent design record.
-- Backend agent gateway interface targeting Microsoft Foundry Agent Service.
+- Backend agent gateway interface targeting Microsoft Foundry Agent Service. ✅ done — `IHomeScoutAgentGateway` / `FoundryAgentGateway`.
 - Comparison summary generation behind the API.
 - Evidence panel that separates facts, estimates, assumptions, and missing data.
 - Link prompts and evaluations to curated HomeScout knowledge-base entries for terminology, source reliability, and safety rules.
+
+Reference patterns to adopt ([[GenAIOps Reference Implementation]]):
+
+- **Declarative agent manifest** (pattern 2): a `homescout.agent.yaml` (`name` / `model` /
+  `instructions_file`) as the single source of truth alongside the prompt asset.
+- **Persisted, versioned agent** (pattern 1): spike whether .NET exposes a
+  `create_version` + `PromptAgentDefinition` equivalent; if so, add a deploy step that
+  registers the prompt as a versioned Foundry agent and have the gateway reference it by
+  name (portal-visible versions + rollback) instead of building it in-process per request.
 
 Testing and evaluation:
 
 - Hand-curated evaluation dataset for 5-10 property comparison scenarios.
 - Rubric for usefulness, groundedness, safety, format adherence, latency, and cost.
 - Safety checks for "not mortgage advice" and "no simplistic safe/unsafe area label."
+- **Cloud-eval harness** (reference pattern 4): a JSONL dataset (`query`/`response`/
+  `ground_truth`) scored by Foundry's built-in `intent_resolution` / `relevance` /
+  `groundedness` evaluators (1–5, pass ≥ 3), **plus HomeScout safety evaluators** for the
+  two boundaries above. Runs `[Category("External")]`, off the blocking gate. Decide the
+  eval-tool language per the reference doc's cross-cutting decision.
 
 Evidence:
 
@@ -182,6 +196,10 @@ Testing and evaluation:
 
 - Tests for streaming contract or graceful fallback.
 - Eval run comparing at least two prompt variants.
+- **Batch experiment harness** (reference pattern 5): run a `test-prompts/` set against
+  the agent, capture **response + token usage + latency** per answer, and write
+  `experiments/{name}/…` for A/B comparison across prompt/model variants — the input to
+  cost-aware iteration.
 - Manual trace inspection note.
 
 Evidence:
@@ -267,6 +285,12 @@ Testing and evaluation:
 - Retrieval tests for uploaded case-file evidence.
 - Retrieval tests for curated knowledge-base guidance.
 - Evaluation cases for missing, conflicting, or stale source data.
+- **Automated eval gate** (reference pattern 6): once the hand-curated eval set (Phase 3)
+  is stable, wire a workflow that runs it with **Azure OIDC** (`azure/login@v2`,
+  `id-token: write` — keyless, no stored credential), posts a results summary (e.g. a PR
+  comment), and stays **off the blocking gate** (scheduled/opt-in, like `external-checks`)
+  so a third-party outage never blocks a merge. Least-privilege
+  `permissions: { contents: read, pull-requests: write, id-token: write }`.
 
 Evidence:
 
@@ -299,6 +323,11 @@ Build:
 - Foundry resource configuration notes.
 - Azure storage/search plan for user case files and curated knowledge retrieval.
 - Deployment scripts or Azure Developer CLI flow when chosen.
+- **Grow the azd/bicep infra** (reference pattern 7): HomeScout ships a **Basic** Foundry
+  setup today; the reference `infra/` shows the fuller `azd` shape to converge on — App
+  Insights + Log Analytics (module 5 monitoring), AI Search + storage (Standard agents /
+  RAG). Add these modules incrementally as the owning features (monitoring, case-file RAG)
+  land, not all at once.
 
 Deployment management requirements:
 
