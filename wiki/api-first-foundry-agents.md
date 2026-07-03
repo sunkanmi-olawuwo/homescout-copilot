@@ -25,7 +25,7 @@ The implementation path is anchored to Microsoft's current Foundry SDK overview 
 - Use the OpenAI SDK path for direct model calls through Foundry's `/openai/v1` endpoint, including responses, chat completions, embeddings, and latency-sensitive model calls.
 - Use the Foundry SDK path for Foundry project/resource operations, agents, indexes, evaluation, and tracing-oriented platform work.
 - Use Microsoft Entra authentication through `DefaultAzureCredential` where supported.
-- Do not use `Azure.AI.Agents.Persistent` as the default plan unless current implementation-time docs show it is required for the selected Foundry path.
+- For the agent layer, use the new **Microsoft Agent Framework** (`Microsoft.Agents.AI` + `Microsoft.Agents.AI.Foundry` over `Azure.AI.Projects`; `AIProjectClient.AsAIAgent()`, tools via `AIFunctionFactory.Create`). The classic `PersistentAgentsClient` (`Azure.AI.Agents.Persistent`) is being phased out — do not use it. See [[Copilot Agent Gateway]] for the concrete design.
 
 For C#, the Foundry SDK overview currently points to packages such as:
 
