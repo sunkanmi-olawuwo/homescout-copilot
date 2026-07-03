@@ -13,6 +13,11 @@
 - Updated [[Onboarding Article]] to reflect the current comparison workspace shell instead of a bare starting screen.
 - Updated [[Testing Strategy]] to record the successful full-solution and frontend builds.
 
+### Authored The Full Design Brief (Design-Agent Ready)
+
+- Wrote `wiki/__plans/02-frontend/design-brief.md` — a complete, design-agent-ready specification for a premium, world-class, full-scope design: product vision & positioning, brand voice, personas/JTBD, design principles, full information architecture, every screen/region + the copilot conversation UX in depth, data/trust primitives (source badge, provenance, assumption callout, fact/estimate/assumption/missing), key flows, data-viz, a design-system token spec (colour incl. light/dark, type, spacing, motion), component inventory, all states, responsive/breakpoints, WCAG 2.2 AA accessibility, microcopy, constraints, anti-patterns, and explicit deliverables.
+- Indexed it in the plans READMEs and linked it from [[Frontend Design Guidelines]] (which remains the binding rules).
+
 ### Wired The Copilot Endpoint (Slice 4)
 
 - Copilot Slice 4: `POST /api/copilot/ask` → `IHomeScoutAgentGateway` → grounded `CopilotAnswer`. DI registers `FoundryAgentGateway` + `HomeScoutAgentTools` + `TokenCredential` (`DefaultAzureCredential`) **only when a Foundry endpoint is configured** (`Foundry:ProjectEndpoint` or the azd output `AZURE_FOUNDRY_PROJECT_ENDPOINT`); scoped to avoid a captive HttpClient.

@@ -1,6 +1,9 @@
 # Frontend Design Guidelines
 
-These rules are binding for HomeScout frontend work.
+These rules are binding for HomeScout frontend work. For the full, design-agent-ready
+specification (vision, personas, information architecture, every screen and flow, the
+copilot conversation UX, design-system tokens, states, accessibility, and deliverables),
+see the [Design Brief](__plans/02-frontend/design-brief.md).
 
 ## Product Feel
 
