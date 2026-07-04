@@ -71,12 +71,13 @@ The design is finished — the interactive prototype is `wiki/raw/HomeScout Copi
 estimate + base-rate, and copilot-ask endpoints exist with the typed client + `Shared` DTOs
 (copilot returns 503 until Foundry is provisioned).
 
-**Frontend (Codex) — build from the design.** Follow
-[Codex Frontend Instructions](../02-frontend/codex-frontend-instructions.md). First slice:
-design tokens (both themes) + IBM Plex fonts + the app shell (header / sidebar / main /
-evidence panel, responsive), then the **mortgage cost estimator end-to-end** against
-`/api/mortgage/estimate` + `/api/mortgage/base-rate` (fully API-backed, no Foundry). Branch
-`feature/fe-*`; keep `frontend-ci` green.
+**Frontend (Codex) — build from the design.** ✅ **Done + lead-reviewed:** design tokens
+(both themes) + IBM Plex + the responsive three-region shell; the **copilot conversation as
+the main surface** (graceful 503) and the **mortgage estimator as the right-rail panel**,
+wired to `/api/mortgage/estimate` + `/api/mortgage/base-rate`, matching the design's IA. Lead
+reworked it to the design's layout (was leading with the estimator) and fixed the segmented
+control + a metric-row flexbox collapse; verified visually + live end-to-end. Follows the
+[Codex Frontend Instructions](../02-frontend/codex-frontend-instructions.md).
 
 **Backend (lead) — bring the copilot toward live.** ✅ **Done:** `HomeScoutCopilot.AgentOps`
 manifest step ([[GenAIOps Tooling Plan]], Phase 3) — `agentops manifest` generates the

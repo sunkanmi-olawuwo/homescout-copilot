@@ -18,9 +18,12 @@ export default defineConfig({
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
-    command: `pnpm run build && pnpm run preview -- --host ${HOST} --port ${PORT} --strictPort`,
+    // Invoke vite directly (not `pnpm run preview -- …`): the extra `--` leaks into vite's
+    // args, so --host/--port/--strictPort are ignored and it binds to its default host —
+    // which the CI runner can't reach at 127.0.0.1, hanging the webServer wait.
+    command: `pnpm run build && pnpm exec vite preview --host ${HOST} --port ${PORT} --strictPort`,
     url: `http://${HOST}:${PORT}`,
     reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
+    timeout: 180_000,
   },
 });

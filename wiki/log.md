@@ -2,6 +2,24 @@
 
 ## 2026-07-04
 
+### Frontend Iteration 1 — Workspace + Estimator, Reviewed Against The Design
+
+- Codex built the first frontend slice (design tokens, IBM Plex, workspace shell, API-backed
+  mortgage estimator). Lead review found it faithful in *design language* but deviating in
+  *information architecture* (it led with the estimator; the design leads with the copilot
+  conversation and places the estimator as a right-rail panel).
+- Per "fix issues, no deferring", reworked the frontend to the design's IA: conversation is
+  the main surface (composer → `/api/copilot/ask`, graceful 503); the estimator moved into
+  the right-rail Estimator tab with the design's labels (deposit £ + %, "your figure", Total
+  repayable, +3% stress payment, Live/Cache provenance); left rail gained the filter + Case
+  file/Preferences/Settings; mobile collapses the nav into a hamburger drawer.
+- Fixed two defects found in review: the segmented control (fragile legend-in-grid) and a
+  flexbox collapse that clipped the metric rows to 2px. Fixed the Playwright `webServer`
+  command (a stray `--` made vite ignore `--host/--port`, hanging CI e2e).
+- Verified visually (light/dark, desktop/mobile) against the design and **live end-to-end**
+  against the running API (contract matches field-for-field; string enum accepted). Component
+  + e2e tests updated; `pnpm build/lint/test/e2e` green.
+
 ### Advanced CodeQL Setup (Repo-Controlled)
 
 - Replaced the CodeQL default setup with a repo-controlled `.github/workflows/codeql.yml`
