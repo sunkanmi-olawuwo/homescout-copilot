@@ -453,6 +453,9 @@
 }
 .new-thread-button {
   flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   min-height: 32px;
   padding: 0 11px;
   border-radius: 8px;
