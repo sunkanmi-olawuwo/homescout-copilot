@@ -2,6 +2,13 @@
 # workflow covers every language HomeScout ships: the .NET backend (csharp), the
 # React/Vite frontend (javascript-typescript), and the GitHub Actions workflows
 # themselves (actions — this is what surfaces "workflow does not contain permissions").
+#
+# NOTE: CodeQL result upload needs GitHub code scanning, which requires GitHub Advanced
+# Security — not available on free *private* repositories. HomeScout is private while the
+# product direction is being shaped (see wiki/accelerator-product-direction.md), so the
+# analyze job is guarded to run only when the repo is public; it fails at upload otherwise.
+# The job goes dormant while private and auto-reactivates if the repo is made public again.
+# The weekly schedule is intentionally omitted while private (a scan we can't upload is noise).
 name: "CodeQL"
 
 on:
@@ -9,12 +16,13 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-  schedule:
-    - cron: '31 11 * * 2'
 
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
+    # Only run where CodeQL can actually upload results (public repo / GHAS). Skipped (green,
+    # not failed) on private repos so it never blocks a PR. Flip to public and it runs again.
+    if: ${{ !github.event.repository.private }}
     runs-on: ubuntu-latest
     permissions:
       security-events: write   # upload CodeQL results
