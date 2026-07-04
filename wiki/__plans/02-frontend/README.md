@@ -7,6 +7,9 @@ React frontend implementation plans and UI wiring guidance.
 - [Frontend Implementation Plan — Review The Design, Then Build](./frontend-implementation-plan.md)
   — the frontend build phase: review the design brief + design-agent deliverables, then
   implement the React app (design system → screens → copilot surface) against the API.
+- [Codex Frontend Instructions — Build From The Claude Design](./codex-frontend-instructions.md)
+  — the handoff for Codex: how to work with the finished design (`wiki/raw/HomeScout Copilot.html`),
+  the token system, the API seam mapping, guardrails, and the first slice.
 
 Further feature-level frontend plans arrive as the build phases from the
 [master migration plan](../00-roadmap/homescout-skeleton-migration-plan.md) and the

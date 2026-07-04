@@ -64,13 +64,30 @@ contract — it does not invent an endpoint or reach past the API.
 5. **Plan-sync per `AGENTS.md`:** each track updates its owning plan + [[Log]] with its work;
    keep route/DTO/tool names identical between code and the owning plan.
 
-## Current status snapshot (2026-07-04)
+## Iteration 1 plan (2026-07-04)
 
-- **Backend seam is live:** status, comparison-sample, mortgage estimate + base-rate, and
-  copilot ask endpoints exist with the typed client and `Shared` DTOs; the copilot gateway,
-  tools, and versioned prompt asset are shipped. The Foundry endpoint lights up when
-  provisioned (503 until then).
-- **Backend next:** persisted-agent deploy tool + eval harness ([[GenAIOps Tooling Plan]],
-  Phase 3).
-- **Frontend next:** Stage 1 of the [Frontend Implementation Plan](../02-frontend/frontend-implementation-plan.md)
-  — review the design and begin the design system, against the live seam above.
+The design is finished — the interactive prototype is `wiki/raw/HomeScout Copilot.html`
+(source of truth in Claude Design). The seam is live: status, comparison-sample, mortgage
+estimate + base-rate, and copilot-ask endpoints exist with the typed client + `Shared` DTOs
+(copilot returns 503 until Foundry is provisioned).
+
+**Frontend (Codex) — build from the design.** Follow
+[Codex Frontend Instructions](../02-frontend/codex-frontend-instructions.md). First slice:
+design tokens (both themes) + IBM Plex fonts + the app shell (header / sidebar / main /
+evidence panel, responsive), then the **mortgage cost estimator end-to-end** against
+`/api/mortgage/estimate` + `/api/mortgage/base-rate` (fully API-backed, no Foundry). Branch
+`feature/fe-*`; keep `frontend-ci` green.
+
+**Backend (lead) — bring the copilot toward live.** `HomeScoutCopilot.AgentOps` manifest
+step ([[GenAIOps Tooling Plan]], Phase 3): generate the declarative `homescout.agent.yaml`
+from the single-sourced agent definition, offline + unit-tested; the live `CreateAgentVersion`
+registration is deferred to a live-verified slice (needs `azd` provision). Branch
+`feature/be-*`. Independent of the frontend's first slice, so both run in parallel.
+
+**Then (lead):** review Codex's frontend PR **and** the backend PR, merge each individually,
+run an end-to-end check (frontend ↔ live mortgage/base-rate endpoints), then plan iteration 2.
+
+**Seam item for iteration 2:** the design's Evidence panel needs structured, tagged,
+provenance'd evidence items (`fact`/`estimate`/`assumption`/`missing` + source +
+live/cache/fallback). The current `CopilotAnswer.Evidence` is empty — defining that contract
+in `Shared` is backend-led seam work, co-designed with Codex's evidence panel.

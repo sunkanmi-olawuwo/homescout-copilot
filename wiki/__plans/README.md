@@ -65,6 +65,7 @@ React frontend implementation plans and UI wiring guidance.
   design-agent-ready specification (vision, IA, all screens/flows, copilot UX, design
   system, states, accessibility, deliverables).
 - [Frontend Implementation Plan — Review The Design, Then Build](./02-frontend/frontend-implementation-plan.md) — the frontend build phase: review the design, then implement the React app against the API.
+- [Codex Frontend Instructions — Build From The Claude Design](./02-frontend/codex-frontend-instructions.md) — handoff for Codex: working from the design HTML, tokens, API seam, guardrails, first slice.
 - [Frontend Plans (overview)](./02-frontend/README.md)
 
 ### 03-backend
