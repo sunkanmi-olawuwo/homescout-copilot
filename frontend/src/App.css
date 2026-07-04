@@ -427,11 +427,6 @@
   line-height: 1.2;
   max-width: 640px;
 }
-.conversation.active h1 {
-  margin-bottom: 0;
-  font-size: 16px;
-  line-height: 1.25;
-}
 .conversation-lead {
   margin: 0 0 20px;
   color: var(--text-2);
@@ -439,6 +434,9 @@
   line-height: 1.55;
   max-width: 620px;
 }
+/* Once a conversation is active the status pill is the compact header — drop the landing
+   hero (heading + intro + suggestion cards) so the thread takes over. */
+.conversation.active h1,
 .conversation.active .conversation-lead,
 .conversation.active .eyebrow,
 .conversation.active .start-grid {

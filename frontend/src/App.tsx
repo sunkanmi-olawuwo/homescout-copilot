@@ -543,11 +543,21 @@ function App() {
   );
 }
 
+// The agent ends its prose with the not-mortgage-advice caveat, which we also render as the
+// structured callout below — strip it from the prose so it isn't shown twice (the callout is
+// the guaranteed, prominent copy).
+function stripTrailingCaveat(text: string): string {
+  const lines = text.replace(/\r\n/g, '\n').split('\n');
+  while (lines.length && lines[lines.length - 1].trim() === '') lines.pop();
+  if (lines.length && /not mortgage advice/i.test(lines[lines.length - 1])) lines.pop();
+  return lines.join('\n');
+}
+
 function CopilotAnswerCard({ question, answer }: { question: string | null; answer: CopilotAnswer }) {
   return (
     <article className="answer-card" aria-label="Copilot answer">
       {question ? <p className="answer-question">{question}</p> : null}
-      <div className="answer-markdown">{renderMarkdownBlocks(answer.text)}</div>
+      <div className="answer-markdown">{renderMarkdownBlocks(stripTrailingCaveat(answer.text))}</div>
       {answer.toolCalls.length ? (
         <div className="tool-chip-row" aria-label="Tools used">
           {answer.toolCalls.map((tool) => (
