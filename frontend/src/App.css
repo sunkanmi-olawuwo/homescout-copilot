@@ -392,6 +392,9 @@
   display: flex;
   flex-direction: column;
 }
+.conversation.active {
+  padding-top: 14px;
+}
 .status-pill {
   display: inline-flex;
   align-items: center;
@@ -404,6 +407,11 @@
   font-size: 12px;
   font-weight: 500;
   margin-bottom: 18px;
+}
+.conversation.active .status-pill {
+  margin-bottom: 8px;
+  padding: 4px 9px;
+  font-size: 11.5px;
 }
 .status-pill i {
   width: 7px;
@@ -425,6 +433,14 @@
   font-size: 14.5px;
   line-height: 1.55;
   max-width: 620px;
+}
+/* Once a conversation is active the status pill is the compact header — drop the landing
+   hero (heading + intro + suggestion cards) so the thread takes over. */
+.conversation.active h1,
+.conversation.active .conversation-lead,
+.conversation.active .eyebrow,
+.conversation.active .start-grid {
+  display: none;
 }
 .eyebrow {
   margin: 0 0 10px;
@@ -502,17 +518,80 @@
   background: var(--surface);
   box-shadow: var(--shadow);
 }
-.answer-question {
-  margin: 0 0 10px;
-  color: var(--text-3);
-  font-size: 12px;
+/* Chat turns: a user icon + (bolder) question, then a bot icon + the response. */
+.chat-turn {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.chat-turn + .chat-turn {
+  margin-top: 14px;
+}
+.turn-avatar {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+.turn-avatar.user {
+  background: var(--sunken);
+  color: var(--text-2);
+  border: 1px solid var(--border);
+}
+.turn-avatar.bot {
+  background: linear-gradient(150deg, var(--accent), #2f8f7e);
+  color: #ffffff;
+}
+.turn-question {
+  margin: 4px 0 0;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
   line-height: 1.45;
 }
-.answer-text {
-  margin: 0;
+.turn-body {
+  flex: 1;
+  min-width: 0;
+  padding-top: 3px;
+}
+.answer-markdown {
   color: var(--text);
   font-size: 14px;
   line-height: 1.58;
+}
+.answer-markdown > * {
+  margin: 0;
+}
+.answer-markdown > * + * {
+  margin-top: 10px;
+}
+.answer-markdown h2 {
+  font-size: 15px;
+  line-height: 1.35;
+  font-weight: 600;
+}
+.answer-markdown ul,
+.answer-markdown ol {
+  padding-left: 20px;
+}
+.answer-markdown li + li {
+  margin-top: 5px;
+}
+.answer-markdown a {
+  color: var(--accent-2);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.answer-markdown code {
+  padding: 1px 5px;
+  border-radius: 5px;
+  background: var(--sunken);
+  color: var(--text);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
 }
 .tool-chip-row {
   display: flex;
