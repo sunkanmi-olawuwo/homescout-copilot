@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Azure.AI.Projects;
 using Azure.Core;
 using HomeScoutCopilot.Shared.Contracts;
@@ -41,12 +42,30 @@ public sealed class FoundryAgentGateway : IHomeScoutAgentGateway
     {
         var response = await _agent.RunAsync(request.Message, cancellationToken: cancellationToken);
 
-        var toolCalls = response.Messages
-            .SelectMany(message => message.Contents)
+        var contents = response.Messages.SelectMany(message => message.Contents).ToList();
+
+        var toolCalls = contents
             .OfType<FunctionCallContent>()
             .Select(call => new CopilotToolCall(call.Name, "called"))
             .ToList();
 
-        return new CopilotAnswer(response.Text, toolCalls, [], Caveats);
+        // Match each function result back to the name of the call that produced it, then map
+        // the result payload into the structured evidence trail.
+        var callNames = contents
+            .OfType<FunctionCallContent>()
+            .GroupBy(call => call.CallId)
+            .ToDictionary(group => group.Key, group => group.First().Name);
+
+        var evidence = new List<EvidenceItem>();
+        foreach (var result in contents.OfType<FunctionResultContent>())
+        {
+            if (result.Result is not null && callNames.TryGetValue(result.CallId, out var name))
+            {
+                var element = JsonSerializer.SerializeToElement(result.Result);
+                evidence.AddRange(CopilotEvidenceBuilder.FromToolResult(name, element));
+            }
+        }
+
+        return new CopilotAnswer(response.Text, toolCalls, evidence, [], Caveats);
     }
 }

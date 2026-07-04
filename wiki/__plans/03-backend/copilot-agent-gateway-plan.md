@@ -184,10 +184,18 @@ thread persistence / RAG matter — not piecemeal. Document Intelligence remains
 
 ## Evidence contract (iteration 2 — the seam)
 
+**Implemented + live-verified (2026-07-04).** `CopilotAnswer` now carries a structured
+`Evidence` trail; `CopilotEvidenceBuilder` maps tool results → tagged items, wired into the
+gateway. Offline: `CopilotEvidenceBuilderTests` + the copilot endpoint test. Live:
+`FoundryAgentGatewayLiveTests` asserts the real agent's `estimate_mortgage` result becomes an
+`Estimate` evidence item. **Wire format:** `FigureKind` serialises as lowercase strings
+(`"fact"`/`"estimate"`/`"assumption"`/`"missing"`); `Provenance` is `"Live"`/`"Cache"`/
+`"Fallback"` or null. The typed client + tests read enums via `JsonStringEnumConverter`.
+
 The design's Evidence panel needs **structured, tagged, provenance'd** items, but
-`CopilotAnswer` today carries only `Text`, `ToolCalls`, `Assumptions` (flat strings), and
-`Caveats` — no structured evidence. Iteration 2 adds the contract (backend-led, seam-first —
-it unblocks the frontend Evidence panel):
+`CopilotAnswer` previously carried only `Text`, `ToolCalls`, `Assumptions` (flat strings), and
+`Caveats` — no structured evidence. The contract (backend-led, seam-first — it unblocks the
+frontend Evidence panel):
 
 ```csharp
 // Shared/Contracts

@@ -100,12 +100,14 @@ in the design's Evidence panel.
 **Seam-first ordering (there is a dependency this time).** The frontend's Evidence panel +
 answer rendering build against a contract the backend must define **first**. So:
 
-1. **Backend seam PR (small, first) — the evidence contract.** Define in `Shared/Contracts`:
-   `FigureKind` (`Fact`/`Estimate`/`Assumption`/`Missing`) + `EvidenceItem(Label, Value, Kind,
-   Source, string? Provenance)`, and add `Evidence: IReadOnlyList<EvidenceItem>` to
-   `CopilotAnswer`. Map the gateway's tool results → evidence (estimate → monthly payment / LTV
-   as `Estimate`; base rate as `Fact` + Live/Cache/Fallback provenance). Offline-testable with
-   the fake gateway; contract tests lock the shape. **This unblocks Codex.**
+1. ✅ **Backend seam PR — the evidence contract (done + live-verified 2026-07-04).**
+   `FigureKind` + `EvidenceItem` + `CopilotAnswer.Evidence` in `Shared/Contracts`;
+   `CopilotEvidenceBuilder` maps tool results → tagged evidence (estimate → payment / LTV as
+   `Estimate`; base rate → `Fact` + provenance), wired into the gateway. Enums travel as
+   lowercase strings on the wire; the typed client + tests read them via `JsonStringEnumConverter`.
+   Offline unit + endpoint tests, plus the live agent test asserting real evidence. **Codex is
+   unblocked** — see [Codex Frontend Instructions](../02-frontend/codex-frontend-instructions.md)
+   "Second slice".
 2. Then both tracks run in parallel:
 
 **Backend (lead):**

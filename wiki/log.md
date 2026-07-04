@@ -2,6 +2,22 @@
 
 ## 2026-07-04
 
+### Backend Iteration 2 — Copilot Evidence Contract (Live-Verified)
+
+- Built the structured evidence seam (unblocks Codex's Evidence panel): `FigureKind` +
+  `EvidenceItem` + a new `CopilotAnswer.Evidence` field in `Shared/Contracts`;
+  `CopilotEvidenceBuilder` maps each tool result → tagged, sourced items (estimate → monthly
+  payment / LTV as `Estimate` "Live"; base rate → `Fact` with its Live/Cache/Fallback
+  provenance), wired into `FoundryAgentGateway`.
+- **Wire format:** `FigureKind` serialises as lowercase strings (`"estimate"` etc.) via
+  `[JsonStringEnumMemberName]` — exactly what the frontend chips expect, without touching
+  `RepaymentType`. Gave `HomeScoutApiClient` (and the endpoint test) a `JsonStringEnumConverter`
+  so .NET consumers round-trip the string enums.
+- Verified offline (`CopilotEvidenceBuilderTests` + the copilot endpoint test asserting the
+  evidence trail) **and live** — `FoundryAgentGatewayLiveTests` now asserts the real agent's
+  `estimate_mortgage` result becomes an `Estimate` evidence item (green against the provisioned
+  project). Updated the copilot plan, work-tracks, and the Codex handoff (second slice).
+
 ### Foundry Provisioned + Copilot Live-Verified 🎉
 
 - Ran `azd provision` into subscription **HomeScoutPilot** (eastus2): resource group, AIServices

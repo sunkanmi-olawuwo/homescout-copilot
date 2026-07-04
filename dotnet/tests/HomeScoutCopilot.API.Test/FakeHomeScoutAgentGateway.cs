@@ -13,6 +13,7 @@ internal sealed class FakeHomeScoutAgentGateway(Func<CopilotRequest, CopilotAnsw
         "Tell me the property price, deposit, interest rate, and term and I'll estimate the monthly cost.",
         [],
         [],
+        [],
         ["This is an estimate, not mortgage advice — speak to a qualified mortgage adviser."]);
 
     private readonly Func<CopilotRequest, CopilotAnswer> _responder = responder ?? (_ => Default);
