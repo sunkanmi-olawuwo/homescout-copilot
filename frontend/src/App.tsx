@@ -489,17 +489,14 @@ function App() {
                   <button
                     className="new-thread-button"
                     type="button"
+                    aria-label="New conversation"
                     disabled={isResettingConversation}
                     onClick={() => void resetConversation()}
                   >
-                    {isResettingConversation ? (
-                      'Starting…'
-                    ) : (
-                      <>
-                        <NewChatIcon />
-                        New conversation
-                      </>
-                    )}
+                    <NewChatIcon />
+                    <span className="new-thread-label">
+                      {isResettingConversation ? 'Starting…' : 'New conversation'}
+                    </span>
                   </button>
                 ) : null}
               </div>

@@ -1061,6 +1061,14 @@
   .workspace-grid {
     grid-template-columns: minmax(0, 1fr);
   }
+  /* Icon-only New conversation on mobile, so the status pill keeps a single line. */
+  .new-thread-label {
+    display: none;
+  }
+  .new-thread-button {
+    gap: 0;
+    padding: 0 9px;
+  }
   .left-rail {
     position: absolute;
     inset: 0 auto 0 0;
