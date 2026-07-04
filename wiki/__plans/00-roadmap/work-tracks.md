@@ -165,6 +165,12 @@ contract responses in component + Playwright E2E tests.
     asset** (versioned agent registry + portal visibility), not on the runtime path — deploy in CI
     on prompt changes; the app runs in-process from the same `AgentPrompt` source.
 - **Queued next (planned):**
+  0. ✅ **Foundry portal cloud eval (BYO-responses) — done, live-verified** ([[GenAIOps Tooling Plan]]):
+     `evaluator answers --out` writes the live copilot's real `{query,response}`; the isolated
+     `HomeScoutCopilot.PortalEval` tool publishes an evaluation run to the portal via the OpenAI
+     Evals API (`score_model` graders — Azure's `azure_ai_evaluator`/`builtin.*` aren't accepted).
+     `scripts/portal-eval.sh` runs both. Verified 2026-07-04 (4 passed / 2 failed / 0 errored).
+     **Next PR:** the expanded ~30 curated dataset feeds this + the local harness.
   1. **Multi-turn conversation threads (anonymous)** — `AgentThread`-based conversation memory keyed
      by an **anonymous session id** (no auth needed), so follow-ups keep context; in-memory first,
      durable (Cosmos / Standard setup) next. End-user auth (**Keycloak**, see [[Plan Divergence]])

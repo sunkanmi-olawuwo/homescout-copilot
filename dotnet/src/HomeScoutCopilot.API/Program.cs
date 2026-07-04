@@ -1,8 +1,10 @@
 using System.Text.Json.Serialization;
+using Azure.AI.Projects;
 using Azure.Core;
 using Azure.Identity;
 using Carter;
 using HomeScoutCopilot.API.Service;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,6 +55,13 @@ if (!string.IsNullOrWhiteSpace(foundryEndpoint))
             }
         });
     builder.Services.AddSingleton<TokenCredential>(new DefaultAzureCredential());
+    // The Foundry project client is thread-safe — hold it as a singleton and build only the
+    // request-scoped, tool-bound agent per request.
+    builder.Services.AddSingleton(sp =>
+    {
+        var settings = sp.GetRequiredService<IOptions<FoundryOptions>>().Value;
+        return new AIProjectClient(new Uri(settings.ProjectEndpoint), sp.GetRequiredService<TokenCredential>());
+    });
     builder.Services.AddScoped<HomeScoutAgentTools>();
     builder.Services.AddScoped<IHomeScoutAgentGateway, FoundryAgentGateway>();
 }

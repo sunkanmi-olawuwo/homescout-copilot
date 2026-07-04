@@ -1,7 +1,9 @@
+using Azure.AI.Projects;
 using Azure.Core;
 using Azure.Identity;
 using HomeScoutCopilot.API.Service;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace HomeScoutCopilot.Evaluator;
 
@@ -35,6 +37,11 @@ public static class CopilotGatewayFactory
             o.ModelDeploymentName = model!;
         });
         services.AddSingleton<TokenCredential>(new DefaultAzureCredential());
+        services.AddSingleton(sp =>
+        {
+            var settings = sp.GetRequiredService<IOptions<FoundryOptions>>().Value;
+            return new AIProjectClient(new Uri(settings.ProjectEndpoint), sp.GetRequiredService<TokenCredential>());
+        });
         services.AddScoped<HomeScoutAgentTools>();
         services.AddScoped<IHomeScoutAgentGateway, FoundryAgentGateway>();
 

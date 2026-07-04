@@ -1,3 +1,4 @@
+using Azure.AI.Projects;
 using Azure.Identity;
 using HomeScoutCopilot.API.Service;
 using HomeScoutCopilot.Evaluator;
@@ -30,7 +31,8 @@ public class EvaluatorLiveTests
 
         var options = Options.Create(new FoundryOptions { ProjectEndpoint = endpoint!, ModelDeploymentName = model! });
         var tools = new HomeScoutAgentTools(new MortgageCostEstimator(), new StubBaseRateProvider());
-        var gateway = new FoundryAgentGateway(options, new DefaultAzureCredential(), tools);
+        var projectClient = new AIProjectClient(new Uri(endpoint!), new DefaultAzureCredential());
+        var gateway = new FoundryAgentGateway(projectClient, options, tools);
 
         var cases = new[]
         {

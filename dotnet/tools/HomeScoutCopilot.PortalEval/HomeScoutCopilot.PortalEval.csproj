@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    ISOLATED tool: publishes a model-graded evaluation RUN to the Foundry portal (BYO-responses)
+    via the OpenAI SDK's Evals API against the Foundry /openai/v1 endpoint (keyless, Entra). Kept
+    in its own project referencing only the OpenAI/Azure.AI.OpenAI SDKs — no API.Service reference,
+    so it doesn't touch the agent graph. Reads a {id,query,response} JSONL.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>HomeScoutCopilot.PortalEval</RootNamespace>
+    <AssemblyName>HomeScoutCopilot.PortalEval</AssemblyName>
+    <!-- The OpenAI Evals API surface is marked experimental. -->
+    <NoWarn>$(NoWarn);OPENAI001</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.AI.OpenAI" Version="2.1.0" />
+    <PackageReference Include="OpenAI" Version="2.8.0" />
+    <PackageReference Include="Azure.Identity" Version="1.21.0" />
+  </ItemGroup>
+
+</Project>
