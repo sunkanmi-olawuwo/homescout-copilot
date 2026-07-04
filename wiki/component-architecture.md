@@ -84,12 +84,25 @@ Responsibilities:
 - User workspace for property and area comparison.
 - Future chat UI, upload controls, saved comparisons, and preference views.
 
-Current state:
+Current state (iteration 1, built to the Claude Design):
 
-- React/Vite app customized with a HomeScout comparison workspace shell.
+- Scoped light/dark design tokens + IBM Plex fonts; the three-region workspace from the
+  design — navy app bar, left rail (New comparison, saved-search filter, saved comparisons,
+  Case file / Preferences / Settings), main surface, right rail. Mobile (<760) collapses the
+  left rail into a hamburger drawer, content-first.
+- The **copilot conversation is the main surface** (status pill, heading, intro, START WITH
+  suggestion cards, composer, inline caveat). The composer posts to `/api/copilot/ask` and
+  **degrades gracefully on 503** until the Foundry agent is provisioned.
+- The **mortgage estimator is a right-rail panel** (Evidence | Estimator tabs) wired to
+  `/api/mortgage/estimate` + `/api/mortgage/base-rate`: monthly payment, loan, LTV, total
+  interest, total repayable, +3% stress payment, and Live/Cache base-rate provenance. Every
+  figure carries a fact/estimate/assumption/missing tag; the not-mortgage-advice caveat is
+  always shown.
+- Verified against the design (light/dark, desktop/mobile) and the live API end-to-end.
 - The old Blazor project has been removed.
 
-Frontend work must follow [[Frontend Design Guidelines]].
+Frontend work must follow [[Frontend Design Guidelines]] and, for building from the design,
+the Codex handoff in `wiki/__plans/02-frontend/codex-frontend-instructions.md`.
 
 ## API and application layer
 
