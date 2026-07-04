@@ -161,8 +161,9 @@ Backend (me) and frontend (Codex) run in parallel against the contract above.
      decision (we're on **Basic**/Microsoft-managed today). Persisting the *serialized* session
      client-side in Postgres is exactly the Basic-compatible path and keeps us off the Standard
      bundle. See [[Plan Divergence]] for the Basic-vs-Standard record.
-6. (Later) **Keycloak** identity → per-user history — associate persisted sessions with a Keycloak
-   `sub` so history is per-user and cross-device (depends on step 5). Also **compaction** if threads
+6. **Keycloak** identity → per-user history *(next; design-first plan written)* — associate
+   persisted sessions with a Keycloak `sub` so history is per-user and cross-device (depends on step
+   5). Full design in [[Keycloak Auth + Per-User History — Design]]. Also **compaction** if threads
    grow long; **query rewrite** only if/when RAG retrieval is added.
 
 ## Open questions / verify-at-implementation
