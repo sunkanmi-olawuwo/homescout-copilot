@@ -95,9 +95,32 @@ line up across runs; disk is the local default. `scripts/eval-report.sh` runs th
 writes `artifacts/eval-report.html` via the `dotnet aieval` tool (pinned in `dotnet-tools.json`).
 The storage account is provisioned by `infra/modules/eval-storage.bicep` (verified live 2026-07-04).
 
-The Foundry Evals *service* (upload dataset → `builtin` evaluators → **portal** runs via
-`Azure.AI.Projects`) remains an optional future path if we want portal-visible evaluation runs;
-the standard library already delivers the model-graded quality signal + cloud regression history.
+### Foundry portal cloud eval — BYO-responses (done, live-verified)
+
+For **portal-visible** runs (charts + run-to-run comparison, shareable with anyone who has portal
+access) HomeScout publishes evaluation runs to the Foundry project via the **OpenAI Evals API**
+(`/openai/v1/evals`), in two steps:
+
+1. `evaluator answers --out <path>` (GA path) asks the live copilot each dataset query and writes
+   `{id,query,response}` JSONL — **BYO-responses** (our real product answers, tools and all; not
+   agent-target, which can't run our client-side tools).
+2. **`HomeScoutCopilot.PortalEval`** (isolated tool) creates an evaluation + run over those answers
+   via `OpenAI.Evals.EvaluationClient` against the Foundry `/openai/v1` endpoint (keyless — an Entra
+   bearer token), polls to completion, and prints the run id + result counts. `scripts/portal-eval.sh`
+   runs both steps.
+
+**API findings (verified live 2026-07-04):** the run **completed, 4 passed / 2 failed / 0 errored**
+over 6 answers. Two things the docs don't make obvious: (a) the eval-run-create surface is **not in
+`Azure.AI.Projects`** (GA or preview — only rules/taxonomies/custom-evaluators); it's the **OpenAI
+Evals API** in the `OpenAI` SDK, reached against Foundry `/openai/v1`. (b) That endpoint accepts
+**OpenAI-native graders** (`score_model`, `label_model`, `string_check`, …), **not** Azure's
+`azure_ai_evaluator` / `builtin.*` — so we grade with a `score_model` LLM-judge (our rubric), not
+Azure's built-in evaluators. The tool is **isolated** (references only the OpenAI SDK) so it doesn't
+touch the GA agent graph.
+
+The `Azure.AI.Projects` *EvaluationClient* with `builtin.*` evaluators (the mslearn path) stays an
+optional future path if/when it lands in a stable .NET surface; the OpenAI-Evals path already gives
+portal-visible runs today.
 
 ## Why two projects (not one, not in the test project)
 

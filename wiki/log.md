@@ -2,6 +2,26 @@
 
 ## 2026-07-04
 
+### Foundry Portal Cloud Eval (BYO-responses) + AIProjectClient Singleton
+
+- **Singleton `AIProjectClient`:** the API/evaluator now hold the Foundry project client as a
+  singleton (thread-safe) and build only the request-scoped, tool-bound agent per request — the
+  scoped tools were the only reason for per-request construction. Live-verified: still calls
+  `estimate_mortgage`.
+- **Portal cloud eval (done, live-verified):** publishes model-graded runs to the Foundry portal
+  via **BYO-responses**. `evaluator answers --out` writes the live copilot's real `{id,query,response}`;
+  the isolated **`HomeScoutCopilot.PortalEval`** tool creates an evaluation + run over them and polls
+  to completion. `scripts/portal-eval.sh` runs both. Verified 2026-07-04: run **completed, 4 passed /
+  2 failed / 0 errored** over 6 answers (discriminating, not all-pass).
+- **API findings (two layers of surprise):** the eval-run-create API is **not** in `Azure.AI.Projects`
+  (GA or preview — only rules/taxonomies/custom-evaluators); it's the **OpenAI Evals API** in the
+  `OpenAI` SDK against Foundry `/openai/v1` (keyless via an Entra bearer token). And that endpoint
+  accepts **OpenAI-native graders** (`score_model`/`label_model`/…), **not** Azure's
+  `azure_ai_evaluator`/`builtin.*` — so we grade with a `score_model` LLM-judge (our rubric). The
+  PortalEval tool is **isolated** (OpenAI SDK only) so it doesn't bump the GA agent graph.
+- Next (separate PR): the expanded ~30 curated dataset (capability + adversarial guardrail probes),
+  which feeds both this portal eval and the local harness.
+
 ### In-Process Reasoning Tuning + Deferring Server-Side Tools
 
 - After a cost/benefit review, **deferred server-side tools + reference-by-name**: agent-target

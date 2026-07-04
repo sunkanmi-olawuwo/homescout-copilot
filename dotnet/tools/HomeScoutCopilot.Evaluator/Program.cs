@@ -1,3 +1,4 @@
+using System.Text.Json;
 using HomeScoutCopilot.API.Service;
 using HomeScoutCopilot.Evaluator;
 using HomeScoutCopilot.Shared.Contracts;
@@ -65,6 +66,46 @@ switch (verb)
             var results = EvaluationRunner.Run(liveCases, SafetyEvaluators.All);
             Console.Write(EvaluationRunner.Summarise(results));
             return EvaluationRunner.AllPassed(results) ? 0 : 1;
+        }
+    }
+
+    case "answers":
+    {
+        // Generate BYO-responses: ask the live copilot each query and write {id,query,response}
+        // JSONL, for the isolated PortalEval tool to publish to the Foundry portal.
+        var provider = CopilotGatewayFactory.TryBuild();
+        if (provider is null)
+        {
+            Console.Error.WriteLine(
+                "Foundry not configured — set AZURE_FOUNDRY_PROJECT_ENDPOINT + AZURE_FOUNDRY_MODEL_DEPLOYMENT.");
+            return 2;
+        }
+
+        await using (provider)
+        {
+            if (!File.Exists(dataPath))
+            {
+                Console.Error.WriteLine($"Eval dataset not found: {dataPath}");
+                return 1;
+            }
+
+            var outIndex = Array.IndexOf(args, "--out");
+            var outPath = outIndex >= 0 && outIndex + 1 < args.Length ? args[outIndex + 1] : "answers.jsonl";
+
+            var gateway = provider.GetRequiredService<IHomeScoutAgentGateway>();
+            var cases = EvaluationDataset.Load(dataPath);
+            Console.WriteLine($"Asking the live copilot {cases.Count} question(s), writing {outPath}…");
+            var liveCases = await LiveEvaluation.GenerateAsync(gateway, cases);
+
+            await using var writer = new StreamWriter(outPath);
+            foreach (var scenario in liveCases)
+            {
+                await writer.WriteLineAsync(JsonSerializer.Serialize(
+                    new { id = scenario.Id, query = scenario.Query, response = scenario.Response }));
+            }
+
+            Console.WriteLine($"Wrote {liveCases.Count} answers to {outPath}.");
+            return 0;
         }
     }
 

@@ -1,6 +1,5 @@
 using System.Text.Json;
 using Azure.AI.Projects;
-using Azure.Core;
 using HomeScoutCopilot.Shared.Contracts;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
@@ -36,16 +35,14 @@ public sealed class FoundryAgentGateway : IHomeScoutAgentGateway
 
     private readonly AIAgent _agent;
 
-    public FoundryAgentGateway(IOptions<FoundryOptions> options, TokenCredential credential, HomeScoutAgentTools tools)
-    {
-        var settings = options.Value;
-        _agent = new AIProjectClient(new Uri(settings.ProjectEndpoint), credential)
-            .AsAIAgent(
-                model: settings.ModelDeploymentName,
-                name: AgentName,
-                instructions: AgentPrompt.Instructions,
-                tools: tools.Build().ToList());
-    }
+    public FoundryAgentGateway(AIProjectClient projectClient, IOptions<FoundryOptions> options, HomeScoutAgentTools tools) =>
+        // The AIProjectClient is a thread-safe singleton; only the agent (which binds request-scoped
+        // tools) is built per request. Construction is local — the network call is in RunAsync.
+        _agent = projectClient.AsAIAgent(
+            model: options.Value.ModelDeploymentName,
+            name: AgentName,
+            instructions: AgentPrompt.Instructions,
+            tools: tools.Build().ToList());
 
     public async Task<CopilotAnswer> AskAsync(CopilotRequest request, CancellationToken cancellationToken = default)
     {

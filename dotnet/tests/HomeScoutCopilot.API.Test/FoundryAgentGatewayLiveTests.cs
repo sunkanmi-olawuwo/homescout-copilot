@@ -1,3 +1,4 @@
+using Azure.AI.Projects;
 using Azure.Identity;
 using HomeScoutCopilot.API.Service;
 using HomeScoutCopilot.Shared.Contracts;
@@ -39,7 +40,8 @@ public class FoundryAgentGatewayLiveTests
             new MortgageCostEstimator(),
             new StubBaseRateProvider(
                 new BaseRate(3.75m, new DateOnly(2026, 6, 19), "Fallback", "Bank of England", "Context only.")));
-        var gateway = new FoundryAgentGateway(options, new DefaultAzureCredential(), tools);
+        var projectClient = new AIProjectClient(new Uri(endpoint!), new DefaultAzureCredential());
+        var gateway = new FoundryAgentGateway(projectClient, options, tools);
 
         var answer = await gateway.AskAsync(new CopilotRequest(
             "What would the monthly cost be on a £300,000 flat with a 10% deposit at 4.5% over 25 years?"));

@@ -11,6 +11,7 @@
   <Folder Name="/tools/">
     <Project Path="tools/HomeScoutCopilot.AgentOps/HomeScoutCopilot.AgentOps.csproj" />
     <Project Path="tools/HomeScoutCopilot.Evaluator/HomeScoutCopilot.Evaluator.csproj" />
+    <Project Path="tools/HomeScoutCopilot.PortalEval/HomeScoutCopilot.PortalEval.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/HomeScoutCopilot.API.Test/HomeScoutCopilot.API.Test.csproj" />
