@@ -57,12 +57,21 @@ our own rubric. **We deliberately run both, each metric labelled by origin**, in
   Complements — does not replace — our domain guardrails (there is no built-in evaluator for
   "not mortgage advice"). Verified 0–1 severity (all safe) across the dataset.
 
-Judge-model note: the `chat` deployment is a **gpt-5 reasoning model** — it rejects
-`temperature=0`, so a `DefaultTemperatureChatClient` shim strips it (the built-in evaluators
-hard-code temperature 0). The strict built-in evaluators also occasionally fail to parse a
-reasoning-model response; that (and throttling) is treated as **non-blocking** variance, while a
-400 / auth error **blocks** — so the harness catches a real integration break (it caught the
-temperature bug) without going red on LLM non-determinism.
+**Separate, higher-capability judge (not self-judging).** The evaluators judge on a **dedicated
+`judge` deployment** (`AZURE_FOUNDRY_JUDGE_DEPLOYMENT`, falls back to the generator when unset),
+not the copilot's `chat` model — a judge should be at least as capable as the model it grades. The
+judge is **gpt-5.4-mini** (newer than the `chat` gpt-5-mini generator; the only *full* gpt-5-family
+model has Batch-only quota in every region we checked — eastus2 / swedencentral / westeurope — so a
+full-model judge would need a quota-increase request). The payoff is real: self-judging with
+gpt-5-mini returned a flat 5.0 everywhere (uninformative), whereas gpt-5.4-mini **discriminates** —
+built-in Relevance ranged 3–5 across the dataset (2026-07-04), surfacing weaker answers.
+
+Judge-model note: both deployments are **gpt-5 reasoning models** — they reject `temperature=0`,
+so a `DefaultTemperatureChatClient` shim strips it (the built-in evaluators hard-code temperature
+0). The strict built-in evaluators also occasionally fail to parse a reasoning-model response;
+that (and throttling) is treated as **non-blocking** variance, while a 400 / auth error **blocks**
+— so the harness catches a real integration break (it caught the temperature bug) without going
+red on LLM non-determinism.
 
 **Cloud store + regression history + shareable reports.** Results and cached judge responses
 persist to an **Azure ADLS Gen2** store (`AzureStorageReportingConfiguration`) when

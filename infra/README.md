@@ -32,6 +32,12 @@ A later slice reads them as `FoundryOptions`.
   GlobalStandard/DataZoneStandard (not regional `Standard`). `gpt-5-mini` had GlobalStandard
   quota (500k TPM) in eastus2. Re-check the catalog + quota per region before provisioning
   elsewhere (`az cognitiveservices model list -l <region>`, `... usage list -l <region>`).
+- **Judge deployment:** a second model deployment (`judge` = **gpt-5.4-mini**, DataZoneStandard)
+  alongside `chat` (gpt-5-mini), created **after `chat` settles** (`dependsOn`) since one account
+  serializes deployment writes. The eval judge uses it (`AZURE_FOUNDRY_JUDGE_DEPLOYMENT`) so we
+  don't self-judge; the copilot keeps generating on `chat`. gpt-5.4-mini is the strongest
+  real-time-servable judge with quota (full gpt-5 is Batch-only in eastus2/swedencentral/westeurope).
+  ✅ `azd provision`-verified (2026-07-04).
 - The account sets **`allowProjectManagement: true`** — required to create Foundry projects
   under the AIServices account (else project creation fails `BadRequest`).
 - The **project is created after the account settles** (separate module) — RagLab's
