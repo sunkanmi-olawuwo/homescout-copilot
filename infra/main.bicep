@@ -96,5 +96,6 @@ output AZURE_RESOURCE_GROUP string = rg.name
 output AZURE_FOUNDRY_ACCOUNT string = account.outputs.accountName
 output AZURE_FOUNDRY_PROJECT_ENDPOINT string = project.outputs.projectEndpoint
 output AZURE_FOUNDRY_MODEL_DEPLOYMENT string = chatDeploymentName
+output AZURE_FOUNDRY_JUDGE_DEPLOYMENT string = account.outputs.judgeDeploymentName
 output AZURE_EVAL_STORAGE_ENDPOINT string = evalStorage.outputs.dfsEndpoint
 output AZURE_EVAL_STORAGE_FILESYSTEM string = evalStorage.outputs.fileSystemName

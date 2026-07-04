@@ -2,6 +2,22 @@
 
 ## 2026-07-04
 
+### Evaluator — Dedicated, Higher-Capability Judge Model (gpt-5.4-mini)
+
+- Stopped **self-judging** (gpt-5-mini grading gpt-5-mini). Added a separate **`judge`** model
+  deployment — **gpt-5.4-mini** (DataZoneStandard), created after `chat` settles — and pointed the
+  evaluation judge (`FoundryChatFactory`, `FoundryAnswerJudge`, `QualityLiveTests`) at
+  `AZURE_FOUNDRY_JUDGE_DEPLOYMENT` (falls back to the generator when unset). The copilot keeps
+  generating on `chat` (gpt-5-mini).
+- **Checked quota across eastus2 / swedencentral / westeurope**: a *full* gpt-5-family model is
+  **Batch-only everywhere** (can't serve live judging without a quota-increase request), and
+  **gpt-5.4-mini is only real-time in eastus2** — so our region is already the best, no second
+  account needed.
+- **Live-verified 2026-07-04:** the stronger judge **discriminates** where self-judging didn't —
+  built-in Relevance ranged **3–5** across the dataset (gpt-5-mini had returned a flat 5.0),
+  surfacing weaker answers (`missing-info`, `cost-interest-only`, `area-crime-context` → Relevance 3).
+  `infra/modules/foundry-account.bicep` adds the deployment; `azd provision`-verified.
+
 ### Evaluator — Model-Graded Quality: Standard Library + Bespoke Judge + Cloud + Content-Safety
 
 - Started with a **bespoke LLM-judge** `evaluator quality` verb (`FoundryAnswerJudge` on the proven

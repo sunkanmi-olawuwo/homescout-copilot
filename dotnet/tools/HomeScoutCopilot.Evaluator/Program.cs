@@ -90,7 +90,10 @@ switch (verb)
             }
 
             var gateway = provider.GetRequiredService<IHomeScoutAgentGateway>();
-            var judge = new FoundryAnswerJudge(endpoint, model, new Azure.Identity.DefaultAzureCredential());
+            // Judge on a dedicated, higher-capability deployment when provisioned (avoid self-judging);
+            // the copilot still generates on the chat deployment via the gateway.
+            var judgeModel = Environment.GetEnvironmentVariable("AZURE_FOUNDRY_JUDGE_DEPLOYMENT") ?? model;
+            var judge = new FoundryAnswerJudge(endpoint, judgeModel, new Azure.Identity.DefaultAzureCredential());
             var cases = EvaluationDataset.Load(dataPath);
             Console.WriteLine($"Asking + model-grading {cases.Count} live copilot answer(s)…");
 

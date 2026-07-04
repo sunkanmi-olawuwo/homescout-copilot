@@ -18,7 +18,10 @@ public static class FoundryChatFactory
     public static ChatConfiguration? TryCreate()
     {
         var projectEndpoint = Environment.GetEnvironmentVariable("AZURE_FOUNDRY_PROJECT_ENDPOINT");
-        var deployment = Environment.GetEnvironmentVariable("AZURE_FOUNDRY_MODEL_DEPLOYMENT");
+        // Prefer a dedicated, higher-capability judge deployment over the copilot's generator model
+        // (avoids self-judging); fall back to the generator when no judge is provisioned.
+        var deployment = Environment.GetEnvironmentVariable("AZURE_FOUNDRY_JUDGE_DEPLOYMENT")
+            ?? Environment.GetEnvironmentVariable("AZURE_FOUNDRY_MODEL_DEPLOYMENT");
         if (string.IsNullOrWhiteSpace(projectEndpoint) || string.IsNullOrWhiteSpace(deployment))
         {
             return null;

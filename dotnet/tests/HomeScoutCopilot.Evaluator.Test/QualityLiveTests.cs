@@ -14,7 +14,9 @@ public class QualityLiveTests
     public async Task Judge_scores_a_good_answer_within_range()
     {
         var endpoint = Environment.GetEnvironmentVariable("AZURE_FOUNDRY_PROJECT_ENDPOINT");
-        var model = Environment.GetEnvironmentVariable("AZURE_FOUNDRY_MODEL_DEPLOYMENT");
+        // Prefer the dedicated judge deployment; fall back to the generator model when unset.
+        var model = Environment.GetEnvironmentVariable("AZURE_FOUNDRY_JUDGE_DEPLOYMENT")
+            ?? Environment.GetEnvironmentVariable("AZURE_FOUNDRY_MODEL_DEPLOYMENT");
         if (string.IsNullOrWhiteSpace(endpoint) || string.IsNullOrWhiteSpace(model))
         {
             Assert.Ignore("Foundry not provisioned (AZURE_FOUNDRY_PROJECT_ENDPOINT / AZURE_FOUNDRY_MODEL_DEPLOYMENT unset).");
