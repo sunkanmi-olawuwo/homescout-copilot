@@ -28,9 +28,52 @@ test. The live `AgentAdministrationClient.CreateAgentVersion` registration is qu
   same safety evaluators over the **real** answers. Needs `AZURE_FOUNDRY_*` + Azure creds;
   proven by `EvaluatorLiveTests` (`[Category("External")]`, off the blocking gate — verified
   6/6 pass against the provisioned agent, 2026-07-04).
+- `evaluator quality [--data <path>]` — **bespoke model-graded quality** (done, live-verified):
+  asks the live copilot each query, then an **LLM judge** scores each real answer on relevance /
+  usefulness / groundedness (1–5, pass ≥ 3) with a rationale, and reports averages + pass rate.
+  The judge is a tool-less agent on the same proven `AsAIAgent` path (`FoundryAnswerJudge`);
+  the rubric + score-parsing (`AnswerJudge`) are pure and offline-tested; `QualityLiveTests`
+  (`[Category("External")]`) verifies it live. This is the lightweight, gate-friendly bespoke
+  signal — it needs no eval store.
 
-The **Foundry cloud evals** (model-graded intent/relevance/groundedness) are the next,
-live-verified step.
+### Standard-library evaluation harness (`HomeScoutCopilot.Evaluation.Test`)
+
+Alongside the bespoke console verb, HomeScout runs the **first-party
+`Microsoft.Extensions.AI.Evaluation` libraries** — the .NET equivalent of what `mslearn-genaiops`
+does in Python — so quality is measured with Microsoft's research-validated evaluators, not only
+our own rubric. **We deliberately run both, each metric labelled by origin**, in one
+`ReportingConfiguration` so the report compares them side-by-side (done, live-verified 2026-07-04):
+
+- **Built-in quality** (`Evaluation.Quality`, LLM-graded): `RelevanceEvaluator`,
+  `CoherenceEvaluator`, `FluencyEvaluator`. Judge = the Foundry `chat` deployment via an
+  `IChatClient`.
+- **HomeScout bespoke judge** (`HomeScoutBespokeJudgeEvaluator`) — the same `AnswerJudge` rubric,
+  reused as a custom `IEvaluator`, labelled `HomeScout bespoke: …`.
+- **HomeScout guardrails** (`HomeScoutGuardrailEvaluator`) — the deterministic `SafetyEvaluators`
+  regexes as a custom `IEvaluator`, so a violation reads the same in the report as in the CI gate.
+  Guardrail failures are the one **hard** assertion; quality is tracked as a trend.
+- **Foundry content-safety** (`Evaluation.Safety`, opt-in `AZURE_EVAL_CONTENT_SAFETY=1`):
+  `HateAndUnfairness` / `Violence` / `SelfHarm` / `Sexual` via the Foundry safety service.
+  Complements — does not replace — our domain guardrails (there is no built-in evaluator for
+  "not mortgage advice"). Verified 0–1 severity (all safe) across the dataset.
+
+Judge-model note: the `chat` deployment is a **gpt-5 reasoning model** — it rejects
+`temperature=0`, so a `DefaultTemperatureChatClient` shim strips it (the built-in evaluators
+hard-code temperature 0). The strict built-in evaluators also occasionally fail to parse a
+reasoning-model response; that (and throttling) is treated as **non-blocking** variance, while a
+400 / auth error **blocks** — so the harness catches a real integration break (it caught the
+temperature bug) without going red on LLM non-determinism.
+
+**Cloud store + regression history + shareable reports.** Results and cached judge responses
+persist to an **Azure ADLS Gen2** store (`AzureStorageReportingConfiguration`) when
+`AZURE_EVAL_STORAGE_ENDPOINT` is set — keyless (Entra RBAC), keyed by execution name so scores
+line up across runs; disk is the local default. `scripts/eval-report.sh` runs the evaluation and
+writes `artifacts/eval-report.html` via the `dotnet aieval` tool (pinned in `dotnet-tools.json`).
+The storage account is provisioned by `infra/modules/eval-storage.bicep` (verified live 2026-07-04).
+
+The Foundry Evals *service* (upload dataset → `builtin` evaluators → **portal** runs via
+`Azure.AI.Projects`) remains an optional future path if we want portal-visible evaluation runs;
+the standard library already delivers the model-graded quality signal + cloud regression history.
 
 ## Why two projects (not one, not in the test project)
 

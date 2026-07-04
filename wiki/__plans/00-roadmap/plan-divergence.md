@@ -9,6 +9,38 @@ Use this page whenever implementation differs from:
 
 ## Entries
 
+### 2026-07-04: Model-Graded Quality — Both The Standard Library And A Bespoke Judge (Not The Portal Evals Service)
+
+Plan/reference expectation:
+
+- `mslearn-genaiops` measures answer quality with the Azure AI Evaluation SDK / **Foundry Evals
+  service** (Python) — built-in `relevance` / `groundedness` / `coherence` evaluators, optionally
+  run in the cloud with results in the Foundry portal.
+
+HomeScout direction (implemented):
+
+- We adopted the **first-party .NET `Microsoft.Extensions.AI.Evaluation` libraries** — the direct
+  equivalent — running the built-in `Relevance` / `Coherence` / `Fluency` (and opt-in
+  content-safety) evaluators, with **cloud ADLS Gen2 persistence** for regression history +
+  `dotnet aieval` reports (`HomeScoutCopilot.Evaluation.Test`).
+- We **also keep our bespoke LLM-judge** (`AnswerJudge`), both as the lightweight `evaluator
+  quality` console verb and as a custom `IEvaluator` inside the same report — deliberately
+  side-by-side with the built-in metrics, each labelled by origin.
+
+Reasons:
+
+- The bespoke judge was built first because it reused a **proven** SDK path (`AsAIAgent`), so we
+  had a live-verified quality signal immediately. On review we found the first-party evaluation
+  library is the sanctioned, research-validated equivalent and is pure .NET, so we adopted it
+  rather than reinvent — keeping the bespoke rubric as an explicit comparison (the user asked for
+  both). All live-verified 2026-07-04 against the provisioned Foundry.
+
+Remaining divergence:
+
+- We use the library's **local + Azure-storage** reporting, not the Foundry **portal** evaluation
+  runs (`Azure.AI.Projects` `EvaluationClient`). The portal runs stay an **optional** later path;
+  the ADLS store already gives cloud regression history + shareable reports.
+
 ### 2026-07-04: GenAIOps Tooling — Total .NET Stack (Python Samples Are Guidance Only)
 
 Context:

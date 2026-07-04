@@ -77,8 +77,24 @@ module project 'modules/foundry-project.bicep' = {
   }
 }
 
+// Cloud evaluation store (ADLS Gen2) for Microsoft.Extensions.AI.Evaluation reporting — persisted,
+// regression-tracked answer-quality results + cached judge responses. Independent of the account,
+// so it settles in parallel.
+module evalStorage 'modules/eval-storage.bicep' = {
+  scope: rg
+  name: 'eval-storage'
+  params: {
+    location: location
+    tags: tags
+    storageAccountName: 'steval${resourceToken}'
+    deployerPrincipalId: principalId
+  }
+}
+
 output AZURE_LOCATION string = location
 output AZURE_RESOURCE_GROUP string = rg.name
 output AZURE_FOUNDRY_ACCOUNT string = account.outputs.accountName
 output AZURE_FOUNDRY_PROJECT_ENDPOINT string = project.outputs.projectEndpoint
 output AZURE_FOUNDRY_MODEL_DEPLOYMENT string = chatDeploymentName
+output AZURE_EVAL_STORAGE_ENDPOINT string = evalStorage.outputs.dfsEndpoint
+output AZURE_EVAL_STORAGE_FILESYSTEM string = evalStorage.outputs.fileSystemName

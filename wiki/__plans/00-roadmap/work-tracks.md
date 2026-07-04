@@ -128,12 +128,22 @@ using the lowercase `kind` chip, Live/Cache/Fallback provenance badge and source
 contract responses in component + Playwright E2E tests.
 
 **Backend (lead) — active + queued:**
-- ✅ **Evaluator harness — safety evals done** ([[GenAIOps Tooling Plan]]):
-  `HomeScoutCopilot.Evaluator` (`evaluator safety`) runs deterministic HomeScout guardrail
-  evaluators (not-mortgage-advice, no product recommendation, no safe/unsafe area verdict) over
-  a version-controlled eval dataset, scored + summarised, drift-guarded. The **Foundry cloud
-  evals** (model-graded intent/relevance/groundedness over live copilot responses) follow as
-  the next live-verified step (seam-first: offline proven, external adapter verified live).
+- ✅ **Evaluator harness — done, live-verified** ([[GenAIOps Tooling Plan]]):
+  `HomeScoutCopilot.Evaluator` covers all three verbs. `evaluator safety` runs deterministic
+  HomeScout guardrail evaluators (not-mortgage-advice, no product recommendation, no
+  safe/unsafe area verdict) over a version-controlled dataset (offline). `evaluator run` runs
+  the same evaluators over the **live** copilot's real answers (external, 6/6). `evaluator
+  quality` adds **model-graded quality** — an **LLM judge** scores each live answer on
+  relevance / usefulness / groundedness (1–5, pass ≥ 3) with a rationale; rubric + parsing are
+  pure/offline-tested, the model call is `[Category("External")]` (`QualityLiveTests`).
+  Live-verified 2026-07-04: 6/6, all dims avg 5.0 against the provisioned agent.
+  On top of the bespoke verb, a **standard-library harness** (`HomeScoutCopilot.Evaluation.Test`)
+  runs the first-party **`Microsoft.Extensions.AI.Evaluation`** evaluators (`Relevance`/`Coherence`/
+  `Fluency`) **and** the bespoke judge **and** the guardrails **and** opt-in Foundry content-safety
+  (`Hate`/`Violence`/`SelfHarm`/`Sexual`) in one origin-labelled report — results persisted to a
+  keyless **Azure ADLS Gen2** store (`infra/modules/eval-storage.bicep`) for regression history +
+  `dotnet aieval` reports (`scripts/eval-report.sh`). All live-verified 2026-07-04. Only the Foundry
+  *portal* evaluation runs remain optional — see [[Plan Divergence]].
 - **Queued next (planned):**
   1. **AgentOps `CreateAgentVersion`** — the deferred live-deploy: register the versioned agent
      server-side (portal versions + reference-by-name) now that Foundry is up.
