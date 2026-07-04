@@ -13,10 +13,23 @@ namespace HomeScoutCopilot.API.Service;
 /// </summary>
 public sealed class HomeScoutAgentTools(IMortgageCostEstimator estimator, IBaseRateProvider baseRate)
 {
+    /// <summary>Tool name the agent calls to estimate the monthly mortgage cost.</summary>
+    public const string EstimateMortgageToolName = "estimate_mortgage";
+
+    /// <summary>Tool name the agent calls to read the BoE base rate (context only).</summary>
+    public const string GetBaseRateToolName = "get_base_rate";
+
+    /// <summary>
+    /// The tool names the agent exposes — the single source of truth shared by
+    /// <see cref="Build"/> and the deploy tooling (the agent manifest).
+    /// </summary>
+    public static IReadOnlyList<string> ToolNames { get; } =
+        [EstimateMortgageToolName, GetBaseRateToolName];
+
     public IReadOnlyList<AITool> Build() =>
     [
-        AIFunctionFactory.Create(EstimateMortgage, name: "estimate_mortgage"),
-        AIFunctionFactory.Create(GetBaseRate, name: "get_base_rate"),
+        AIFunctionFactory.Create(EstimateMortgage, name: EstimateMortgageToolName),
+        AIFunctionFactory.Create(GetBaseRate, name: GetBaseRateToolName),
     ];
 
     [Description("Estimate the monthly mortgage cost from the buyer's own figures. This is an estimate, not mortgage advice.")]

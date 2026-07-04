@@ -13,6 +13,14 @@ This is the concrete home for the ".NET deploy step" and ".NET eval harness" the
 [Phased Learning And Build Plan](../00-roadmap/phased-learning-build-plan.md) Phase 3/6
 calls for.
 
+**Status (2026-07-04):** `HomeScoutCopilot.AgentOps` exists with the **manifest step
+implemented** — `agentops manifest [--out <path>]` assembles the declarative
+`homescout.agent.yaml` from the single-sourced agent definition (`AgentPrompt` +
+`HomeScoutAgentTools.ToolNames`), committed at
+`dotnet/src/HomeScoutCopilot.API.Service/Prompts/homescout.agent.yaml` and drift-guarded by a
+test. The live `AgentAdministrationClient.CreateAgentVersion` registration is the **next,
+live-verified** step (needs `azd` provision). `HomeScoutCopilot.Evaluator` is not yet created.
+
 ## Why two projects (not one, not in the test project)
 
 | Concern | AgentOps (deploy/control-plane) | Evaluator (measurement) |

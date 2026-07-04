@@ -11,6 +11,21 @@
   `security-extended` queries; PR + push-to-main + weekly triggers. Merged via PR #26 (all
   checks green, including `Analyze (csharp)`).
 
+### Backend Iteration 1 — AgentOps Manifest Step
+
+- Built `HomeScoutCopilot.AgentOps` (new `dotnet/tools/` folder + `/tools/` solution folder):
+  `agentops manifest [--out <path>]` assembles the declarative agent manifest from the
+  single-sourced agent definition — `AgentPrompt` (versioned prompt) + `HomeScoutAgentTools`
+  (refactored to expose `ToolNames` + name constants as the single source used by `Build()`).
+- Generated + committed `dotnet/src/HomeScoutCopilot.API.Service/Prompts/homescout.agent.yaml`
+  (name / model / instructions_file / tools) by running the tool itself. Added
+  `HomeScoutCopilot.AgentOps.Test` (3 tests: definition assembly, YAML shape, and a **drift
+  guard** that fails if the committed manifest goes stale vs the code).
+- Live `AgentAdministrationClient.CreateAgentVersion` registration is deliberately **deferred**
+  to a live-verified slice (needs `azd` provision) — per seam-first / "don't ship an unverified
+  integration". Solution builds (0 warn); all fast tests green (AgentOps 3 + existing suite
+  unedited). Updated [[GenAIOps Tooling Plan]], [[Component Architecture]], [[Work Tracks]].
+
 ### Design Handoff For Codex + Iteration 1 Plan
 
 - The finished Claude Design was committed as `wiki/raw/HomeScout Copilot.html` (compiled,

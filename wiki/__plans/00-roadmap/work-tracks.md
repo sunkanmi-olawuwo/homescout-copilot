@@ -78,11 +78,11 @@ evidence panel, responsive), then the **mortgage cost estimator end-to-end** aga
 `/api/mortgage/estimate` + `/api/mortgage/base-rate` (fully API-backed, no Foundry). Branch
 `feature/fe-*`; keep `frontend-ci` green.
 
-**Backend (lead) — bring the copilot toward live.** `HomeScoutCopilot.AgentOps` manifest
-step ([[GenAIOps Tooling Plan]], Phase 3): generate the declarative `homescout.agent.yaml`
-from the single-sourced agent definition, offline + unit-tested; the live `CreateAgentVersion`
-registration is deferred to a live-verified slice (needs `azd` provision). Branch
-`feature/be-*`. Independent of the frontend's first slice, so both run in parallel.
+**Backend (lead) — bring the copilot toward live.** ✅ **Done:** `HomeScoutCopilot.AgentOps`
+manifest step ([[GenAIOps Tooling Plan]], Phase 3) — `agentops manifest` generates the
+declarative `homescout.agent.yaml` from the single-sourced agent definition, offline +
+unit-tested + drift-guarded. The live `CreateAgentVersion` registration is deferred to a
+live-verified slice (needs `azd` provision). Ran independently of the frontend's first slice.
 
 **Then (lead):** review Codex's frontend PR **and** the backend PR, merge each individually,
 run an end-to-end check (frontend ↔ live mortgage/base-rate endpoints), then plan iteration 2.
