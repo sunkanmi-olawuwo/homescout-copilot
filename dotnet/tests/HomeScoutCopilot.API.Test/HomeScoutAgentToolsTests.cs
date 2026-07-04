@@ -12,7 +12,8 @@ public class HomeScoutAgentToolsTests
         => new(
             new MortgageCostEstimator(),
             new StubBaseRateProvider(
-                new BaseRate(3.75m, new DateOnly(2026, 6, 19), "Fallback", "Bank of England", "Context only.")));
+                new BaseRate(3.75m, new DateOnly(2026, 6, 19), "Fallback", "Bank of England", "Context only.")),
+            new RentalCostEstimator());
 
     private static AIFunction Function(string name)
         => (AIFunction)Tools().Build().First(t => t.Name == name);
@@ -61,5 +62,23 @@ public class HomeScoutAgentToolsTests
         var result = await function.InvokeAsync(new AIFunctionArguments(), TestContext.CurrentContext.CancellationToken);
 
         Assert.That(JsonSerializer.Serialize(result), Does.Contain("3.75"));
+    }
+
+    [Test]
+    public async Task Estimate_rental_cost_tool_routes_to_the_estimator()
+    {
+        var function = Function("estimate_rental_cost");
+        var arguments = new AIFunctionArguments
+        {
+            ["monthlyRent"] = 1_500m,
+            ["monthlyCouncilTax"] = 150m,
+            ["estimatedMonthlyBills"] = 200m,
+        };
+
+        var result = await function.InvokeAsync(arguments, TestContext.CurrentContext.CancellationToken);
+
+        // True monthly cost £1,850 and the 5-week tenancy deposit £1,730.77.
+        var json = JsonSerializer.Serialize(result);
+        Assert.That(json, Does.Contain("1850").And.Contain("1730.77"));
     }
 }

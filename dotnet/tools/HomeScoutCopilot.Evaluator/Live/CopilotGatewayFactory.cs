@@ -27,6 +27,7 @@ public static class CopilotGatewayFactory
         services.AddLogging();
         services.AddMemoryCache();
         services.AddSingleton<IMortgageCostEstimator, MortgageCostEstimator>();
+        services.AddSingleton<IRentalCostEstimator, RentalCostEstimator>();
         services.AddOptions<BaseRateOptions>();
         services.AddHttpClient<IBaseRateProvider, BankOfEnglandBaseRateProvider>(client =>
             client.DefaultRequestHeaders.UserAgent.ParseAdd(

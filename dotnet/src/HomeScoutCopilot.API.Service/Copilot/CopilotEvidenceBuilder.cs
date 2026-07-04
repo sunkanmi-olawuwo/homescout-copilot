@@ -13,6 +13,7 @@ namespace HomeScoutCopilot.API.Service;
 public static class CopilotEvidenceBuilder
 {
     private const string EstimateSource = "/api/mortgage/estimate";
+    private const string RentalSource = "/api/rental/estimate";
 
     // Case-insensitive so it doesn't matter whether the result was serialised camelCase (Web)
     // or PascalCase — the tool results carry no enums, so no converter is needed.
@@ -24,8 +25,31 @@ public static class CopilotEvidenceBuilder
         {
             HomeScoutAgentTools.EstimateMortgageToolName => FromEstimate(result),
             HomeScoutAgentTools.GetBaseRateToolName => FromBaseRate(result),
+            HomeScoutAgentTools.EstimateRentalCostToolName => FromRentalEstimate(result),
             _ => [],
         };
+
+    private static IReadOnlyList<EvidenceItem> FromRentalEstimate(JsonElement result)
+    {
+        if (result.ValueKind != JsonValueKind.Object || HasProperty(result, "error"))
+        {
+            return [];
+        }
+
+        var estimate = Deserialize<RentalCostResult>(result);
+        if (estimate is null || estimate.TotalMonthlyCost <= 0)
+        {
+            return [];
+        }
+
+        // Deterministic API computations — kind Estimate, provenance "Live" (freshly computed).
+        return
+        [
+            new EvidenceItem("Total monthly cost", Money(estimate.TotalMonthlyCost), FigureKind.Estimate, RentalSource, "Live"),
+            new EvidenceItem("Upfront cost (first month + deposit)", Money(estimate.UpfrontCost), FigureKind.Estimate, RentalSource, "Live"),
+            new EvidenceItem("Tenancy deposit", Money(estimate.TenancyDeposit), FigureKind.Estimate, RentalSource, "Live"),
+        ];
+    }
 
     private static IReadOnlyList<EvidenceItem> FromEstimate(JsonElement result)
     {
