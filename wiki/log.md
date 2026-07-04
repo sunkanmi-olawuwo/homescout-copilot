@@ -1,5 +1,30 @@
 # Log
 
+## 2026-07-05
+
+### Durable PostgreSQL Session Store + CodeQL Private-Repo Fix
+
+- **Repo went private** (per the accelerator strategy). Two CI side-effects surfaced and were
+  handled: (1) CodeQL/code-scanning needs GitHub Advanced Security (not free on private repos), so
+  the `Analyze` jobs failed at upload on every PR — guarded the job to `!github.event.repository.private`
+  so it skips (green) while private and auto-reactivates if public (PR #64); (2) branch protection /
+  required checks need GitHub Pro on private, so `main` now has no enforced gate — green-before-merge
+  is manual discipline. Follow-up flagged: a **local** static-analysis capability (CodeQL CLI +
+  complexity) to replace the lost hosted scanning.
+- **Durable session store — PostgreSQL (persistence-track step 5).** Added the `ISessionStore` seam
+  with `PostgresSessionStore` (Npgsql, `conversation_sessions` jsonb blob keyed by session id) and
+  `NullSessionStore` (graceful in-memory-only default). `FoundryAgentGateway` is now write-through:
+  on a registry miss it rehydrates from the store via `AIAgent.DeserializeSessionAsync(JsonElement)`,
+  and after each turn persists via `AIAgent.SerializeSessionAsync` (verified the exact SDK surface by
+  reflection before coding). Startup initializer creates the table; `ConversationSessionSweeper` and
+  the reset endpoint also purge the store. Wired in Aspire (`AddPostgres("postgres").AddDatabase("sessions")`)
+  and config-gated in `Program.cs` (no connection string → in-memory only, as before).
+- **Testcontainers Postgres tests run on every PR**, not nightly: they're hermetic/deterministic, so
+  they're tagged `Category=Database` (NOT `Integration`, which the gate excludes) and self-skip when
+  Docker is absent. Covers save/load round-trip, upsert, remove, sweep. The full
+  deserialize-into-a-live-agent restart test is `[Category("External")]`, **pending live Foundry
+  verification**. Plan: [[Conversation Threads — Multi-Turn, Anonymous]] step 5.
+
 ## 2026-07-04
 
 ### Rental Cost Estimator + Persistence Track Decisions

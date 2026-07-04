@@ -34,6 +34,9 @@
     <!-- The new Foundry agent SDK (Microsoft Agent Framework). Brings Microsoft.Agents.AI
          + Azure.AI.Projects transitively. Not the classic PersistentAgentsClient. -->
     <PackageReference Include="Microsoft.Agents.AI.Foundry" Version="1.5.0" />
+    <!-- Durable conversation-session store: raw Npgsql (NpgsqlDataSource) for a single jsonb
+         blob-by-id table — no EF Core needed. See PostgresSessionStore. -->
+    <PackageReference Include="Npgsql" Version="10.0.2" />
   </ItemGroup>
 
   <ItemGroup>

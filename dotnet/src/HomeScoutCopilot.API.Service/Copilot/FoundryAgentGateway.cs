@@ -35,12 +35,14 @@ public sealed class FoundryAgentGateway : IHomeScoutAgentGateway
 
     private readonly AIAgent _agent;
     private readonly ConversationSessionRegistry _sessions;
+    private readonly ISessionStore _store;
 
     public FoundryAgentGateway(
         AIProjectClient projectClient,
         IOptions<FoundryOptions> options,
         HomeScoutAgentTools tools,
-        ConversationSessionRegistry sessions)
+        ConversationSessionRegistry sessions,
+        ISessionStore store)
     {
         // The AIProjectClient is a thread-safe singleton; only the agent (which binds request-scoped
         // tools) is built per request. Construction is local — the network call is in RunAsync.
@@ -50,20 +52,43 @@ public sealed class FoundryAgentGateway : IHomeScoutAgentGateway
             instructions: AgentPrompt.Instructions,
             tools: tools.Build().ToList());
         _sessions = sessions;
+        _store = store;
     }
 
     public async Task<CopilotAnswer> AskAsync(
         CopilotRequest request, string? sessionId = null, CancellationToken cancellationToken = default)
     {
-        // With a session id, run against the stored multi-turn session (follow-ups keep context);
-        // without one, run stateless (single-turn) exactly as before.
-        var response = string.IsNullOrWhiteSpace(sessionId)
+        // With a session id, run against the multi-turn session (follow-ups keep context); without
+        // one, run stateless (single-turn) exactly as before. The in-memory registry is the hot
+        // cache; on a miss it is rehydrated from the durable store (surviving an API restart), and
+        // the session is written back after the turn so the store stays current.
+        AgentSession? session = null;
+        if (!string.IsNullOrWhiteSpace(sessionId))
+        {
+            session = await _sessions.GetOrCreateAsync(
+                sessionId,
+                async () =>
+                {
+                    var saved = await _store.TryLoadAsync(sessionId, cancellationToken).ConfigureAwait(false);
+                    return saved is { } state
+                        ? await _agent.DeserializeSessionAsync(state, jsonSerializerOptions: null, cancellationToken).ConfigureAwait(false)
+                        : await _agent.CreateSessionAsync(cancellationToken).ConfigureAwait(false);
+                });
+        }
+
+        var response = session is null
             ? await _agent.RunAsync(request.Message, options: RunOptions, cancellationToken: cancellationToken)
-            : await _agent.RunAsync(
-                request.Message,
-                await _sessions.GetOrCreateAsync(sessionId, () => _agent.CreateSessionAsync(cancellationToken).AsTask()),
-                RunOptions,
-                cancellationToken);
+            : await _agent.RunAsync(request.Message, session, RunOptions, cancellationToken);
+
+        // Write-through: persist the updated session so history survives a restart. Skipped when the
+        // store is a no-op (durability off) to avoid serializing a session nobody will keep.
+        if (session is not null && _store.IsPersistent)
+        {
+            var serialized = await _agent
+                .SerializeSessionAsync(session, jsonSerializerOptions: null, cancellationToken)
+                .ConfigureAwait(false);
+            await _store.SaveAsync(sessionId!, serialized, cancellationToken).ConfigureAwait(false);
+        }
 
         var contents = response.Messages.SelectMany(message => message.Contents).ToList();
 

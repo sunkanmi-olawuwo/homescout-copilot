@@ -5,6 +5,7 @@ using Azure.Identity;
 using Carter;
 using HomeScoutCopilot.API.Service;
 using Microsoft.Extensions.Options;
+using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -72,6 +73,22 @@ if (!string.IsNullOrWhiteSpace(foundryEndpoint))
 builder.Services.AddOptions<ConversationOptions>().BindConfiguration(ConversationOptions.SectionName);
 builder.Services.AddSingleton<ConversationSessionRegistry>();
 builder.Services.AddHostedService<ConversationSessionSweeper>();
+
+// Durable session store (PostgreSQL). Registered only when the Aspire-injected "sessions"
+// connection string is present; otherwise sessions live only in memory (NullSessionStore) and are
+// cleared on restart — graceful degradation, mirroring how the copilot itself is optional.
+var sessionsConnectionString = builder.Configuration.GetConnectionString("sessions");
+if (!string.IsNullOrWhiteSpace(sessionsConnectionString))
+{
+    builder.Services.AddSingleton(_ => new NpgsqlDataSourceBuilder(sessionsConnectionString).Build());
+    builder.Services.AddSingleton<PostgresSessionStore>();
+    builder.Services.AddSingleton<ISessionStore>(sp => sp.GetRequiredService<PostgresSessionStore>());
+    builder.Services.AddHostedService<PostgresSessionStoreInitializer>();
+}
+else
+{
+    builder.Services.AddSingleton<ISessionStore, NullSessionStore>();
+}
 
 var app = builder.Build();
 

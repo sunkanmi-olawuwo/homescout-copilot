@@ -19,6 +19,9 @@
     <PackageReference Include="MediatR" Version="12.5.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.8" />
     <PackageReference Include="Microsoft.OpenApi" Version="2.9.0" />
+    <!-- Builds the NpgsqlDataSource for the durable session store from the Aspire-injected
+         "sessions" connection string. -->
+    <PackageReference Include="Npgsql" Version="10.0.2" />
   </ItemGroup>
 
 </Project>

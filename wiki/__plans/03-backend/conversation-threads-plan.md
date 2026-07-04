@@ -1,8 +1,9 @@
 # Conversation Threads Plan (Multi-Turn, Anonymous)
 
 **Status:** Backend slice 1 **done, live-verified (2026-07-04)** — anonymous session cookie +
-in-memory session registry + gateway session support + reset endpoint. Durable store, multi-turn
-eval-harness cases, and the frontend "New conversation" button remain.
+in-memory session registry + gateway session support + reset endpoint. **Durable PostgreSQL store
+done (2026-07-05, Testcontainers-verified; live restart path pending Foundry).** Multi-turn
+eval-harness cases remain; the frontend "New conversation" button shipped separately.
 
 **Owning context:** follow-up to [[Copilot Agent Gateway — Design]]; the copilot is **single-turn
 today** (each `AskAsync` is independent), so context-dependent follow-ups can't be answered.
@@ -116,16 +117,31 @@ Backend (me) and frontend (Codex) run in parallel against the contract above.
      (`ConversationSessionRegistryTests`).
 4. **Multi-turn eval cases** *(next)* — ordered turns; harness drives a session; assert context
    carries (the live gateway test already proves the mechanism).
-5. **Durable store — PostgreSQL** *(next)* — persist serialized session state via
-   `SerializeSessionAsync`/`DeserializeSessionAsync` so history survives API restarts.
+5. ✅ **Durable store — PostgreSQL** *(done 2026-07-05; Testcontainers-verified, live path pending
+   Foundry)* — `ISessionStore` seam with `PostgresSessionStore` (real) + `NullSessionStore`
+   (graceful "durability off" default). `FoundryAgentGateway` is now write-through: on a session
+   miss the in-memory registry rehydrates from the store via
+   `AIAgent.DeserializeSessionAsync(JsonElement)`, and after each turn the session is persisted via
+   `AIAgent.SerializeSessionAsync` (skipped when the store isn't persistent). Table
+   `conversation_sessions(session_id PK, payload jsonb, created_at, last_active_at)` created by a
+   startup initializer; `ConversationSessionSweeper` also `DELETE`s idle/absolute-expired rows;
+   reset purges the store too. Wired in Aspire (`AddPostgres("postgres").AddDatabase("sessions")`),
+   config-gated in `Program.cs` (no connection string → `NullSessionStore`, in-memory only as
+   before).
+   - **Tested:** `PostgresSessionStoreTests` (Testcontainers, `Category=Database` — runs in the PR
+     gate, self-skips without Docker) cover save/load round-trip, upsert, remove, and sweep;
+     `NullSessionStoreTests` + the reset-endpoint test cover the no-op path and store purge. The
+     full deserialize-into-a-live-agent path has a `[Category("External")]` restart test
+     (`Copilot_recovers_a_session_from_the_durable_store_across_a_restart`) that runs when Foundry
+     is provisioned — **pending live verification** (not yet run against a real Foundry project).
    - **Decision (2026-07-04): use PostgreSQL, not Cosmos, for *our* durable store.** The store
      only needs to key a serialized session blob by session id with an expiry — a single
-     `conversation_sessions(session_id PK, payload jsonb/bytea, created_at, last_active_at,
-     expires_at)` row per session. Postgres fits this exactly, Aspire has first-class Postgres
+     `conversation_sessions(session_id PK, payload jsonb, created_at, last_active_at)`
+     row per session. Postgres fits this exactly, Aspire has first-class Postgres
      support (local container in dev → Azure Database for PostgreSQL in prod), it is far cheaper
      than a Standard-setup Cosmos (≥3000 RU/s), and **Keycloak already runs on Postgres** — so the
      session store and identity share one engine. TTL: Cosmos has native TTL, but we already run
-     `ConversationSessionSweeper`, which can `DELETE WHERE expires_at < now()` — no capability lost.
+     `ConversationSessionSweeper`, which `DELETE`s idle/absolute-expired rows — no capability lost.
    - **Not the same Cosmos as the Foundry *Standard* capability host.** That Cosmos (+ AI Search +
      Storage) is Foundry's *server-side* thread storage and is a separate, deferred platform
      decision (we're on **Basic**/Microsoft-managed today). Persisting the *serialized* session
