@@ -2,6 +2,24 @@
 
 ## 2026-07-04
 
+### In-Process Reasoning Tuning + Deferring Server-Side Tools
+
+- After a cost/benefit review, **deferred server-side tools + reference-by-name**: agent-target
+  cloud eval is covered better by **BYO-responses**, instructions are single-sourced, and the agent
+  already shows in the portal (CreateAgentVersion). Server-side tools would add a public inbound
+  surface + managed-identity auth + a dev-tunnel to test locally — not justified yet. `AgenticAICore`
+  confirmed the in-process ("Local") agent is a first-class strategy and that reasoning is tunable
+  in-process, so there's no runtime loss.
+- **In-process reasoning tuning (done, live-verified):** `FoundryAgentGateway` now sets
+  `ChatOptions.Reasoning = { Effort = ReasoningEffort.Medium }` per run (portable
+  `Microsoft.Extensions.AI` surface — not the experimental OpenAI-specific one). The correct knob
+  for our gpt-5 reasoning model (temperature/top-p are rejected). Verified 2026-07-04: the copilot
+  still calls `estimate_mortgage` and does not error.
+- **Persisted Foundry agent** (`agentops deploy`) is kept as a **decoupled, optional GenAIOps/portal
+  asset** (versioned agent registry + portal visibility), not on the runtime path. Recorded the
+  decision + rationale in [[Server-Side Tools Plan]] (deferred) and [[work-tracks]].
+- Reference for the local-vs-Foundry agent split: [[API-First Foundry Agents]] → AgenticAICore.
+
 ### Spike: Reference-by-name Depends on Server-Side Tools (reverted)
 
 - Spiked **reference-by-name** (API serves the persisted `HomeScout` agent instead of building

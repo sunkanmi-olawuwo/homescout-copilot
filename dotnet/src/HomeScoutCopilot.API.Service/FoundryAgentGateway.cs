@@ -25,6 +25,15 @@ public sealed class FoundryAgentGateway : IHomeScoutAgentGateway
         "This is an estimate, not mortgage advice — speak to a qualified mortgage adviser.",
     ];
 
+    // The chat model is a gpt-5 reasoning model, tuned with reasoning effort rather than
+    // temperature/top-p (which reasoning models reject). Medium balances answer quality against
+    // latency/cost for a copilot that reasons about costs and explains its assumptions. Uses the
+    // portable Microsoft.Extensions.AI reasoning surface (not the experimental OpenAI-specific one).
+    private static readonly ChatClientAgentRunOptions RunOptions = new(new ChatOptions
+    {
+        Reasoning = new ReasoningOptions { Effort = ReasoningEffort.Medium },
+    });
+
     private readonly AIAgent _agent;
 
     public FoundryAgentGateway(IOptions<FoundryOptions> options, TokenCredential credential, HomeScoutAgentTools tools)
@@ -40,7 +49,7 @@ public sealed class FoundryAgentGateway : IHomeScoutAgentGateway
 
     public async Task<CopilotAnswer> AskAsync(CopilotRequest request, CancellationToken cancellationToken = default)
     {
-        var response = await _agent.RunAsync(request.Message, cancellationToken: cancellationToken);
+        var response = await _agent.RunAsync(request.Message, options: RunOptions, cancellationToken: cancellationToken);
 
         var contents = response.Messages.SelectMany(message => message.Contents).ToList();
 
