@@ -2,9 +2,9 @@
 
 **Status:** Backend slice 1 **done, live-verified (2026-07-04)** — anonymous session cookie +
 in-memory session registry + gateway session support + reset endpoint. **Durable PostgreSQL store
-done (2026-07-05, Testcontainers-verified; live restart path pending Foundry).** **Multi-turn
-eval-harness cases done (2026-07-05; live run pending Foundry).** The frontend "New conversation"
-button shipped separately. Next: Keycloak identity → per-user history.
+done + live-verified (2026-07-05).** **Multi-turn eval-harness cases done + live-verified
+(2026-07-05).** The frontend "New conversation" button shipped separately. Next: Keycloak identity →
+per-user history.
 
 **Owning context:** follow-up to [[Copilot Agent Gateway — Design]]; the copilot is **single-turn
 today** (each `AskAsync` is independent), so context-dependent follow-ups can't be answered.
@@ -122,15 +122,16 @@ Backend (me) and frontend (Codex) run in parallel against the contract above.
      (£1,012.50) — across **two gateway instances sharing one registry** (the production scoped
      shape), proving `AgentSession` carries context cross-instance. Registry logic covered offline
      (`ConversationSessionRegistryTests`).
-4. ✅ **Multi-turn eval cases** *(done 2026-07-05)* — `MultiTurnCase` (ordered `turns` +
-   `expectFinalContains`) in `data/homescout-multiturn-eval.jsonl`; `MultiTurnEvaluation.RunAsync`
-   drives each conversation against one session and asserts the final answer carried context; new
-   `evaluator multiturn` CLI verb. Offline harness tests (`MultiTurnHarnessTests`) lock the parser +
-   runner (turns in order, one session per case, pass/fail on the carried figure) with a recording
-   fake; the live run (`MultiTurnLiveTests`, `[Category("External")]`) drives the real copilot —
-   **pending live Foundry verification**.
-5. ✅ **Durable store — PostgreSQL** *(done 2026-07-05; Testcontainers-verified, live path pending
-   Foundry)* — `ISessionStore` seam with `PostgresSessionStore` (real) + `NullSessionStore`
+4. ✅ **Multi-turn eval cases** *(done + live-verified 2026-07-05)* — `MultiTurnCase` (ordered
+   `turns` + `expectFinalContains`) in `data/homescout-multiturn-eval.jsonl`;
+   `MultiTurnEvaluation.RunAsync` drives each conversation against one session and asserts the final
+   answer carried context; new `evaluator multiturn` CLI verb. Offline harness tests
+   (`MultiTurnHarnessTests`) lock the parser + runner (turns in order, one session per case,
+   pass/fail on the carried figure) with a recording fake. **Live-verified 2026-07-05**
+   (`MultiTurnLiveTests` against the real Foundry `chat` deployment): both the buying and renting
+   conversations carried context (interest-only and rent-upfront answered from the earlier turn).
+5. ✅ **Durable store — PostgreSQL** *(done + live-verified 2026-07-05)* — `ISessionStore` seam with
+   `PostgresSessionStore` (real) + `NullSessionStore`
    (graceful "durability off" default). `FoundryAgentGateway` is now write-through: on a session
    miss the in-memory registry rehydrates from the store via
    `AIAgent.DeserializeSessionAsync(JsonElement)`, and after each turn the session is persisted via
@@ -142,10 +143,11 @@ Backend (me) and frontend (Codex) run in parallel against the contract above.
    before).
    - **Tested:** `PostgresSessionStoreTests` (Testcontainers, `Category=Database` — runs in the PR
      gate, self-skips without Docker) cover save/load round-trip, upsert, remove, and sweep;
-     `NullSessionStoreTests` + the reset-endpoint test cover the no-op path and store purge. The
-     full deserialize-into-a-live-agent path has a `[Category("External")]` restart test
-     (`Copilot_recovers_a_session_from_the_durable_store_across_a_restart`) that runs when Foundry
-     is provisioned — **pending live verification** (not yet run against a real Foundry project).
+     `NullSessionStoreTests` + the reset-endpoint test cover the no-op path and store purge.
+     **Live-verified 2026-07-05** (`Copilot_recovers_a_session_from_the_durable_store_across_a_restart`
+     against real Foundry + a Testcontainers Postgres): turn 1 gave the figures, a fresh empty
+     in-memory registry simulated an API restart, and the "and on interest-only?" follow-up was
+     answered — proving the session was rehydrated from PostgreSQL via `DeserializeSessionAsync`.
    - **Decision (2026-07-04): use PostgreSQL, not Cosmos, for *our* durable store.** The store
      only needs to key a serialized session blob by session id with an expiry — a single
      `conversation_sessions(session_id PK, payload jsonb, created_at, last_active_at)`
