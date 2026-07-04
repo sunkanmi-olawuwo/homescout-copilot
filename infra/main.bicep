@@ -26,11 +26,15 @@ param principalId string = ''
 @description('Chat model deployment name — a stable role label the app passes as the model, decoupled from the underlying model.')
 param chatDeploymentName string = 'chat'
 
-@description('Chat model name. Defaults to a model with default Standard quota in common regions.')
-param chatModelName string = 'gpt-4.1-mini'
+@description('Chat model name. A current, tool-calling model with GlobalStandard quota in eastus2. (Earlier gpt-4.1-mini / gpt-4o-mini versions became deprecated and are blocked for new deployments — verified against the live model catalog on 2026-07-04.)')
+param chatModelName string = 'gpt-5-mini'
 
 @description('Chat model version.')
-param chatModelVersion string = '2025-04-14'
+param chatModelVersion string = '2025-08-07'
+
+@description('Model deployment SKU. GPT-5-family models are offered on GlobalStandard/DataZoneStandard, not regional Standard; gpt-5-mini has GlobalStandard quota in eastus2.')
+@allowed(['Standard', 'GlobalStandard', 'DataZoneStandard'])
+param chatSku string = 'GlobalStandard'
 
 var tags = {
   'azd-env-name': environmentName
@@ -54,6 +58,7 @@ module account 'modules/foundry-account.bicep' = {
     chatDeploymentName: chatDeploymentName
     chatModelName: chatModelName
     chatModelVersion: chatModelVersion
+    chatSku: chatSku
   }
 }
 
