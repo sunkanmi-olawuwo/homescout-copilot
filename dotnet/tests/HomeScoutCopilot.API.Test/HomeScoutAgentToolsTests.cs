@@ -26,6 +26,16 @@ public class HomeScoutAgentToolsTests
     }
 
     [Test]
+    public void ToolNames_stay_in_step_with_the_built_tools()
+    {
+        // ToolNames is the single source shared with the deploy tooling (the agent manifest);
+        // it must match the tools Build() actually exposes, or the manifest drifts from reality.
+        var built = Tools().Build().Select(tool => tool.Name).ToArray();
+
+        Assert.That(HomeScoutAgentTools.ToolNames, Is.EquivalentTo(built));
+    }
+
+    [Test]
     public async Task Estimate_mortgage_tool_routes_to_the_estimator()
     {
         var function = Function("estimate_mortgage");
