@@ -70,10 +70,17 @@ redefining it inline.
 - **Translation:** introduce a **deploy step** that registers the prompt as a versioned
   Foundry agent, and have the gateway reference it by name. This decouples prompt
   changes from app deploys and gives portal-visible versions + rollback.
-- **Open question (spike first):** confirm whether .NET `Microsoft.Agents.AI.Foundry`
-  1.5.0 / `Azure.AI.Projects` exposes a `create_version` + `PromptAgentDefinition`
-  equivalent. If not, the deploy step is a small out-of-band tool (see the
-  language-of-tooling decision below).
+- **Resolved (2026-07-04 spike): .NET exposes this directly.** No Python needed —
+  `Azure.AI.Projects.AIProjectClient.AgentAdministrationClient` (from
+  `Azure.AI.Projects.Agents` 2.0.0, already on our restore graph via
+  `Microsoft.Agents.AI.Foundry` 1.5.0) offers `CreateAgentVersion(Async)`,
+  `CreateAgentFromManifest(Async)` / `CreateAgentVersionFromManifest(Async)`,
+  `GetAgentVersion(s)`, and `DeleteAgentVersion`. Definition types:
+  `ProjectsAgentDefinition`, `ProjectsAgentVersionCreationOptions`,
+  `DeclarativeAgentDefinition` (== `PromptAgentDefinition` / declarative `agent.yaml`).
+  `ProjectsAgentVersion.Version` gives the server-side version. Runtime references it by
+  name/version via `Azure.AI.Extensions.OpenAI.AgentReference` (has `.Version`) over the
+  Responses API. See the verified-surface table below.
 - **Owning phase:** 3 (prompt governance / first agent).
 
 ### 2. Declarative agent manifest (`agent.yaml`)
@@ -164,22 +171,34 @@ connections, App Insights + Log Analytics (monitoring), AI Search, and storage w
   monitoring), AI Search + storage (Standard agents / RAG, Phase 6+).
 - **Owning phase:** 7 (Azure deployment management), incrementally.
 
-## Cross-cutting decision: language of the eval/deploy tooling
+## Cross-cutting decision: language of the eval/deploy tooling — RESOLVED: total .NET
 
-The lab's eval + deploy scripts are **Python** (Foundry's Evals + datasets tooling is
-Python-first). HomeScout product code is **.NET / API-first**. Options for the
-eval/deploy harness (decide at implementation time, record in [[Plan Divergence]]):
+**Decision (2026-07-04, from the spike): keep a single .NET stack — no Python in the
+repo.** The lab's Python scripts are **guided examples only**; every step maps to a .NET
+API that is already on our restore graph. The eval/deploy tooling ships as .NET console
+tools (e.g. `dotnet/tools/…` or a test project), authenticated keyless with
+`DefaultAzureCredential` like the rest of the app.
 
-- **A. Small repo-local Python tool** under e.g. `tools/genaiops/` — matches the reference
-  and Foundry's most mature eval surface; keeps product code untouched. Cost: a second
-  language in the repo (CI needs Python) — but only for out-of-band ops tooling, never in
-  the shipped app.
-- **B. .NET harness** — one stack; call the OpenAI-compatible Evals API from .NET. Cost:
-  less-trodden path; verify the .NET surface first.
+### Verified .NET surface (spike over the restored assemblies)
 
-Recommendation: **spike the .NET agent `create_version` + Evals surface first** (Pattern 1
-open question). If .NET is clean, prefer B for stack unity; otherwise adopt A for the
-eval/deploy tooling only. Either way, product code stays .NET.
+Reflection over `Azure.AI.Projects` 2.0.0, `Azure.AI.Projects.Agents` 2.0.0, `OpenAI`
+2.10.0, and `Azure.AI.Extensions.OpenAI` 2.0.0 (all pulled in transitively today):
+
+| Python (lab) | .NET equivalent (verified present) |
+| --- | --- |
+| `AIProjectClient(endpoint, DefaultAzureCredential())` | `Azure.AI.Projects.AIProjectClient` (+ `Azure.Identity`) — already used |
+| `project_client.agents.create_version(name, PromptAgentDefinition(...))` | `AIProjectClient.AgentAdministrationClient.CreateAgentVersion(...)` with `ProjectsAgentVersionCreationOptions` / `ProjectsAgentDefinition` |
+| declarative `agent.yaml` | `AgentAdministrationClient.CreateAgentFromManifest(...)` + `DeclarativeAgentDefinition` (native) |
+| `project_client.datasets.upload_file(...)` | `AIProjectClient.Datasets` (+ `FileDataset`, `PendingUploadResult`) |
+| `project_client.get_openai_client()` | `AIProjectClient.GetProjectOpenAIClient()` / `.ProjectOpenAIClient` |
+| `client.evals.create(...)` / `runs.create` / `output_items.list` | `OpenAIClient.GetEvaluationClient()` → `OpenAI.Evals.EvaluationClient.CreateEvaluation / CreateEvaluationRun / GetEvaluationRunOutputItems` |
+| built-in evaluators (intent/relevance/groundedness) | Foundry-native `AIProjectClient.Evaluators` (`Azure.AI.Projects.Evaluation.*`, `PromptBasedEvaluatorDefinition`, `EvaluatorType`) **or** `OpenAI.Graders.*` |
+| runtime `agent_reference` | `Azure.AI.Extensions.OpenAI.AgentReference` (has `.Version`) + `AsAgentResponseItem` |
+
+Caveat: this is the `Azure.AI.Projects*` 2.0.0 surface — confirm any preview/GA labels and
+exact call shapes against Microsoft Learn at implementation time (per the "use the current,
+documented, non-deprecated API surface" standard). Feasibility is proven; the details get
+pinned when we build.
 
 ## Summary: what to infuse where
 
@@ -188,8 +207,9 @@ eval/deploy tooling only. Either way, product code stays .NET.
 | Keyless `DefaultAzureCredential` | ✅ shipped | done |
 | Versioned prompt files | ✅ shipped (`homescout.v1.md`) | done |
 | Declarative `agent.yaml` manifest | to add | 3 |
-| Persisted/versioned agent (`create_version` + reference-by-name) | to add (spike SDK first) | 3 |
-| Cloud eval harness (built-in + safety evaluators) | **gap** — top priority | 3 → 6 |
+| Persisted/versioned agent (`create_version` + reference-by-name) | to add — **.NET path confirmed** (`AgentAdministrationClient.CreateAgentVersion`) | 3 |
+| Cloud eval harness (built-in + safety evaluators) | **gap** — top priority; **.NET path confirmed** (`OpenAI.Evals` / `AIProjectClient.Evaluators`) | 3 → 6 |
+| Eval/deploy tooling language | **decided: total .NET** (no Python) | — |
 | Batch experiment harness (+ token/cost) | to add | 4 |
 | CI eval gate (OIDC, PR comment, non-blocking) | to add | 6 |
 | Fuller azd/bicep (App Insights, Search, storage) | partial (Basic) | 7 |
