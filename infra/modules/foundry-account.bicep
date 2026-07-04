@@ -35,6 +35,9 @@ resource account 'Microsoft.CognitiveServices/accounts@2025-06-01' = {
     // A custom subdomain is required for Entra ID (token) auth and project endpoints.
     customSubDomainName: accountName
     publicNetworkAccess: 'Enabled'
+    // Required to create Foundry projects under this AIServices account (the new Foundry
+    // project model). Without it, project creation fails with BadRequest.
+    allowProjectManagement: true
     // Prefer Entra ID; local dev + the app both use DefaultAzureCredential. Set true in
     // production to force Entra-only.
     disableLocalAuth: false

@@ -2,6 +2,25 @@
 
 ## 2026-07-04
 
+### Foundry Provisioned + Copilot Live-Verified 🎉
+
+- Ran `azd provision` into subscription **HomeScoutPilot** (eastus2): resource group, AIServices
+  account, chat model deployment, Foundry project, RBAC. Fixed three real issues found by
+  provisioning against the live platform:
+  1. **Model deprecated** — pinned `gpt-4.1-mini 2025-04-14` (and `gpt-4o-mini 2024-07-18`) are
+     blocked for new deployments; swapped to **`gpt-5-mini 2025-08-07`** chosen from the live
+     catalog (500k TPM GlobalStandard quota in eastus2).
+  2. **SKU** — GPT-5-family models are **GlobalStandard**/DataZoneStandard, not regional
+     `Standard`; wired `chatSku = GlobalStandard` through `main.bicep`.
+  3. **Project creation** needs **`allowProjectManagement: true`** on the account (added).
+- **RBAC:** azd didn't populate `AZURE_PRINCIPAL_ID`, so the bicep skipped the role grant;
+  granted **Foundry User** to the CLI user directly, and documented setting the principal in
+  `infra/README.md`.
+- ✅ **Live agent test green:** `FoundryAgentGatewayLiveTests` — the real HomeScout agent
+  (gpt-5-mini) called the `estimate_mortgage` tool against the provisioned project and returned
+  a grounded answer with the not-mortgage-advice caveat. `/api/copilot/ask` is now live with the
+  `AZURE_FOUNDRY_*` env set. Infra changes verified-by-provision, not just compiled.
+
 ### Iteration 2 Kickoff — Copilot Evidence Contract + Foundry Provisioning (Plan)
 
 - Planned iteration 2 ("light up the copilot"): the backend defines a structured **evidence
