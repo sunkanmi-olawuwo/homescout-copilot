@@ -18,9 +18,10 @@
     <ProjectReference Include="..\..\src\HomeScoutCopilot.API.Service\HomeScoutCopilot.API.Service.csproj" />
   </ItemGroup>
 
-  <!-- The eval dataset is a version-controlled asset; ship it next to the tool. -->
+  <!-- The eval datasets are version-controlled assets; ship them next to the tool. -->
   <ItemGroup>
     <Content Include="data\homescout-eval.jsonl" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="data\homescout-multiturn-eval.jsonl" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

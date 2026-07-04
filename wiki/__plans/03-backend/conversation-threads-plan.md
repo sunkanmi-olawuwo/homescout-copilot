@@ -2,8 +2,9 @@
 
 **Status:** Backend slice 1 **done, live-verified (2026-07-04)** — anonymous session cookie +
 in-memory session registry + gateway session support + reset endpoint. **Durable PostgreSQL store
-done (2026-07-05, Testcontainers-verified; live restart path pending Foundry).** Multi-turn
-eval-harness cases remain; the frontend "New conversation" button shipped separately.
+done (2026-07-05, Testcontainers-verified; live restart path pending Foundry).** **Multi-turn
+eval-harness cases done (2026-07-05; live run pending Foundry).** The frontend "New conversation"
+button shipped separately. Next: Keycloak identity → per-user history.
 
 **Owning context:** follow-up to [[Copilot Agent Gateway — Design]]; the copilot is **single-turn
 today** (each `AskAsync` is independent), so context-dependent follow-ups can't be answered.
@@ -85,16 +86,22 @@ Anonymous conversations can contain the buyer's own figures (price, deposit), so
 them: 60-min idle / 24-h cap balances continuity against not lingering mildly-sensitive data. In the
 first (in-memory) cut, an API restart clears everything, so the idle GC mainly bounds memory.
 
-## Verification — add multi-turn eval cases
+## Verification — multi-turn eval cases ✅ (done 2026-07-05)
 
-Our dataset already has the canonical follow-up, `cost-interest-only` ("And on interest-only?"), but
-it is currently evaluated **standalone** (single-turn), so it doesn't actually test context-carry —
-the copilot can't answer it well today. When threads land:
+Implemented as its own dataset + harness, separate from the single-turn safety dataset:
 
-- Add **multi-turn eval cases** (an ordered turn sequence per case) that assert the second turn
-  reuses the first turn's figures — the proof that "no rewrite needed" holds for our tools.
-- Extend the harness to drive a thread across turns (not one independent query per row), and check
-  the follow-up answer contains the carried-over estimate.
+- **`data/homescout-multiturn-eval.jsonl`** — one conversation per line: `turns` (ordered user
+  messages) + `expectFinalContains` (a tolerant substring the final answer must contain, e.g. `£1,0`
+  for the interest-only follow-up). Covers a buying and a renting follow-up.
+- **`MultiTurnEvaluation.RunAsync`** drives every turn of a case against **one session id** so
+  context accumulates, then checks the final answer contains the carried-over figure — the proof
+  that "no rewrite needed" holds for our deterministic tools. Different cases use different session
+  ids so they don't bleed. Exposed as the `evaluator multiturn` CLI verb.
+- Offline `MultiTurnHarnessTests` lock the parser and runner (turns replayed in order, one session
+  per case, pass when the final answer carries the figure, fail when the copilot re-asks) with a
+  recording fake. `MultiTurnLiveTests` (`[Category("External")]`) runs the dataset against the real
+  copilot — **pending live Foundry verification**. The single-turn `cost-interest-only` case stays
+  in the safety dataset for its guardrail check.
 
 ## Phased steps
 
@@ -115,8 +122,13 @@ Backend (me) and frontend (Codex) run in parallel against the contract above.
      (£1,012.50) — across **two gateway instances sharing one registry** (the production scoped
      shape), proving `AgentSession` carries context cross-instance. Registry logic covered offline
      (`ConversationSessionRegistryTests`).
-4. **Multi-turn eval cases** *(next)* — ordered turns; harness drives a session; assert context
-   carries (the live gateway test already proves the mechanism).
+4. ✅ **Multi-turn eval cases** *(done 2026-07-05)* — `MultiTurnCase` (ordered `turns` +
+   `expectFinalContains`) in `data/homescout-multiturn-eval.jsonl`; `MultiTurnEvaluation.RunAsync`
+   drives each conversation against one session and asserts the final answer carried context; new
+   `evaluator multiturn` CLI verb. Offline harness tests (`MultiTurnHarnessTests`) lock the parser +
+   runner (turns in order, one session per case, pass/fail on the carried figure) with a recording
+   fake; the live run (`MultiTurnLiveTests`, `[Category("External")]`) drives the real copilot —
+   **pending live Foundry verification**.
 5. ✅ **Durable store — PostgreSQL** *(done 2026-07-05; Testcontainers-verified, live path pending
    Foundry)* — `ISessionStore` seam with `PostgresSessionStore` (real) + `NullSessionStore`
    (graceful "durability off" default). `FoundryAgentGateway` is now write-through: on a session

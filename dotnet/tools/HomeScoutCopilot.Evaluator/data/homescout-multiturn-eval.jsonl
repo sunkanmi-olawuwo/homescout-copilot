@@ -1,0 +1,8 @@
+# HomeScout multi-turn (context-carry) eval dataset (JSONL). One conversation per line:
+# id, turns (ordered user messages driven against ONE session), expectFinalContains (a substring the
+# FINAL answer must contain — the carried-over figure that proves context held across turns). The
+# follow-up restates NO figures, so it can only be answered if the session carried the earlier ones.
+# expectFinalContains is a tolerant substring (e.g. "£1,0") so model rounding/phrasing doesn't flake.
+# Covers both buying and renting. Run live: `evaluator multiturn` (needs AZURE_FOUNDRY_*).
+{"id":"buy-cost-then-interest-only","turns":["What would the monthly cost be on a £300,000 flat with a 10% deposit at 4.5% over 25 years?","And on interest-only?"],"expectFinalContains":"£1,0"}
+{"id":"rent-cost-then-upfront","turns":["A flat is £1,500 a month. What's my true monthly cost if council tax is £150 and bills are about £200?","And how much would I need upfront to move in?"],"expectFinalContains":"£3,2"}

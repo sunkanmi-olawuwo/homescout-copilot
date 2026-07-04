@@ -17,6 +17,11 @@ using Microsoft.Extensions.DependencyInjection;
 //                                      scores each real answer on relevance / usefulness /
 //                                      groundedness (1–5, pass ≥ 3). Needs AZURE_FOUNDRY_* +
 //                                      Azure creds (external). Exit 1 if any answer scores < 3.
+//   evaluator multiturn[--data <path>] drive each multi-turn conversation (ordered turns) against
+//                                      the LIVE copilot over ONE session and assert the final answer
+//                                      carried context (defaults to data/homescout-multiturn-eval.jsonl).
+//                                      Needs AZURE_FOUNDRY_* + Azure creds (external). Exit 1 on any
+//                                      conversation that lost context.
 
 var verb = args.Length > 0 ? args[0] : "safety";
 var dataIndex = Array.IndexOf(args, "--data");
@@ -151,7 +156,39 @@ switch (verb)
         }
     }
 
+    case "multiturn":
+    {
+        var provider = CopilotGatewayFactory.TryBuild();
+        if (provider is null)
+        {
+            Console.Error.WriteLine(
+                "Foundry not configured — set AZURE_FOUNDRY_PROJECT_ENDPOINT + AZURE_FOUNDRY_MODEL_DEPLOYMENT " +
+                "(and sign in with Azure creds).");
+            return 2;
+        }
+
+        await using (provider)
+        {
+            // Multi-turn has its own default dataset (ordered turns), unless --data overrides it.
+            var multiTurnPath = dataIndex >= 0 && dataIndex + 1 < args.Length
+                ? args[dataIndex + 1]
+                : Path.Combine(AppContext.BaseDirectory, "data", "homescout-multiturn-eval.jsonl");
+            if (!File.Exists(multiTurnPath))
+            {
+                Console.Error.WriteLine($"Multi-turn eval dataset not found: {multiTurnPath}");
+                return 1;
+            }
+
+            var gateway = provider.GetRequiredService<IHomeScoutAgentGateway>();
+            var cases = MultiTurnDataset.Load(multiTurnPath);
+            Console.WriteLine($"Driving {cases.Count} multi-turn conversation(s) against the live copilot…");
+            var results = await MultiTurnEvaluation.RunAsync(gateway, cases);
+            Console.Write(MultiTurnEvaluation.Summarise(results));
+            return MultiTurnEvaluation.AllCarried(results) ? 0 : 1;
+        }
+    }
+
     default:
-        Console.Error.WriteLine($"Unknown verb '{verb}'. Usage: evaluator (safety|run|quality) [--data <path>]");
+        Console.Error.WriteLine($"Unknown verb '{verb}'. Usage: evaluator (safety|run|quality|multiturn) [--data <path>]");
         return 1;
 }
