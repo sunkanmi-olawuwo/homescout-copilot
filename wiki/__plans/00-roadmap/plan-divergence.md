@@ -9,6 +9,30 @@ Use this page whenever implementation differs from:
 
 ## Entries
 
+### 2026-07-04: End-User Auth Uses Keycloak, Not Entra ID
+
+Course/plan expectation:
+
+- The course (video 09, [[Part 9: User Auth]]) adds user authentication with **Microsoft Entra
+  ID**, and `CLAUDE.md` calls for **Microsoft Entra identity**.
+
+HomeScout direction (decided):
+
+- **End-user / application sign-in will use Keycloak** (OIDC), following the same choice made in the
+  **RagLab** project — self-hosted, portable, no Azure CIAM dependency.
+
+Important scope distinction:
+
+- This is about **end-user login / per-user data** only. **Azure resource access is unchanged** and
+  still uses **Entra managed identity / `DefaultAzureCredential`** (keyless Foundry + storage RBAC) —
+  Azure RBAC has no Keycloak path, and CLAUDE.md's "managed identity, least-privilege" refers to
+  *resource* access, which stays Entra.
+
+Impact:
+
+- When per-user features land, wire Keycloak OIDC → stable user id. Until then, multi-turn threads
+  can run **anonymous** (session-scoped), so this decision doesn't block conversation work.
+
 ### 2026-07-04: Model-Graded Quality — Both The Standard Library And A Bespoke Judge (Not The Portal Evals Service)
 
 Plan/reference expectation:

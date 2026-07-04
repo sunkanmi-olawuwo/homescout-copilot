@@ -43,5 +43,11 @@ Authenticated data should include:
 
 ## Divergence
 
-Adapt. Entra ID is suitable, but user-facing language should be HomeScout workspace/auth language.
+**Diverge from the course's Entra ID: HomeScout end-user sign-in will use Keycloak** (OIDC),
+following the RagLab precedent — see [[Plan Divergence]] (2026-07-04). Azure *resource* access is
+unchanged (Entra managed identity / `DefaultAzureCredential`); this is only about end-user login and
+per-user data. User-facing language should be HomeScout workspace/auth language, not IdP-specific.
+
+Threads/conversation can start **anonymous** (session-scoped) with no auth; Keycloak is only needed
+for cross-device / per-user history.
 

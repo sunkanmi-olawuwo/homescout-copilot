@@ -151,10 +151,20 @@ contract responses in component + Playwright E2E tests.
   2026-07-04 (`FoundryAgentDeployerLiveTests`). Tools stay client-side, so cloud eval uses
   BYO-responses (not agent-target).
 - **Queued next (planned):**
-  1. **Foundry portal cloud eval (BYO-responses)** — publish `{query, real answer}` runs to the
-     Foundry portal via the `EvaluationClient` for portal-visible charts + run comparison, over an
-     expanded (~30) curated dataset.
-  2. **Area-comparison endpoint** — product breadth (the design's Greenwich/Croydon screen:
+  1. **Reference-by-name** — the API's `FoundryAgentGateway` reads the persisted `HomeScout` agent
+     by name at startup (instead of building in-process), so Foundry is the runtime source of truth
+     and the deployed `ReasoningOptions` take effect. Graceful fallback if the agent isn't deployed.
+  2. **Server-side OpenAPI tools** — expose `estimate_mortgage`/`get_base_rate` as an authenticated
+     OpenAPI tool the Foundry service calls, so the agent is self-contained (portal playground
+     computes + agent-target cloud eval). Larger, security-sensitive (inbound auth + egress).
+  3. **Multi-turn conversation threads (anonymous)** — `AgentThread`-based conversation memory keyed
+     by an **anonymous session id** (no auth needed), so follow-ups keep context; in-memory first,
+     durable (Cosmos / Standard setup) next. End-user auth (**Keycloak**, see [[Plan Divergence]])
+     and per-user history follow later.
+  4. **Foundry portal cloud eval (BYO-responses)** — publish `{query, real answer}` runs to the
+     portal via the `EvaluationClient` for portal charts + run comparison, over an expanded (~30)
+     curated dataset.
+  5. **Area-comparison endpoint** — product breadth (the design's Greenwich/Croydon screen:
      commute/crime/EPC/schools); needs public-data sources, edging into Phase 6.
 
 **Then (lead):** review Codex's frontend + the backend slice, merge individually, E2E check
