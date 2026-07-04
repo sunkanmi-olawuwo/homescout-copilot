@@ -45,6 +45,43 @@ Foundry's search tool only partly helps).
 - **Auth:** anonymous session id now; associate sessions with a **Keycloak** user later for
   cross-device / per-user history.
 
+## Session-id contract (backend ↔ frontend) — enables parallel work
+
+The two tracks are coupled only by **how the session id flows**. Define the contract up front and
+both tracks build against it in parallel (API-first).
+
+- **Backend-managed HttpOnly cookie** — the API sets/reads a `hs_session` cookie (HttpOnly,
+  `SameSite=Lax`, `Secure` in production, ~24 h Max-Age). The browser sends it automatically on
+  every `POST /api/copilot/ask`, so the frontend needs **no session-management code** and the
+  existing chat UI keeps working — it just gains memory.
+- **Reset:** `POST /api/copilot/session/reset` clears the current session's thread and issues a
+  fresh cookie (start a new conversation).
+- **Request/response unchanged** otherwise — `CopilotRequest`/`CopilotAnswer` keep their shape; the
+  session rides in the cookie, not the body.
+
+**Frontend (Codex) task — small, well-scoped:** add a **"New conversation"** control that calls
+`POST /api/copilot/session/reset` and clears the on-screen conversation. That is the *only* required
+frontend change (the cookie is automatic). Everything else — sending messages, rendering turns —
+already exists. Codex can build this in parallel against the contract above; if we ship reset in a
+later slice, the frontend needs nothing at all for multi-turn to work.
+
+**Parallel split:** backend (me) — cookie + `AgentThread` registry + reset endpoint; frontend
+(Codex) — the reset button; **E2E check** (both merged) — verify "and on interest-only?" carries
+context end to end.
+
+## Session expiry (defaults — tunable via config)
+
+| Layer | Default | Rationale |
+| --- | --- | --- |
+| Server thread — **idle** | **60-min sliding** (reset each turn; GC threads idle > 60 min) | Forgiving for research breaks; bounds memory |
+| Server thread — **absolute cap** | **~24 h** | Anonymous sessions shouldn't live forever |
+| Cookie | HttpOnly, `SameSite=Lax`, `Secure` (prod), **~24 h** Max-Age | Survives tab reloads; not JS-accessible |
+| Durable store (Cosmos, later) | **TTL ~24 h** | Native Cosmos TTL evicts stale anonymous threads |
+
+Anonymous conversations can contain the buyer's own figures (price, deposit), so we don't hoard
+them: 60-min idle / 24-h cap balances continuity against not lingering mildly-sensitive data. In the
+first (in-memory) cut, an API restart clears everything, so the idle GC mainly bounds memory.
+
 ## Verification — add multi-turn eval cases
 
 Our dataset already has the canonical follow-up, `cost-interest-only` ("And on interest-only?"), but
@@ -58,15 +95,19 @@ the copilot can't answer it well today. When threads land:
 
 ## Phased steps
 
-1. **Session id** — issue/read an anonymous session id (cookie) at the API boundary.
-2. **Thread registry (in-memory)** — session id → `AgentThread`; gateway runs against it.
-3. **Multi-turn eval cases** — ordered turns; harness drives a thread; assert context carries.
-4. **Durable store** — persist thread state (Cosmos / Standard setup) so history survives restarts.
-5. (Later) **Keycloak** identity → per-user history; **compaction** if threads grow long; **query
+Backend (me) and frontend (Codex) run in parallel against the contract above.
+
+1. **Session cookie** — issue/read the HttpOnly `hs_session` cookie at the API boundary (expiry
+   defaults above).
+2. **Thread registry (in-memory)** — session id → `AgentThread`; gateway runs against it; idle GC.
+3. **Reset endpoint** — `POST /api/copilot/session/reset`. *(Frontend, parallel: "New conversation"
+   button.)*
+4. **Multi-turn eval cases** — ordered turns; harness drives a thread; assert context carries.
+5. **Durable store** — persist thread state (Cosmos / Standard setup) so history survives restarts.
+6. (Later) **Keycloak** identity → per-user history; **compaction** if threads grow long; **query
    rewrite** only if/when RAG retrieval is added.
 
 ## Open questions / verify-at-implementation
 
 - Exact `AgentThread` persistence/serialization surface for the durable store (service-backed
   Foundry thread id vs serialized messages) — confirm against the SDK at implementation time.
-- Session-id issuance + expiry policy (cookie lifetime, anonymous-session GC).
