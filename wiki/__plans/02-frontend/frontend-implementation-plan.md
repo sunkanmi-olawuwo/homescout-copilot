@@ -12,13 +12,16 @@ It follows the binding design direction in `wiki/frontend-design-guidelines.md` 
 API-first invariant: the React app calls `HomeScoutCopilot.API`; it never owns agent
 orchestration and never imports an agent/LLM SDK.
 
+> **Codex:** start from [Codex Frontend Instructions](./codex-frontend-instructions.md) — the
+> concrete handoff for building from the finished Claude Design.
+
 ## Inputs (must exist before Stage 2)
 
-- ✅ [Design Brief](./design-brief.md) — full-scope, design-agent-ready spec (vision, IA,
-  screens, copilot UX, design tokens, states, accessibility, deliverables).
-- **Design-agent deliverables** (the brief's §19): high-fidelity screens, the design-system
-  spec (tokens: colour, type, spacing, radius, elevation, motion), the component inventory
-  with all states, and the key-flow prototypes.
+- ✅ **Finished design** — the interactive prototype `wiki/raw/HomeScout Copilot.html` (source
+  of truth in Claude Design). Open it in a browser; lift tokens/copy per the Codex
+  instructions. This is the primary design input; the brief below is the written spec behind it.
+- ✅ [Design Brief](./design-brief.md) — full-scope spec (vision, IA, screens, copilot UX,
+  design tokens, states, accessibility, deliverables).
 - ✅ Backend contracts already live: `GET /api/status`, `GET /api/comparison/sample`,
   `POST /api/mortgage/estimate`, `GET /api/mortgage/base-rate`, `POST /api/copilot/ask`
   (see [[Endpoint Summary]]); the typed `HomeScoutApiClient` exists.

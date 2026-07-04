@@ -11,6 +11,26 @@
   `security-extended` queries; PR + push-to-main + weekly triggers. Merged via PR #26 (all
   checks green, including `Analyze (csharp)`).
 
+### Design Handoff For Codex + Iteration 1 Plan
+
+- The finished Claude Design was committed as `wiki/raw/HomeScout Copilot.html` (compiled,
+  self-rendering prototype; editable `.dc.html` source stays in Claude Design — see
+  [[Frontend from Claude Design]] memory). Inspected it: IBM Plex Sans/Mono; dark+light token
+  themes scoped on the app root (surfaces, brand navy/accent, semantics, **provenance
+  live/cache/fallback**, `--dv1..5` data-viz); three-region responsive workspace (header /
+  saved-comparisons+nav / main copilot+comparison / evidence panel) at breakpoints <760 / <1180
+  / ≥1180; a scripted phase-machine demo. Content maps 1:1 to our API (mortgage estimator,
+  copilot, comparison, evidence/provenance).
+- Wrote [Codex Frontend Instructions](../__plans/02-frontend/codex-frontend-instructions.md):
+  how to work with the design HTML, lift tokens/copy, reproduce the design system + responsive
+  layout, wire the API seam (don't mock live endpoints), keep the guardrails
+  (not-mortgage-advice, crime=context, fact/estimate/assumption/missing + provenance), and the
+  first slice (tokens + shell + mortgage estimator end-to-end, no Foundry needed).
+- Set the **iteration 1 plan** in [[Work Tracks]]: Codex builds the frontend first slice;
+  lead builds the `AgentOps` manifest step (offline); then lead reviews both, merges
+  individually, runs an E2E check. Flagged the structured-evidence contract as the iteration-2
+  seam item.
+
 ### GenAIOps Tooling Decision + Plan Review (Parallel-Work Ready)
 
 - **Decision:** two dedicated .NET tool projects under a new `dotnet/tools/` — added
