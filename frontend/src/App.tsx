@@ -383,7 +383,7 @@ function App() {
       }
       clearConversation();
     } catch {
-      setCopilotNotice('Could not start a new server-side conversation yet. Your current answer is still available.');
+      setCopilotNotice('Couldn’t start a new conversation — your current one is unchanged. Try again in a moment.');
     } finally {
       setIsResettingConversation(false);
     }
@@ -492,7 +492,14 @@ function App() {
                     disabled={isResettingConversation}
                     onClick={() => void resetConversation()}
                   >
-                    {isResettingConversation ? 'Starting…' : 'New conversation'}
+                    {isResettingConversation ? (
+                      'Starting…'
+                    ) : (
+                      <>
+                        <NewChatIcon />
+                        New conversation
+                      </>
+                    )}
                   </button>
                 ) : null}
               </div>
@@ -609,6 +616,15 @@ function BotIcon() {
       <circle cx="12" cy="3" r="1" fill="currentColor" stroke="none" />
       <circle cx="9.5" cy="13.5" r="1.1" fill="currentColor" stroke="none" />
       <circle cx="14.5" cy="13.5" r="1.1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+function NewChatIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 5v14" />
+      <path d="M5 12h14" />
     </svg>
   );
 }
