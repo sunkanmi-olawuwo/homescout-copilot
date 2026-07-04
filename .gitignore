@@ -23,3 +23,7 @@ playwright-report/
 test-results/
 blob-report/
 playwright/.cache/
+
+# Generated evaluation reports (regenerable via scripts/eval-report.sh) and local eval store
+artifacts/
+.eval-store/

@@ -36,6 +36,13 @@ A later slice reads them as `FoundryOptions`.
   under the AIServices account (else project creation fails `BadRequest`).
 - The **project is created after the account settles** (separate module) — RagLab's
   mitigation for the "provisioning state is not terminal" conflict.
+- **Evaluation store** (`modules/eval-storage.bicep`): an **ADLS Gen2** storage account
+  (`steval<token>`, hierarchical namespace, **keyless** — `allowSharedKeyAccess: false`) that
+  holds the `Microsoft.Extensions.AI.Evaluation` results + cached judge responses for cloud
+  regression history. The deployer gets **Storage Blob Data Contributor** (`ba92f5b4-…`) when
+  `AZURE_PRINCIPAL_ID` is set. Outputs `AZURE_EVAL_STORAGE_ENDPOINT` / `AZURE_EVAL_STORAGE_FILESYSTEM`,
+  consumed by the eval harness + `scripts/eval-report.sh`. ✅ `azd provision`-verified (2026-07-04):
+  the harness wrote + read 414 files keyless.
 - **RBAC:** the deployer gets the **Foundry User** role (`53ca6127-…`) for local-dev agent
   access **when `AZURE_PRINCIPAL_ID` is set** — the bicep skips it when empty. azd did **not**
   auto-populate it here, so set it before provisioning:

@@ -41,7 +41,7 @@ public class EvaluatorLiveTests
         var liveCases = await LiveEvaluation.GenerateAsync(gateway, cases, TestContext.CurrentContext.CancellationToken);
         var results = EvaluationRunner.Run(liveCases, SafetyEvaluators.All);
 
-        TestContext.WriteLine(EvaluationRunner.Summarise(results));
+        TestContext.Out.WriteLine(EvaluationRunner.Summarise(results));
 
         Assert.Multiple(() =>
         {

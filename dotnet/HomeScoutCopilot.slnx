@@ -17,6 +17,7 @@
     <Project Path="tests/HomeScoutCopilot.Shared.Test/HomeScoutCopilot.Shared.Test.csproj" />
     <Project Path="tests/HomeScoutCopilot.Functional.Test/HomeScoutCopilot.Functional.Test.csproj" />
     <Project Path="tests/HomeScoutCopilot.AgentOps.Test/HomeScoutCopilot.AgentOps.Test.csproj" />
+    <Project Path="tests/HomeScoutCopilot.Evaluation.Test/HomeScoutCopilot.Evaluation.Test.csproj" />
     <Project Path="tests/HomeScoutCopilot.Evaluator.Test/HomeScoutCopilot.Evaluator.Test.csproj" />
   </Folder>
 </Solution>

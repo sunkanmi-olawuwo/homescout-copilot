@@ -2,6 +2,31 @@
 
 ## 2026-07-04
 
+### Evaluator — Model-Graded Quality: Standard Library + Bespoke Judge + Cloud + Content-Safety
+
+- Started with a **bespoke LLM-judge** `evaluator quality` verb (`FoundryAnswerJudge` on the proven
+  `AsAIAgent` path; `AnswerJudge` rubric/parsing pure + offline-tested; `QualityLiveTests`
+  `[External]`). Live-verified 6/6, all dims 5.0.
+- Then, on review of `mslearn-genaiops`, adopted the **first-party `Microsoft.Extensions.AI.Evaluation`
+  libraries** (the .NET equivalent) in a new `HomeScoutCopilot.Evaluation.Test` harness — and kept
+  **both**, each metric labelled by origin, in one report: built-in `Relevance`/`Coherence`/`Fluency`,
+  the bespoke judge as a custom `IEvaluator`, the deterministic guardrails as a custom `IEvaluator`
+  (the one hard gate), and opt-in Foundry content-safety (`Hate`/`Violence`/`SelfHarm`/`Sexual`).
+- **Verify-live caught two real issues** (per our "no hidden fallback" bar): the `chat` gpt-5
+  reasoning model rejects `temperature=0`, so *every* model-graded metric was silently 400-ing —
+  fixed with a `DefaultTemperatureChatClient` shim; and the green test was masking it, so the test
+  now hard-fails on **blocking** evaluator errors (400/auth) while treating throttles + reasoning
+  parse-misses as **non-blocking** trend variance.
+- **Cloud store live-verified 2026-07-04:** provisioned an **ADLS Gen2** account
+  (`infra/modules/eval-storage.bicep`, keyless via Entra RBAC) and ran the harness against it —
+  414 files (results + cached judge responses) persisted, read back keyless. Content-safety
+  evaluators returned real 0–1 severities (all safe; `area-crime-context` Violence=1 proves the
+  service genuinely scores). `scripts/eval-report.sh` + `dotnet aieval` (pinned in
+  `dotnet-tools.json`) generate the shareable HTML report.
+- **Divergence updated:** we now use the sanctioned library **and** the bespoke judge (both, by
+  request); only the Foundry **portal** evaluation runs remain an optional later path — see
+  [[Plan Divergence]] and [[GenAIOps Tooling Plan]].
+
 ### Prompt v2 — Structured, Readable Copilot Answers
 
 - After the user flagged the copilot's wall-of-text answers, agreed the approach (markdown-driven
