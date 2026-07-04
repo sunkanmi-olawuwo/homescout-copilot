@@ -1,6 +1,8 @@
 # Conversation Threads Plan (Multi-Turn, Anonymous)
 
-**Status:** Design-first, queued (top of the backend queue). Not yet implemented.
+**Status:** Backend slice 1 **done, live-verified (2026-07-04)** — anonymous session cookie +
+in-memory session registry + gateway session support + reset endpoint. Durable store, multi-turn
+eval-harness cases, and the frontend "New conversation" button remain.
 
 **Owning context:** follow-up to [[Copilot Agent Gateway — Design]]; the copilot is **single-turn
 today** (each `AskAsync` is independent), so context-dependent follow-ups can't be answered.
@@ -97,13 +99,25 @@ the copilot can't answer it well today. When threads land:
 
 Backend (me) and frontend (Codex) run in parallel against the contract above.
 
-1. **Session cookie** — issue/read the HttpOnly `hs_session` cookie at the API boundary (expiry
-   defaults above).
-2. **Thread registry (in-memory)** — session id → `AgentThread`; gateway runs against it; idle GC.
-3. **Reset endpoint** — `POST /api/copilot/session/reset`. *(Frontend, parallel: "New conversation"
-   button.)*
-4. **Multi-turn eval cases** — ordered turns; harness drives a thread; assert context carries.
-5. **Durable store** — persist thread state (Cosmos / Standard setup) so history survives restarts.
+1. ✅ **Session cookie** — the HttpOnly `hs_session` cookie is issued/read in `CopilotEndpoints`
+   (`ResolveSession`), expiry per the defaults above.
+2. ✅ **Session registry (in-memory)** — `ConversationSessionRegistry` (singleton): session id →
+   `AgentSession`; `FoundryAgentGateway` runs the turn against it (null session id = stateless
+   single-turn, unchanged); `ConversationSessionSweeper` (`BackgroundService`) evicts idle/expired.
+   Uses the Agent Framework's **`AgentSession`** (created via `agent.CreateSessionAsync`, run via
+   `RunAsync(message, session, …)`, serializable for the durable store later — the SDK renamed the
+   thread concept to *session*).
+3. ✅ **Reset endpoint** — `POST /api/copilot/session/reset` drops the session + clears the cookie.
+   *(Frontend, parallel: the "New conversation" button — not yet built.)*
+   - **Live-verified 2026-07-04** (`FoundryAgentGatewayLiveTests`): a follow-up "And on
+     interest-only?" with **no figures restated** returned the correct interest-only estimate
+     (£1,012.50) — across **two gateway instances sharing one registry** (the production scoped
+     shape), proving `AgentSession` carries context cross-instance. Registry logic covered offline
+     (`ConversationSessionRegistryTests`).
+4. **Multi-turn eval cases** *(next)* — ordered turns; harness drives a session; assert context
+   carries (the live gateway test already proves the mechanism).
+5. **Durable store** *(next)* — persist session state (Cosmos / Standard setup) via
+   `SerializeSessionAsync`/`DeserializeSessionAsync` so history survives restarts.
 6. (Later) **Keycloak** identity → per-user history; **compaction** if threads grow long; **query
    rewrite** only if/when RAG retrieval is added.
 

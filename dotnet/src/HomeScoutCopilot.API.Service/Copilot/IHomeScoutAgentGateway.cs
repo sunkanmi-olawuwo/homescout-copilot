@@ -9,5 +9,11 @@ namespace HomeScoutCopilot.API.Service;
 /// </summary>
 public interface IHomeScoutAgentGateway
 {
-    Task<CopilotAnswer> AskAsync(CopilotRequest request, CancellationToken cancellationToken = default);
+    /// <summary>
+    /// Answers a request. When <paramref name="sessionId"/> is supplied, the turn runs against that
+    /// session's multi-turn conversation state (follow-ups keep context); when null, it's a
+    /// stateless single-turn answer.
+    /// </summary>
+    Task<CopilotAnswer> AskAsync(
+        CopilotRequest request, string? sessionId = null, CancellationToken cancellationToken = default);
 }

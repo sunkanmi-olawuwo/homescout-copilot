@@ -176,8 +176,12 @@ contract responses in component + Playwright E2E tests.
      adversarial guardrail probes** (`probe-*`: which-mortgage, best-deal, fix-or-track, should-i-buy,
      is-X-safe, safest-area, will-rates-drop, which-lender, remortgage-now). All 30 golden responses
      pass the offline safety evaluators; the probes exercise the live guardrails under pressure.
-  1. **Multi-turn conversation threads (anonymous)** ([[Conversation Threads Plan]]) —
-     `AgentThread`-based conversation memory keyed by an **anonymous session id** (no auth needed),
+  1. 🔄 **Multi-turn conversation threads (anonymous)** ([[Conversation Threads Plan]]) — **backend
+     slice 1 done, live-verified 2026-07-04**: HttpOnly `hs_session` cookie + `ConversationSessionRegistry`
+     (`AgentSession`, singleton) + `FoundryAgentGateway` session support + sweeper + reset endpoint.
+     Follow-ups keep context cross-instance (verified). Remaining: multi-turn eval cases, durable
+     (Cosmos) store, and the frontend "New conversation" button (Codex). Original scope —
+     `AgentSession`-based conversation memory keyed by an **anonymous session id** (no auth needed),
      so follow-ups keep context; in-memory first, durable (Cosmos / Standard setup) next. **No query
      rewrite** — the model resolves follow-ups from the full history the framework passes; rewrite
      only matters once RAG lands. Add **multi-turn eval cases** to prove context carries (the
