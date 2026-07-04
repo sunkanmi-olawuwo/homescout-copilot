@@ -211,8 +211,15 @@ API-first, so Codex builds login while the backend builds validation:
 
 ## Phased steps (ordered; backend = me, frontend = Codex in parallel from step 2's contract)
 
-1. **Realm + Aspire hosting** — commit `keycloak/realm-export.json`; add Keycloak (own data volume)
-   to AppHost; API references it. Prove the realm imports and JWKS resolves.
+1. ✅ **Realm + Aspire hosting** *(done + verified 2026-07-05)* — committed
+   `AppHost/keycloak/homescout-realm.json` (realm `homescout`; `homescout-api` bearer-only +
+   `homescout-web` public/PKCE clients with the `homescout-api` audience mapper; `dev`/`jane` test
+   users, `user` role); `Aspire.Hosting.Keycloak` (`13.4.5-preview.1.26316.12`) added to the AppHost
+   with its own data volume + `WithRealmImport("./keycloak")`; API references + waits for it. Offline
+   `KeycloakRealmTests` lock the realm shape. **Verified** against a real Keycloak (the export mounted
+   as Aspire mounts it): the realm imports, OIDC discovery + JWKS (RS256) resolve, and a
+   password-grant token for `dev` carries `sub` + **`aud: homescout-api`** (audience mapper working) —
+   de-risks step 2's validation.
 2. **API JWT validation + `/api/me`** — `AddKeycloakJwtBearer` (audience check) + `OnTokenValidated`
    JIT capture; `GET /api/me` returns the resolved user. Offline `TestAuthHandler` tests.
 3. **User directory** — `app_users` table + `IUserDirectory` atomic upsert + `NullUserDirectory`

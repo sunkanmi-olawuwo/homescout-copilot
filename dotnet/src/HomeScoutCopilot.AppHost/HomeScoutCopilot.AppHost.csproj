@@ -15,6 +15,9 @@
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.JavaScript" Version="13.4.6" />
     <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="13.4.6" />
+    <!-- End-user sign-in (Keycloak/OIDC), per the Keycloak auth plan. Preview package, pinned
+         deliberately to match the RagLab reference and the 13.4.x line. -->
+    <PackageReference Include="Aspire.Hosting.Keycloak" Version="13.4.5-preview.1.26316.12" />
   </ItemGroup>
 
 </Project>

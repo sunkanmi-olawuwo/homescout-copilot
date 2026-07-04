@@ -2,6 +2,23 @@
 
 ## 2026-07-05
 
+### Keycloak Auth — Design-First Plan + Step 1 (Realm + Aspire Hosting)
+
+- Wrote [[Keycloak Auth + Per-User History — Design]] (persistence-track step 6), modelled on
+  RagLab's implemented Keycloak pattern (extracted its exact files/versions via a subagent):
+  Aspire-hosted Keycloak, JWT bearer, `(provider, subject)` → internal `User.Id`. Three approved
+  divergences from RagLab: anonymous-capable endpoints (only history requires auth), raw Npgsql
+  (not EF Core) for `app_users`, and an anonymous→authenticated hand-off.
+- **Step 1 done + verified.** Committed `AppHost/keycloak/homescout-realm.json` (realm `homescout`;
+  `homescout-api` bearer-only + `homescout-web` public/PKCE clients + audience mapper; `dev`/`jane`
+  test users); added `Aspire.Hosting.Keycloak` `13.4.5-preview.1.26316.12` to the AppHost (own data
+  volume + `WithRealmImport`); API references it. `KeycloakRealmTests` lock the realm shape (API.Test
+  62 → 65). **Verified** against a real Keycloak container (realm mounted as Aspire mounts it): realm
+  imports, OIDC discovery + JWKS (RS256) resolve, and a `dev` token carries `aud: homescout-api`
+  (audience mapper working) — de-risks step 2's token validation.
+- Note: `Aspire.Hosting.Keycloak` is a **preview** package, pinned deliberately. Foundry still up
+  (billable).
+
 ### Live Foundry Verification — Durable Store + Multi-Turn
 
 - Foundry is still provisioned (azd env `homescout-dev`; account `aif-4md7qbawlhpt2` in
