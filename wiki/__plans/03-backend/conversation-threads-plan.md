@@ -116,10 +116,24 @@ Backend (me) and frontend (Codex) run in parallel against the contract above.
      (`ConversationSessionRegistryTests`).
 4. **Multi-turn eval cases** *(next)* — ordered turns; harness drives a session; assert context
    carries (the live gateway test already proves the mechanism).
-5. **Durable store** *(next)* — persist session state (Cosmos / Standard setup) via
-   `SerializeSessionAsync`/`DeserializeSessionAsync` so history survives restarts.
-6. (Later) **Keycloak** identity → per-user history; **compaction** if threads grow long; **query
-   rewrite** only if/when RAG retrieval is added.
+5. **Durable store — PostgreSQL** *(next)* — persist serialized session state via
+   `SerializeSessionAsync`/`DeserializeSessionAsync` so history survives API restarts.
+   - **Decision (2026-07-04): use PostgreSQL, not Cosmos, for *our* durable store.** The store
+     only needs to key a serialized session blob by session id with an expiry — a single
+     `conversation_sessions(session_id PK, payload jsonb/bytea, created_at, last_active_at,
+     expires_at)` row per session. Postgres fits this exactly, Aspire has first-class Postgres
+     support (local container in dev → Azure Database for PostgreSQL in prod), it is far cheaper
+     than a Standard-setup Cosmos (≥3000 RU/s), and **Keycloak already runs on Postgres** — so the
+     session store and identity share one engine. TTL: Cosmos has native TTL, but we already run
+     `ConversationSessionSweeper`, which can `DELETE WHERE expires_at < now()` — no capability lost.
+   - **Not the same Cosmos as the Foundry *Standard* capability host.** That Cosmos (+ AI Search +
+     Storage) is Foundry's *server-side* thread storage and is a separate, deferred platform
+     decision (we're on **Basic**/Microsoft-managed today). Persisting the *serialized* session
+     client-side in Postgres is exactly the Basic-compatible path and keeps us off the Standard
+     bundle. See [[Plan Divergence]] for the Basic-vs-Standard record.
+6. (Later) **Keycloak** identity → per-user history — associate persisted sessions with a Keycloak
+   `sub` so history is per-user and cross-device (depends on step 5). Also **compaction** if threads
+   grow long; **query rewrite** only if/when RAG retrieval is added.
 
 ## Open questions / verify-at-implementation
 
