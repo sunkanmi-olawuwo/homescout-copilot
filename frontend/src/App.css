@@ -518,11 +518,43 @@
   background: var(--surface);
   box-shadow: var(--shadow);
 }
-.answer-question {
-  margin: 0 0 10px;
-  color: var(--text-3);
-  font-size: 12px;
+/* Chat turns: a user icon + (bolder) question, then a bot icon + the response. */
+.chat-turn {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.chat-turn + .chat-turn {
+  margin-top: 14px;
+}
+.turn-avatar {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+.turn-avatar.user {
+  background: var(--sunken);
+  color: var(--text-2);
+  border: 1px solid var(--border);
+}
+.turn-avatar.bot {
+  background: linear-gradient(150deg, var(--accent), #2f8f7e);
+  color: #ffffff;
+}
+.turn-question {
+  margin: 4px 0 0;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
   line-height: 1.45;
+}
+.turn-body {
+  flex: 1;
+  min-width: 0;
+  padding-top: 3px;
 }
 .answer-markdown {
   color: var(--text);

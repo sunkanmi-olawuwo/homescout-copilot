@@ -24,13 +24,15 @@
   and unsafe link schemes are rendered as text rather than anchors.
 - Verified with Vitest and Playwright coverage for Markdown rendering, unsafe-link suppression,
   raw-HTML non-injection, and the compact active state.
-- **Lead review (2 changes):** the compact header now **hides the marketing tagline** entirely
-  (the status pill is the header) — the tagline was the user's original complaint; and the
+- **Lead review + polish:** (1) the compact header **hides the marketing tagline** entirely
+  (the status pill is the header) — that tagline was the user's original complaint; (2) the
   not-mortgage-advice caveat, which the model also writes into its prose, is **stripped from the
-  answer text** so it shows once, as the prominent structured callout. Reviewed the markdown
-  renderer (safe by construction — React-node output, `javascript:` links blocked), ran the full
-  frontend gate, and live-verified end-to-end against the real copilot (structured sections +
-  single caveat + collapsed hero + evidence trail).
+  answer text** so it shows once as the prominent structured callout; (3) the answer card is now
+  a **chat exchange** — a user-icon turn with a **bolder** question and a bot-icon turn with the
+  response (inline SVG avatars, on-brand). Reviewed the markdown renderer (safe by construction —
+  React-node output, `javascript:` links blocked), ran the full frontend gate, and live-verified
+  end-to-end against the real copilot. (Noted: the agent skips `get_base_rate` for a pure cost
+  question where the buyer gave their rate — correct tool selection, not a bug.)
 
 ### Evaluator Live Mode — Safety Checks Against The Real Agent
 
