@@ -1,16 +1,17 @@
+using Azure.Identity;
 using HomeScoutCopilot.AgentOps;
 
 // HomeScoutCopilot.AgentOps — deploy/manage HomeScout Foundry content.
 //
-// Today: generate the declarative agent manifest from the single-sourced agent definition
-// (the versioned prompt asset + the tool set). This is the offline, verifiable half of the
-// deploy step. Live registration of a versioned Foundry agent (CreateAgentVersion) is a
-// separate, live-verified slice — see wiki/__plans/03-backend/genaiops-tooling-plan.md.
-//
-// Usage:
 //   agentops manifest [--out <path>]
-//     Model deployment name comes from AZURE_FOUNDRY_MODEL_DEPLOYMENT (falls back to "chat",
-//     matching FoundryOptions' default role label). Writes to --out, or stdout if omitted.
+//     Generate the declarative agent manifest from the single-sourced agent definition (the
+//     versioned prompt asset + the tool set). Offline, verifiable. Model deployment name comes
+//     from AZURE_FOUNDRY_MODEL_DEPLOYMENT (falls back to "chat"). Writes to --out, or stdout.
+//
+//   agentops deploy
+//     Register the agent as a persisted, versioned Foundry agent (CreateAgentVersion) so it
+//     appears in the portal as a named, versioned asset. Needs AZURE_FOUNDRY_PROJECT_ENDPOINT
+//     (+ AZURE_FOUNDRY_MODEL_DEPLOYMENT) and Azure creds. External (billable) — verified live.
 
 var verb = args.Length > 0 ? args[0] : "manifest";
 
@@ -43,9 +44,33 @@ switch (verb)
         return 0;
     }
 
+    case "deploy":
+    {
+        var endpoint = Environment.GetEnvironmentVariable("AZURE_FOUNDRY_PROJECT_ENDPOINT");
+        if (string.IsNullOrWhiteSpace(endpoint))
+        {
+            Console.Error.WriteLine(
+                "AZURE_FOUNDRY_PROJECT_ENDPOINT is not set — provision Foundry (azd provision) and sign in first.");
+            return 2;
+        }
+
+        var model = Environment.GetEnvironmentVariable("AZURE_FOUNDRY_MODEL_DEPLOYMENT");
+        if (string.IsNullOrWhiteSpace(model))
+        {
+            model = "chat";
+        }
+
+        var definition = AgentManifest.Build(model);
+        var deployer = new FoundryAgentDeployer(endpoint, new DefaultAzureCredential());
+        var version = await deployer.DeployAsync(definition);
+
+        Console.WriteLine(
+            $"Registered agent '{version.Name}' version {version.Version} (id {version.Id}), " +
+            $"prompt {definition.PromptVersion}, model {definition.Model}. Visible in the Foundry portal.");
+        return 0;
+    }
+
     default:
-        Console.Error.WriteLine($"Unknown verb '{verb}'. Usage: agentops manifest [--out <path>]");
-        Console.Error.WriteLine(
-            "  Live deploy (CreateAgentVersion) is a separate, live-verified slice — see genaiops-tooling-plan.");
+        Console.Error.WriteLine($"Unknown verb '{verb}'. Usage: agentops (manifest [--out <path>] | deploy)");
         return 1;
 }

@@ -2,6 +2,26 @@
 
 ## 2026-07-04
 
+### AgentOps — Persisted, Versioned Foundry Agent (CreateAgentVersion)
+
+- Implemented `agentops deploy`: registers the single-sourced agent as a **persisted, versioned
+  Foundry agent** via `AIProjectClient.AgentAdministrationClient.CreateAgentVersionAsync`
+  (`Azure.AI.Projects.Agents` 2.0.0 GA + `Azure.AI.Projects` 2.0.1, `DeclarativeAgentDefinition`
+  from the same `AgentManifest.Build` source). This makes it show in the Foundry portal as a named,
+  versioned asset — the API's in-process `AsAIAgent` path is ephemeral and registers nothing, which
+  is why the agent wasn't appearing.
+- **Live-verified 2026-07-04:** `HomeScout` v1 registered (id `HomeScout:1`), confirmed present via
+  REST agent list; idempotent on identical content (re-run stays v1). `FoundryAgentDeployerLiveTests`
+  (`[External]`) green.
+- **API note:** the create surface is awkwardly discoverable — the accessor is the
+  `AIProjectClient.AgentAdministrationClient` *property* (not `.Agents`), needs Azure.AI.Projects
+  **2.0.1**, the concrete definition is `DeclarativeAgentDefinition` (not `PromptAgentDefinition`),
+  and the call returns `ClientResult<ProjectsAgentVersion>`. Pattern confirmed against a local
+  reference project (`AgenticAICore`).
+- Tools stay client-side (the API runs the deterministic HomeScout tools in-process), so the
+  persisted definition carries model + guardrail instructions only, and cloud eval will use
+  BYO-responses rather than agent-target. See [[GenAIOps Tooling Plan]] and [[Plan Divergence]].
+
 ### Evaluator — Dedicated, Higher-Capability Judge Model (gpt-5.4-mini)
 
 - Stopped **self-judging** (gpt-5-mini grading gpt-5-mini). Added a separate **`judge`** model
