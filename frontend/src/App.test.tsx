@@ -22,7 +22,15 @@ const baseRateBody = {
 };
 
 const copilotAnswer = {
-  text: 'For this Greenwich flat, the estimated monthly repayment is £2,204.42 and the loan-to-value is 80.1%. Treat the base rate as context, not a product recommendation.',
+  text: [
+    '## Greenwich cost context',
+    '',
+    'For this Greenwich flat, the **estimated monthly repayment** is £2,204.42 and the `loan-to-value` is 80.1%.',
+    '',
+    '- Treat the base rate as context, not a product recommendation.',
+    '- Review the [Bank of England](https://www.bankofengland.co.uk) source.',
+    '- Ignore [unsafe](javascript:alert(1)) <script>alert("x")</script>.',
+  ].join('\n'),
   toolCalls: [
     { name: 'estimate_mortgage', summary: 'Calculated repayment mortgage costs.' },
     { name: 'get_base_rate', summary: 'Checked Bank of England context.' },
@@ -149,12 +157,18 @@ describe('App workspace', () => {
       return Promise.reject(new Error(`Unexpected request: ${url}`));
     });
 
-    render(<App />);
+    const { container } = render(<App />);
 
     fireEvent.change(screen.getByLabelText('Ask HomeScout'), { target: { value: 'What would this cost monthly?' } });
     fireEvent.submit(screen.getByLabelText('Ask HomeScout').closest('form') as HTMLFormElement);
 
-    expect(await screen.findByText(/estimated monthly repayment is £2,204.42/i)).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: 'Greenwich cost context' })).toBeTruthy();
+    expect(screen.getByText('estimated monthly repayment')).toBeTruthy();
+    expect(screen.getByText('loan-to-value')).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Bank of England' }).getAttribute('href')).toBe('https://www.bankofengland.co.uk');
+    expect(screen.queryByRole('link', { name: 'unsafe' })).toBeNull();
+    expect(container.querySelector('script')).toBeNull();
+    expect(container.querySelector('.conversation.active')).toBeTruthy();
     expect(screen.getByText('estimate_mortgage')).toBeTruthy();
     expect(screen.getByText('Calculated repayment mortgage costs.')).toBeTruthy();
     expect(screen.getByText('Evidence trail')).toBeTruthy();

@@ -65,7 +65,15 @@ test('copilot answers populate the conversation and evidence rail', async ({ pag
     await route.fulfill({
       contentType: 'application/json',
       body: JSON.stringify({
-        text: 'For this Greenwich flat, the estimated monthly repayment is £2,204.42 and the loan-to-value is 80.1%.',
+        text: [
+          '## Greenwich cost context',
+          '',
+          'For this Greenwich flat, the **estimated monthly repayment** is £2,204.42 and the `loan-to-value` is 80.1%.',
+          '',
+          '- Treat the base rate as context, not a product recommendation.',
+          '- Review the [Bank of England](https://www.bankofengland.co.uk) source.',
+          '- Ignore [unsafe](javascript:alert(1)) <script>alert("x")</script>.',
+        ].join('\n'),
         toolCalls: [
           { name: 'estimate_mortgage', summary: 'Calculated repayment mortgage costs.' },
           { name: 'get_base_rate', summary: 'Checked Bank of England context.' },
@@ -96,7 +104,12 @@ test('copilot answers populate the conversation and evidence rail', async ({ pag
 
   await page.getByRole('button', { name: /Compare SE10 vs CR0/i }).click();
 
-  await expect(page.getByText(/estimated monthly repayment is £2,204.42/i)).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Greenwich cost context' })).toBeVisible();
+  await expect(page.getByText('estimated monthly repayment')).toBeVisible();
+  await expect(page.getByText('loan-to-value')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Bank of England' })).toHaveAttribute('href', 'https://www.bankofengland.co.uk');
+  await expect(page.getByRole('link', { name: 'unsafe' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /What would this cost me monthly/i })).toBeHidden();
   await expect(page.getByText('estimate_mortgage')).toBeVisible();
   await expect(page.getByText('Evidence trail')).toBeVisible();
   await expect(page.getByText('Monthly mortgage payment')).toBeVisible();

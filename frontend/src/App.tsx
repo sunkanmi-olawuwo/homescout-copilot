@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { useEffect, useState } from 'react';
 import './App.css';
 
@@ -93,6 +94,175 @@ function currency2(value: number | null | undefined) {
   return value === null || value === undefined || Number.isNaN(value) ? 'Missing' : gbp2.format(value);
 }
 
+function isSafeLinkUrl(url: string) {
+  const trimmed = url.trim();
+  if (trimmed.startsWith('/')) return true;
+  try {
+    const parsed = new URL(trimmed);
+    return ['http:', 'https:', 'mailto:'].includes(parsed.protocol);
+  } catch {
+    return false;
+  }
+}
+
+function pushText(nodes: ReactNode[], text: string, key: string) {
+  if (text) nodes.push(<span key={key}>{text}</span>);
+}
+
+function findNextMarkdownToken(source: string, from: number) {
+  const candidates = [
+    source.indexOf('`', from),
+    source.indexOf('**', from),
+    source.indexOf('[', from),
+    source.indexOf('*', from),
+  ].filter((index) => index >= 0);
+
+  return candidates.length ? Math.min(...candidates) : -1;
+}
+
+function renderInlineMarkdown(source: string, keyPrefix: string): ReactNode[] {
+  const nodes: ReactNode[] = [];
+  let cursor = 0;
+  let key = 0;
+
+  while (cursor < source.length) {
+    const next = findNextMarkdownToken(source, cursor);
+    if (next < 0) {
+      pushText(nodes, source.slice(cursor), `${keyPrefix}-text-${key++}`);
+      break;
+    }
+
+    pushText(nodes, source.slice(cursor, next), `${keyPrefix}-text-${key++}`);
+
+    if (source.startsWith('`', next)) {
+      const end = source.indexOf('`', next + 1);
+      if (end > next) {
+        nodes.push(<code key={`${keyPrefix}-code-${key++}`}>{source.slice(next + 1, end)}</code>);
+        cursor = end + 1;
+        continue;
+      }
+    }
+
+    if (source.startsWith('**', next)) {
+      const end = source.indexOf('**', next + 2);
+      if (end > next) {
+        nodes.push(<strong key={`${keyPrefix}-strong-${key++}`}>{source.slice(next + 2, end)}</strong>);
+        cursor = end + 2;
+        continue;
+      }
+    }
+
+    if (source.startsWith('[', next)) {
+      const labelEnd = source.indexOf(']', next + 1);
+      const urlStart = labelEnd >= 0 ? source.indexOf('(', labelEnd + 1) : -1;
+      const urlEnd = urlStart >= 0 ? source.indexOf(')', urlStart + 1) : -1;
+      if (labelEnd > next && urlStart === labelEnd + 1 && urlEnd > urlStart) {
+        const label = source.slice(next + 1, labelEnd);
+        const url = source.slice(urlStart + 1, urlEnd);
+        if (isSafeLinkUrl(url)) {
+          nodes.push(
+            <a key={`${keyPrefix}-link-${key++}`} href={url.trim()} target="_blank" rel="noreferrer noopener">
+              {label}
+            </a>,
+          );
+        } else {
+          pushText(nodes, label, `${keyPrefix}-unsafe-link-${key++}`);
+        }
+        cursor = urlEnd + 1;
+        continue;
+      }
+    }
+
+    if (source.startsWith('*', next) && !source.startsWith('**', next)) {
+      const end = source.indexOf('*', next + 1);
+      if (end > next) {
+        nodes.push(<em key={`${keyPrefix}-em-${key++}`}>{source.slice(next + 1, end)}</em>);
+        cursor = end + 1;
+        continue;
+      }
+    }
+
+    pushText(nodes, source[next], `${keyPrefix}-literal-${key++}`);
+    cursor = next + 1;
+  }
+
+  return nodes;
+}
+
+function renderMarkdownBlocks(source: string) {
+  const lines = source.replace(/\r\n/g, '\n').trim().split('\n');
+  const blocks: ReactNode[] = [];
+  let index = 0;
+
+  while (index < lines.length) {
+    const line = lines[index].trim();
+    if (!line) {
+      index += 1;
+      continue;
+    }
+
+    const heading = /^(#{1,3})\s+(.+)$/.exec(line);
+    if (heading) {
+      blocks.push(<h2 key={`heading-${index}`}>{renderInlineMarkdown(heading[2], `heading-${index}`)}</h2>);
+      index += 1;
+      continue;
+    }
+
+    const bulletItems: string[] = [];
+    while (index < lines.length) {
+      const bullet = /^\s*[-*]\s+(.+)$/.exec(lines[index]);
+      if (!bullet) break;
+      bulletItems.push(bullet[1]);
+      index += 1;
+    }
+    if (bulletItems.length) {
+      blocks.push(
+        <ul key={`ul-${index}`}>
+          {bulletItems.map((item, itemIndex) => (
+            <li key={`${item}-${itemIndex}`}>{renderInlineMarkdown(item, `ul-${index}-${itemIndex}`)}</li>
+          ))}
+        </ul>,
+      );
+      continue;
+    }
+
+    const numberedItems: string[] = [];
+    while (index < lines.length) {
+      const item = /^\s*\d+\.\s+(.+)$/.exec(lines[index]);
+      if (!item) break;
+      numberedItems.push(item[1]);
+      index += 1;
+    }
+    if (numberedItems.length) {
+      blocks.push(
+        <ol key={`ol-${index}`}>
+          {numberedItems.map((item, itemIndex) => (
+            <li key={`${item}-${itemIndex}`}>{renderInlineMarkdown(item, `ol-${index}-${itemIndex}`)}</li>
+          ))}
+        </ol>,
+      );
+      continue;
+    }
+
+    const paragraphLines: string[] = [];
+    while (index < lines.length) {
+      const nextLine = lines[index].trim();
+      if (!nextLine || /^(#{1,3})\s+/.test(nextLine) || /^\s*[-*]\s+/.test(lines[index]) || /^\s*\d+\.\s+/.test(lines[index])) {
+        break;
+      }
+      paragraphLines.push(nextLine);
+      index += 1;
+    }
+    blocks.push(
+      <p key={`p-${index}`}>
+        {renderInlineMarkdown(paragraphLines.join(' '), `p-${index}`)}
+      </p>,
+    );
+  }
+
+  return blocks;
+}
+
 async function readJson<T>(url: string, options?: RequestInit, signal?: AbortSignal): Promise<T> {
   const response = await fetch(url, { ...options, signal });
   if (!response.ok) {
@@ -128,6 +298,7 @@ function App() {
 
   const viewport = useViewport();
   const isMobile = viewport < 760;
+  const conversationActive = Boolean(copilotQuestion || copilotNotice || copilotAnswer || isAskingCopilot);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -284,7 +455,7 @@ function App() {
           </div>
 
           {mainTab === 'conversation' || !isMobile ? (
-            <section className="conversation" aria-label="HomeScout copilot">
+            <section className={`conversation${conversationActive ? ' active' : ''}`} aria-label="HomeScout copilot">
               <span className="status-pill"><i aria-hidden="true" />Copilot ready · public-data tools connected</span>
               <h1>Compare areas and properties, with the evidence shown.</h1>
               <p className="conversation-lead">
@@ -376,7 +547,7 @@ function CopilotAnswerCard({ question, answer }: { question: string | null; answ
   return (
     <article className="answer-card" aria-label="Copilot answer">
       {question ? <p className="answer-question">{question}</p> : null}
-      <p className="answer-text">{answer.text}</p>
+      <div className="answer-markdown">{renderMarkdownBlocks(answer.text)}</div>
       {answer.toolCalls.length ? (
         <div className="tool-chip-row" aria-label="Tools used">
           {answer.toolCalls.map((tool) => (

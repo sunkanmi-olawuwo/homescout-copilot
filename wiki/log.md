@@ -14,6 +14,16 @@
   the agent manifest to `homescout.v2.md`; v1 kept as history; `AgentPromptTests` → v2.
 - Handed the frontend half to Codex (collapse the hero to a compact header once a conversation
   is active; render `answer.text` as sanitized Markdown) — see the Codex handoff "Third slice".
+### Frontend Copilot Refinement — Compact Active Header + Sanitized Markdown
+
+- Refined the active copilot conversation: after a question is submitted or an answer/fallback
+  appears, the large intro/start-card hero collapses into a compact header so the answer stays
+  in focus.
+- Rendered `CopilotAnswer.Text` through a small sanitized Markdown renderer (headings,
+  paragraphs, lists, bold/emphasis, inline code, and safe links). Raw HTML is escaped by React,
+  and unsafe link schemes are rendered as text rather than anchors.
+- Verified with Vitest and Playwright coverage for Markdown rendering, unsafe-link suppression,
+  raw-HTML non-injection, and the compact active state.
 
 ### Evaluator Live Mode — Safety Checks Against The Real Agent
 
