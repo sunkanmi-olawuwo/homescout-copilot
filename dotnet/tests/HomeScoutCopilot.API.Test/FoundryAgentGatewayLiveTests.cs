@@ -52,6 +52,10 @@ public class FoundryAgentGatewayLiveTests
                 Is.True,
                 "the agent should have called the estimate_mortgage tool");
             Assert.That(
+                answer.Evidence.Any(e => e.Kind == FigureKind.Estimate),
+                Is.True,
+                "the tool result should have been mapped into the structured evidence trail");
+            Assert.That(
                 answer.Caveats.Any(c => c.Contains("not mortgage advice", StringComparison.OrdinalIgnoreCase)),
                 Is.True);
         });

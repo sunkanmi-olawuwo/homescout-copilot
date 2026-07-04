@@ -108,3 +108,35 @@ If you need a field or endpoint the API doesn't expose (e.g. structured evidence
 
 This slice is **fully API-backed and needs no Foundry**, so it can land and be reviewed while
 the backend brings the copilot online.
+
+## Second slice (iteration 2) — the copilot conversation + evidence panel
+
+The copilot is now **live** (Foundry provisioned + verified) and the **evidence contract is
+merged**, so this slice is unblocked. `POST /api/copilot/ask` returns a `CopilotAnswer`:
+
+```ts
+interface CopilotAnswer {
+  text: string;
+  toolCalls: { name: string; summary: string }[];
+  evidence: {
+    label: string;
+    value: string;                       // preformatted, e.g. "£2,199" / "80.1%"
+    kind: 'fact' | 'estimate' | 'assumption' | 'missing';   // lowercase — render as the chip
+    source: string;
+    provenance: 'Live' | 'Cache' | 'Fallback' | null;        // badge; lowercase for the CSS class
+  }[];
+  assumptions: string[];
+  caveats: string[];
+}
+```
+
+1. **Conversation answers** — send the composer text (and the START WITH cards) to
+   `POST /api/copilot/ask`; render `text` + tool chips from `toolCalls`. Keep the graceful
+   fallback for 503 (Foundry env not set in a given environment).
+2. **Evidence panel** — populate the right-rail **Evidence** tab from `answer.evidence`: the
+   `kind` chip (already lowercase — matches your `.kind-chip.*` CSS) + the `provenance` badge +
+   `label`/`value`/`source`. This is the design's "evidence appears here" → populated flow.
+
+Guardrails unchanged: keep the caveats, crime = context, every figure tagged. Build against
+the contract with mocked `/api/copilot/ask` responses (as the estimator slice did); it works
+live wherever the `AZURE_FOUNDRY_*` env is set.

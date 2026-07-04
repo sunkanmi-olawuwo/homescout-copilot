@@ -12,6 +12,7 @@ public class HomeScoutAgentGatewayTests
         var expected = new CopilotAnswer(
             "Your estimated monthly repayment is about £1,500.75.",
             [new CopilotToolCall("estimate_mortgage", "£300k, 10% deposit, 4.5%, 25y")],
+            [new EvidenceItem("Monthly mortgage payment", "£1,500.75", FigureKind.Estimate, "/api/mortgage/estimate", "Live")],
             ["Rate constant for the term."],
             ["Not mortgage advice."]);
         IHomeScoutAgentGateway gateway = new FakeHomeScoutAgentGateway(_ => expected);

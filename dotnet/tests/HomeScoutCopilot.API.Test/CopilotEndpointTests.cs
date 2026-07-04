@@ -1,4 +1,6 @@
 using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using HomeScoutCopilot.API.Service;
 using HomeScoutCopilot.Shared.Contracts;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -13,12 +15,17 @@ namespace HomeScoutCopilot.API.Test;
 [TestFixture]
 public class CopilotEndpointTests
 {
+    // Enums travel as strings on the wire (FigureKind -> "estimate"); read them the same way.
+    private static readonly JsonSerializerOptions Json =
+        new(JsonSerializerDefaults.Web) { Converters = { new JsonStringEnumConverter() } };
+
     [Test]
     public async Task Ask_returns_the_gateway_answer_when_configured()
     {
         var canned = new CopilotAnswer(
             "Your estimated monthly repayment is about £1,500.75.",
             [new CopilotToolCall("estimate_mortgage", "£300k, 10% deposit, 4.5%, 25y")],
+            [new EvidenceItem("Monthly mortgage payment", "£1,500.75", FigureKind.Estimate, "/api/mortgage/estimate", "Live")],
             ["Rate constant for the term."],
             ["This is an estimate, not mortgage advice."]);
 
@@ -30,12 +37,17 @@ public class CopilotEndpointTests
             .PostAsJsonAsync("/api/copilot/ask", new CopilotRequest("what would the monthly cost be?"));
 
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        var body = await response.Content.ReadFromJsonAsync<CopilotAnswer>();
+        var body = await response.Content.ReadFromJsonAsync<CopilotAnswer>(Json);
         Assert.Multiple(() =>
         {
             Assert.That(body, Is.Not.Null);
             Assert.That(body!.Text, Does.Contain("1,500.75"));
             Assert.That(body.ToolCalls.Any(t => t.Name == "estimate_mortgage"), Is.True);
+            // The structured evidence trail flows through the endpoint (the seam Codex renders).
+            Assert.That(body.Evidence, Has.Count.EqualTo(1));
+            Assert.That(body.Evidence[0].Kind, Is.EqualTo(FigureKind.Estimate));
+            Assert.That(body.Evidence[0].Provenance, Is.EqualTo("Live"));
+            Assert.That(body.Evidence[0].Value, Does.Contain("1,500.75"));
         });
     }
 
