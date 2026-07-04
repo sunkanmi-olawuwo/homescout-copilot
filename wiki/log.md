@@ -2,6 +2,16 @@
 
 ## 2026-07-04
 
+### Frontend Multi-Turn Thread Slice — New Conversation Reset
+
+- Added the frontend half of the anonymous multi-turn thread contract: once a copilot
+  conversation is active, the compact header shows **New conversation**, calls
+  `POST /api/copilot/session/reset`, and clears the visible answer/evidence state on success.
+- Kept session management API-first and backend-owned: the `hs_session` cookie is HttpOnly and
+  automatic, so the frontend does not read or store a session id.
+- Verified with Vitest and Playwright coverage for the reset endpoint call, cleared thread state,
+  restored empty hero, and cleared Evidence panel.
+
 ### Foundry Portal Cloud Eval (BYO-responses) + AIProjectClient Singleton
 
 - **Singleton `AIProjectClient`:** the API/evaluator now hold the Foundry project client as a

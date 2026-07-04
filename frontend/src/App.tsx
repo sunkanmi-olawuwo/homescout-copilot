@@ -295,6 +295,7 @@ function App() {
   const [copilotAnswer, setCopilotAnswer] = useState<CopilotAnswer | null>(null);
   const [copilotQuestion, setCopilotQuestion] = useState<string | null>(null);
   const [isAskingCopilot, setIsAskingCopilot] = useState(false);
+  const [isResettingConversation, setIsResettingConversation] = useState(false);
 
   const viewport = useViewport();
   const isMobile = viewport < 760;
@@ -359,6 +360,32 @@ function App() {
       setCopilotNotice('Could not reach the HomeScout API. The Estimator uses the same API and will show its own status.');
     } finally {
       setIsAskingCopilot(false);
+    }
+  };
+
+  const clearConversation = () => {
+    setCopilotQuestion(null);
+    setCopilotAnswer(null);
+    setCopilotNotice(null);
+    setRightTab('evidence');
+  };
+
+  const resetConversation = async () => {
+    if (isResettingConversation) return;
+    setIsResettingConversation(true);
+    try {
+      const response = await fetch('/api/copilot/session/reset', {
+        method: 'POST',
+        credentials: 'same-origin',
+      });
+      if (!response.ok) {
+        throw new Error(`${response.status} ${response.statusText}`);
+      }
+      clearConversation();
+    } catch {
+      setCopilotNotice('Could not start a new server-side conversation yet. Your current answer is still available.');
+    } finally {
+      setIsResettingConversation(false);
     }
   };
 
@@ -456,7 +483,19 @@ function App() {
 
           {mainTab === 'conversation' || !isMobile ? (
             <section className={`conversation${conversationActive ? ' active' : ''}`} aria-label="HomeScout copilot">
-              <span className="status-pill"><i aria-hidden="true" />Copilot ready · public-data tools connected</span>
+              <div className="conversation-header">
+                <span className="status-pill"><i aria-hidden="true" />Copilot ready · public-data tools connected</span>
+                {conversationActive ? (
+                  <button
+                    className="new-thread-button"
+                    type="button"
+                    disabled={isResettingConversation}
+                    onClick={() => void resetConversation()}
+                  >
+                    {isResettingConversation ? 'Starting…' : 'New conversation'}
+                  </button>
+                ) : null}
+              </div>
               <h1>Compare areas and properties, with the evidence shown.</h1>
               <p className="conversation-lead">
                 Ask HomeScout to compare two or three postcodes or listings. It reasons over public data, your

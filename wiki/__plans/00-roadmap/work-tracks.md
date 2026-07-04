@@ -186,6 +186,8 @@ contract responses in component + Playwright E2E tests.
      **Parallel split:** backend (lead) — HttpOnly `hs_session` cookie + `AgentThread` registry +
      `POST /api/copilot/session/reset` (60-min idle / 24-h cap); frontend (Codex) — a "New
      conversation" button against that contract (the cookie is automatic, so no other FE change).
+     ✅ **Frontend half implemented on `feature/fe-conversation-reset`**: compact-header reset
+     control posts to the reset endpoint and clears the visible thread/evidence state.
   4. **Foundry portal cloud eval (BYO-responses)** — publish `{query, real answer}` runs to the
      portal via the `EvaluationClient` for portal charts + run comparison, over an expanded (~30)
      curated dataset.
