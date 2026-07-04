@@ -25,6 +25,9 @@ This wiki is the canonical development memory for HomeScout Copilot.
 - [[GenAIOps Learning Path Integration]] - Maps Microsoft Learn GenAIOps modules into HomeScout build artifacts, evals, monitoring, and tracing.
 - [[GenAIOps Reference Implementation]] - Concrete, adoptable patterns from Microsoft's official GenAIOps lab repo (`mslearn-genaiops`) — versioned agents, prompt manifest, cloud evals, batch experiments, CI eval gate — mapped to HomeScout phases.
 - [[Phased Learning And Build Plan]] - Step-by-step sequence for videos, Microsoft Learn modules, design, build work, tests, evaluations, and Azure deployment.
+- [[Work Tracks]] - The two parallel tracks (frontend / backend) and the API seam between them, so multiple agents can work concurrently without collisions.
+- [[GenAIOps Tooling Plan]] - The AgentOps (deploy) + Evaluator (evaluation) .NET tool projects.
+- [[Frontend Implementation Plan]] - Review the design brief + design-agent deliverables, then implement the React app against the API.
 - [[Readiness Checklist]] - Current starting gate for implementation sessions and next immediate steps.
 - [[Release Monitoring]] - How to check for new playlist videos and companion repo commits.
 - [[Video Implementation Roadmap]] - Detailed plan for every currently available playlist video.

@@ -175,9 +175,11 @@ connections, App Insights + Log Analytics (monitoring), AI Search, and storage w
 
 **Decision (2026-07-04, from the spike): keep a single .NET stack — no Python in the
 repo.** The lab's Python scripts are **guided examples only**; every step maps to a .NET
-API that is already on our restore graph. The eval/deploy tooling ships as .NET console
-tools (e.g. `dotnet/tools/…` or a test project), authenticated keyless with
-`DefaultAzureCredential` like the rest of the app.
+API that is already on our restore graph. The eval/deploy tooling ships as two dedicated
+.NET console tools under `dotnet/tools/` — **`HomeScoutCopilot.AgentOps`** (deploy/manage
+agents, indexes, datasets) and **`HomeScoutCopilot.Evaluator`** (run evaluations) — see
+[[GenAIOps Tooling Plan]]. Both authenticate keyless with `DefaultAzureCredential` like the
+rest of the app.
 
 ### Verified .NET surface (spike over the restored assemblies)
 

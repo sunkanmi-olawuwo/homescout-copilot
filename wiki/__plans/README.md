@@ -23,6 +23,7 @@ plans own the detail.
 
 - [HomeScout Skeleton Migration — Master Sequenced Plan](./00-roadmap/homescout-skeleton-migration-plan.md)
 - [Phased Learning And Build Plan](./00-roadmap/phased-learning-build-plan.md)
+- [Work Tracks & Ownership](./00-roadmap/work-tracks.md) — the two parallel tracks (frontend / backend) and the API seam between them, for concurrent work.
 - [Readiness Checklist](./00-roadmap/readiness-checklist.md)
 - [Video Implementation Roadmap](./00-roadmap/video-implementation-roadmap.md)
 - [Release Monitoring](./00-roadmap/release-monitoring.md)
@@ -72,6 +73,7 @@ API, service-layer, persistence, and backend integration plans.
 
 - [API Vertical Slices + Validated Options — Plan (RagLab parity)](./03-backend/api-vertical-slice-plan.md)
 - [Copilot Agent Gateway — Design (Foundry Agent Service)](./03-backend/copilot-agent-gateway-plan.md)
+- [GenAIOps Tooling — AgentOps + Evaluator Projects](./03-backend/genaiops-tooling-plan.md) — the two .NET tool projects for deploying versioned agents and running evaluations.
 - [Mortgage Cost Estimator — Design (MVP)](./03-backend/cost-estimator-mortgage-plan.md)
 - [Backend Plans (overview)](./03-backend/README.md)
 

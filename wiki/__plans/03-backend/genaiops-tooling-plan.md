@@ -1,0 +1,120 @@
+# GenAIOps Tooling Plan
+
+*AgentOps (deploy) + Evaluator (evaluation) — the two .NET tool projects.*
+
+**Decision: yes — two dedicated .NET console tool projects, not one.** A control-plane tool
+for **deploying/managing** Foundry content (agent versions, indexes, datasets, connections)
+and a separate tool for **evaluation**. They have different lifecycles, different invocation
+contexts, and different blast radius, so single-responsibility wins. Both are pure .NET
+(confirmed feasible — see [[GenAIOps Reference Implementation]]) and keyless via
+`DefaultAzureCredential`.
+
+This is the concrete home for the ".NET deploy step" and ".NET eval harness" the
+[Phased Learning And Build Plan](../00-roadmap/phased-learning-build-plan.md) Phase 3/6
+calls for.
+
+## Why two projects (not one, not in the test project)
+
+| Concern | AgentOps (deploy/control-plane) | Evaluator (measurement) |
+| --- | --- | --- |
+| Job | Register versioned agents; manage indexes, datasets, connections | Run eval sets, score, report |
+| When | Release time / manual, infrequent, **mutating** | CI (scheduled/opt-in) + local, **read-mostly** |
+| Blast radius | Changes live Foundry resources | Produces scores + a report |
+| Failure impact | A bad deploy affects prod | A failed eval blocks nothing (non-gate) |
+
+Keeping them separate means CI can run the Evaluator without linking in deploy/mutation
+capability, and a release step can deploy without pulling eval dependencies. (A test project
+is the wrong home: these are operational tools invoked as programs, not test suites — though
+their *pure* logic is unit-tested in the fast gate.)
+
+## Structure (RagLab-consistent — a new `tools/` alongside `src/` and `tests/`)
+
+```
+dotnet/
+  src/     … (product runtime — unchanged)
+  tools/   (NEW — operational tools; not shipped in the API runtime)
+    HomeScoutCopilot.AgentOps/         # "DeployTool": deploy/manage Foundry content
+      Program.cs                        #   verbs: deploy-agent, list-agents, (later) index, dataset
+    HomeScoutCopilot.Evaluator/         # run evaluations, score, report
+      Program.cs                        #   verbs: run-eval, upload-dataset, report
+  tests/   … (+ AgentOps.Test / Evaluator.Test for pure-logic unit tests)
+```
+
+Add a `/tools/` solution folder in `HomeScoutCopilot.slnx`. Both tool projects and their
+unit tests build with the solution, so `backend-ci` compiles them (compile-safety in the
+gate) without running any live Azure calls.
+
+## Shared foundation (single-source the agent definition)
+
+Both tools **reference `HomeScoutCopilot.API.Service`** (and `.Shared`) to reuse the agent
+definition already there — `AgentPrompt` (the versioned prompt), `HomeScoutAgentTools` (the
+tool set), `FoundryOptions`, and the `AIProjectClient` wiring — so the agent is defined
+**once** and both runtime and deploy use the same source. If the coupling to
+`.API.Service` (which references `Microsoft.AspNetCore.App`) becomes awkward, extract a small
+`HomeScoutCopilot.Agent` library holding just the Foundry client factory + agent definition,
+referenced by `.API.Service` and both tools. Not needed yet — start by referencing
+`.API.Service`.
+
+## HomeScoutCopilot.AgentOps ("the DeployTool")
+
+Responsibilities (grows by phase):
+
+- **Phase 3 — agents:** register the versioned agent from the prompt asset via
+  `AIProjectClient.AgentAdministrationClient.CreateAgentVersion(...)` (or
+  `CreateAgentFromManifest(...)` for the declarative `homescout.agent.yaml` manifest). Prints
+  the new server-side version. Git-tag the deploy so *tag ↔ prompt version ↔ agent version*
+  line up.
+- **Phase 6 — indexes + datasets:** create/update AI Search indexes for case-file / curated
+  knowledge retrieval; upload datasets via `AIProjectClient.Datasets`.
+- **Later — connections:** manage project connections as needed.
+
+Invocation: `dotnet run --project dotnet/tools/HomeScoutCopilot.AgentOps -- deploy-agent`
+(reads `FoundryOptions` from config/env — the same `AZURE_FOUNDRY_*` azd outputs the API
+uses). Keyless `DefaultAzureCredential`. Run at release time / manually; **not** in the
+blocking PR gate.
+
+## HomeScoutCopilot.Evaluator
+
+Responsibilities:
+
+- Upload a versioned **eval dataset** (`query` / `response` / `ground_truth`) —
+  `AIProjectClient.Datasets`.
+- Create + run an evaluation — `AIProjectClient.GetProjectOpenAIClient().GetEvaluationClient()`
+  (`OpenAI.Evals`) or the Foundry-native `AIProjectClient.Evaluators`.
+- Evaluators: built-in **intent resolution / relevance / groundedness**, **plus HomeScout
+  safety evaluators** — "avoids regulated mortgage advice", "no simplistic safe/unsafe area
+  label", "separates facts / estimates / assumptions / missing data".
+- Poll, score (1–5, pass ≥ 3), write a results summary + `report_url` for a CI comment.
+
+Invocation: `dotnet run --project dotnet/tools/HomeScoutCopilot.Evaluator -- run-eval`. Runs
+locally and in a **non-blocking** scheduled/opt-in workflow (like `external-checks`) with
+**Azure OIDC** login — a third-party/model outage must never block a merge (per the
+"verify, don't assume" standard in `AGENTS.md`).
+
+## Testing
+
+- **Fast gate (unit):** pure logic only — arg/verb parsing, manifest building, dataset
+  serialization, result formatting — in `AgentOps.Test` / `Evaluator.Test`. No Azure.
+- **External (nightly/opt-in):** the real deploy + real eval as `[Category("External")]`
+  runs where Foundry + Azure creds exist; excluded from the blocking gate.
+- Datasets, eval definitions, and the agent manifest are **version-controlled assets**
+  (GenAIOps): they live in the repo and change through PRs.
+
+## Acceptance criteria
+
+- `dotnet/tools/HomeScoutCopilot.AgentOps` registers a versioned Foundry agent from the
+  prompt asset/manifest; prints the version; verified by an `[Category("External")]` run.
+- `dotnet/tools/HomeScoutCopilot.Evaluator` runs the HomeScout eval set (built-in + safety
+  evaluators) and emits a scored summary; verified live off the blocking gate.
+- Both build with the solution; pure-logic unit tests pass in the fast gate; drift 0 fail.
+- No Python in the repo (total .NET stack — [[Plan Divergence]]).
+
+## Phase mapping
+
+| Tool capability | Owning phase |
+| --- | --- |
+| AgentOps: deploy versioned agent (+ manifest) | 3 |
+| Evaluator: first hand-curated eval set + safety evaluators | 3 |
+| Evaluator: CI eval gate (OIDC, non-blocking) | 6 |
+| AgentOps: indexes + datasets for RAG | 6 |
+| AgentOps: connections, broader ops | 7 |

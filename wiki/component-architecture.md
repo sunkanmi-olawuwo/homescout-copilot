@@ -13,12 +13,20 @@ dotnet/
     HomeScoutCopilot.API.Client         (typed HTTP client over the API)
     HomeScoutCopilot.Shared             (DTOs / wire contracts)
     HomeScoutCopilot.Functional         (FluentResults -> ProblemDetails mappers)
+  tools/                                (planned — operational .NET console tools; see
+    HomeScoutCopilot.AgentOps           GenAIOps Tooling Plan. NOT in the API runtime.)
+    HomeScoutCopilot.Evaluator          (deploy versioned agents / run evaluations)
   tests/
     HomeScoutCopilot.API.Test           (NUnit contract + Aspire integration + Reqnroll BDD)
     HomeScoutCopilot.Shared.Test
     HomeScoutCopilot.Functional.Test
 frontend/         (React/Vite, at repo root)
 ```
+
+The `tools/` projects (`AgentOps`, `Evaluator`) are **planned**, not yet created — added
+when the persisted-agent-deploy + eval work begins (Phase 3), consistent with the
+"no premature scaffolding" rule (add on real need). They reference `.API.Service` to reuse
+the single-sourced agent definition and are excluded from the API runtime.
 
 .NET projects live under `dotnet/` (RagLab skeleton parity); the React frontend
 stays at the repo root. The `AppHost` references the frontend at `../../../frontend`

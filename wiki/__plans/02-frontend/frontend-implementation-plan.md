@@ -1,4 +1,6 @@
-# Frontend Implementation Plan — Review The Design, Then Build
+# Frontend Implementation Plan
+
+*Review the design, then build.*
 
 This is the **frontend build phase**: take the finished design and implement the real
 HomeScout product UI against it. It has two stages — **(1) review the design** (the
