@@ -1,6 +1,17 @@
 # Server-Side Tools Plan (OpenAPI Tools on the Foundry Agent)
 
-**Status:** Design-first, ready to execute. Not yet implemented.
+**Status:** Design complete, **deferred by decision (2026-07-04)** — not being built now.
+
+**Why deferred:** the strongest driver (agent-target cloud eval) was already met a better way
+(**BYO-responses**, which evaluates the real product), instructions are single-sourced, and the
+agent already shows in the portal (CreateAgentVersion). Server-side tools would add a public inbound
+surface + managed-identity auth + a dev-tunnel to test the full loop locally — cost that isn't
+justified yet. In-process tools are fully offline-testable, secure, and arguably *more* API-first
+(our API owns orchestration). `AgenticAICore` confirms an in-process ("Local") agent is a
+first-class strategy, and **runtime reasoning tuning is achievable in-process** (done — see [[log]]),
+so the one remaining runtime gain from server-side tools is covered. **Revisit only** when the
+portal playground must compute or a non-API client consumes the agent. The design below stays
+ready to execute if that need arrives.
 
 **Owning phase:** Backend follow-up to the GenAIOps agent work
 ([[GenAIOps Tooling Plan]], [[API-First Foundry Agents]]). Prerequisite for **reference-by-name**.

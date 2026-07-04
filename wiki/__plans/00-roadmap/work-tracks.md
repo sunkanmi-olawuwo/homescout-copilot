@@ -150,18 +150,22 @@ contract responses in component + Playwright E2E tests.
   shows in the portal as a named, versioned asset. Idempotent on identical content. Verified live
   2026-07-04 (`FoundryAgentDeployerLiveTests`). Tools stay client-side, so cloud eval uses
   BYO-responses (not agent-target).
+- ✅ **In-process reasoning tuning (done, live-verified)** — the runtime copilot sets
+  `ChatOptions.Reasoning = { Effort = Medium }` on each run (portable Microsoft.Extensions.AI
+  surface), the correct knob for our gpt-5 reasoning model. Verified 2026-07-04: still calls
+  `estimate_mortgage`, no error. This gives the one runtime gain reference-by-name would have,
+  without its cost — following AgenticAICore's in-process ("Local") pattern.
+- **Deferred by decision (2026-07-04):**
+  - **Server-side tools** ([[Server-Side Tools Plan]]) — OpenAPI tools on the persisted agent.
+    Deferred: agent-target eval is covered better by BYO-responses, in-process tools are fully
+    local-testable + secure, and it would add a public inbound surface. Design stays ready.
+  - **Reference-by-name** — blocked on server-side tools (a live spike proved serving the persisted,
+    tool-less agent breaks tool-calling; reverted). Not needed once in-process reasoning is set.
+  - **Persisted Foundry agent** (`agentops deploy`) is now a **decoupled, optional GenAIOps/portal
+    asset** (versioned agent registry + portal visibility), not on the runtime path — deploy in CI
+    on prompt changes; the app runs in-process from the same `AgentPrompt` source.
 - **Queued next (planned):**
-  1. **Server-side tools FIRST** — expose `estimate_mortgage`/`get_base_rate` as tools **on the
-     persisted agent definition** (OpenAPI tool the Foundry service calls, authenticated), so the
-     agent is self-contained. **Hard dependency for reference-by-name** (below). Larger,
-     security-sensitive (inbound auth + egress).
-  2. **Reference-by-name** — the API's `FoundryAgentGateway` reads the persisted `HomeScout` agent
-     by name so Foundry is the runtime source of truth and the deployed `ReasoningOptions` take
-     effect. **Blocked on (1):** a live spike (2026-07-04) proved that serving the persisted agent
-     with **client-side-only tools breaks tool-calling** — the model never sees `estimate_mortgage`,
-     so the copilot stops calculating. The persisted definition must carry the tools first. Reverted
-     the spike; the working in-process gateway stays until (1) lands.
-  3. **Multi-turn conversation threads (anonymous)** — `AgentThread`-based conversation memory keyed
+  1. **Multi-turn conversation threads (anonymous)** — `AgentThread`-based conversation memory keyed
      by an **anonymous session id** (no auth needed), so follow-ups keep context; in-memory first,
      durable (Cosmos / Standard setup) next. End-user auth (**Keycloak**, see [[Plan Divergence]])
      and per-user history follow later.
