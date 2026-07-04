@@ -19,13 +19,18 @@ implemented** — `agentops manifest [--out <path>]` assembles the declarative
 `HomeScoutAgentTools.ToolNames`), committed at
 `dotnet/src/HomeScoutCopilot.API.Service/Prompts/homescout.agent.yaml` and drift-guarded by a
 test. The live `AgentAdministrationClient.CreateAgentVersion` registration is queued next
-(needs `azd` provision — now available). **`HomeScoutCopilot.Evaluator` exists** with the
-**safety-evaluation step implemented** — `evaluator safety [--data <path>]` runs the
-deterministic HomeScout guardrail evaluators (not-mortgage-advice, no product recommendation,
-no safe/unsafe area verdict) over a version-controlled eval dataset
-(`tools/HomeScoutCopilot.Evaluator/data/homescout-eval.jsonl`, drift-guarded by a test),
-scoring pass rates + failures (exit 1 on any). The **Foundry cloud evals** (model-graded
-intent/relevance/groundedness over live copilot responses) are the next, live-verified step.
+(needs `azd` provision — now available). **`HomeScoutCopilot.Evaluator` exists** with:
+- `evaluator safety [--data <path>]` — deterministic HomeScout guardrail evaluators
+  (not-mortgage-advice, no product recommendation, no safe/unsafe area verdict) over a
+  version-controlled eval dataset (`data/homescout-eval.jsonl`, drift-guarded), scoring pass
+  rates + failures (exit 1 on any). Offline.
+- `evaluator run [--data <path>]` — asks the **live** copilot each dataset *query* and runs the
+  same safety evaluators over the **real** answers. Needs `AZURE_FOUNDRY_*` + Azure creds;
+  proven by `EvaluatorLiveTests` (`[Category("External")]`, off the blocking gate — verified
+  6/6 pass against the provisioned agent, 2026-07-04).
+
+The **Foundry cloud evals** (model-graded intent/relevance/groundedness) are the next,
+live-verified step.
 
 ## Why two projects (not one, not in the test project)
 

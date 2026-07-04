@@ -2,6 +2,19 @@
 
 ## 2026-07-04
 
+### Evaluator Live Mode — Safety Checks Against The Real Agent
+
+- Added `evaluator run [--data <path>]`: asks the **live** copilot each dataset *query* and runs
+  the safety evaluators over the **real** answers (previously they only ran over authored
+  example responses). `CopilotGatewayFactory` builds the real Foundry gateway from
+  `AZURE_FOUNDRY_*` (mirroring the API's DI); `LiveEvaluation` turns queries → live cases
+  (model prose + caveats); the existing runner + evaluators do the rest.
+- Verified live: `evaluator run` asked gpt-5-mini all 6 dataset questions → **6/6 pass** all
+  guardrails; the new `EvaluatorLiveTests` (`[Category("External")]`, off the blocking gate)
+  passed against the provisioned agent. `run` with no Foundry env prints a clear message + exits.
+- Closes the gap flagged earlier: the safety check now runs against the live agent, not just
+  curated examples. Model-graded Foundry cloud evals remain the next step.
+
 ### Backend Iteration 2 — Evaluator Harness (Safety Evals)
 
 - Built `HomeScoutCopilot.Evaluator` (new `dotnet/tools/` project) so the now-live copilot is
