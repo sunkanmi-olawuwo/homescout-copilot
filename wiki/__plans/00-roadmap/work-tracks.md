@@ -88,7 +88,47 @@ live-verified slice (needs `azd` provision). Ran independently of the frontend's
 **Then (lead):** review Codex's frontend PR **and** the backend PR, merge each individually,
 run an end-to-end check (frontend ↔ live mortgage/base-rate endpoints), then plan iteration 2.
 
-**Seam item for iteration 2:** the design's Evidence panel needs structured, tagged,
-provenance'd evidence items (`fact`/`estimate`/`assumption`/`missing` + source +
-live/cache/fallback). The current `CopilotAnswer.Evidence` is empty — defining that contract
-in `Shared` is backend-led seam work, co-designed with Codex's evidence panel.
+**Iteration 1 outcome (2026-07-04):** both merged (#32 backend AgentOps manifest, #33 frontend
+workspace + estimator). Frontend reworked to the design IA and verified live end-to-end.
+
+## Iteration 2 plan (2026-07-04)
+
+**Theme: light up the copilot — structured evidence + live Foundry.** Turn `/api/copilot/ask`
+from a 503 stub into a real, grounded answer with a provenance-tagged evidence trail rendered
+in the design's Evidence panel.
+
+**Seam-first ordering (there is a dependency this time).** The frontend's Evidence panel +
+answer rendering build against a contract the backend must define **first**. So:
+
+1. **Backend seam PR (small, first) — the evidence contract.** Define in `Shared/Contracts`:
+   `FigureKind` (`Fact`/`Estimate`/`Assumption`/`Missing`) + `EvidenceItem(Label, Value, Kind,
+   Source, string? Provenance)`, and add `Evidence: IReadOnlyList<EvidenceItem>` to
+   `CopilotAnswer`. Map the gateway's tool results → evidence (estimate → monthly payment / LTV
+   as `Estimate`; base rate as `Fact` + Live/Cache/Fallback provenance). Offline-testable with
+   the fake gateway; contract tests lock the shape. **This unblocks Codex.**
+2. Then both tracks run in parallel:
+
+**Backend (lead):**
+- The evidence contract above (item 1).
+- **Foundry provisioning** — `azd provision` the Basic setup in `infra/` (currently *not*
+  azd-up-verified). ⚠️ **User-gated:** creates **billable** Azure resources and needs the
+  user's `azd`/Azure auth — the lead can't self-provision. Once up: live-verify
+  `FoundryAgentGatewayLiveTests` + run the deferred **AgentOps `CreateAgentVersion`** (register
+  the versioned agent). This lights up `/api/copilot/ask`.
+
+**Frontend (Codex):**
+- **Conversation answers** — render the assistant prose + tool chips from `CopilotAnswer`; make
+  the START WITH suggestion cards and the composer send real prompts (replace the 503 notice
+  with a proper streaming/answer surface; keep graceful degradation).
+- **Evidence panel** — populate from `CopilotAnswer.Evidence`: the `fact`/`estimate`/
+  `assumption`/`missing` chips + `Live`/`Cache`/`Fallback` provenance badges + source, per the
+  design (the "evidence appears here" empty state → populated). Build against the contract with
+  mocked responses (as iteration 1 did), so it lands before Foundry is live.
+
+**Dependencies / gates:**
+- Codex's work depends on the **evidence-contract PR** being merged (seam-first).
+- **Live** end-to-end depends on **Foundry provisioning** (user-gated). Until then the copilot
+  path is contract-complete + mock-verified, and `/api/copilot/ask` stays 503 in dev.
+
+**Then (lead):** review both, merge individually, E2E check (mock-verified now; live once
+Foundry is provisioned), then plan iteration 3.
