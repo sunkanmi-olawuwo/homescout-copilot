@@ -53,8 +53,11 @@ contract — it does not invent an endpoint or reach past the API.
 
 ## Rules that keep parallel work clean
 
-1. **Separate branches + PRs per track.** Frontend branches: `feature/fe-*`; backend
-   branches: `feature/be-*` (or `migration/*`). Each is small and independently green.
+1. **Each agent works on its own branch — never on `main`.** `main` is protected and
+   changes only via a reviewed, gated PR (per `AGENTS.md`). Frontend branches: `feature/fe-*`;
+   backend branches: `feature/be-*` (or `migration/*`). Cut every branch from up-to-date
+   `main`, keep it small + independently green, and never commit directly to `main` or push to
+   another track's branch.
 2. **No shared files across tracks** except `Shared` DTOs and the endpoint docs — and those
    are backend-owned; frontend consumes.
 3. **Contract changes are backend-led and announced.** A frontend need becomes a backend
@@ -125,14 +128,18 @@ copilot live). Follow [Codex Frontend Instructions](../02-frontend/codex-fronten
   lowercase `kind` chip + `provenance` badge + source), per the design. Build against the merged
   contract with mocks; works live wherever `AZURE_FOUNDRY_*` is set. Branch `feature/fe-*`.
 
-**Backend (lead) — next slice (pick one; the copilot itself is done):**
-- **Evaluator harness** ([[GenAIOps Tooling Plan]]) — *recommended*: the copilot is live but
-  **unmeasured**. A hand-curated eval set + Foundry evals (intent/relevance/groundedness +
-  HomeScout safety evaluators) makes answer quality/safety measurable. Highest GenAIOps value.
-- **AgentOps `CreateAgentVersion`** — the deferred live-deploy: register the versioned agent
-  server-side (portal versions + reference-by-name) now that Foundry is up. GenAIOps completeness.
-- **Area-comparison endpoint** — product breadth (the design's Greenwich/Croydon screen);
-  bigger — needs public-data sources (crime/schools/amenities), edging into Phase 6.
+**Backend (lead) — active + queued:**
+- ✅ **Evaluator harness — safety evals done** ([[GenAIOps Tooling Plan]]):
+  `HomeScoutCopilot.Evaluator` (`evaluator safety`) runs deterministic HomeScout guardrail
+  evaluators (not-mortgage-advice, no product recommendation, no safe/unsafe area verdict) over
+  a version-controlled eval dataset, scored + summarised, drift-guarded. The **Foundry cloud
+  evals** (model-graded intent/relevance/groundedness over live copilot responses) follow as
+  the next live-verified step (seam-first: offline proven, external adapter verified live).
+- **Queued next (planned):**
+  1. **AgentOps `CreateAgentVersion`** — the deferred live-deploy: register the versioned agent
+     server-side (portal versions + reference-by-name) now that Foundry is up.
+  2. **Area-comparison endpoint** — product breadth (the design's Greenwich/Croydon screen:
+     commute/crime/EPC/schools); needs public-data sources, edging into Phase 6.
 
 **Then (lead):** review Codex's frontend + the backend slice, merge individually, E2E check
 (copilot conversation ↔ live `/api/copilot/ask`), then plan iteration 3.

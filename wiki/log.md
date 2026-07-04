@@ -2,6 +2,23 @@
 
 ## 2026-07-04
 
+### Backend Iteration 2 — Evaluator Harness (Safety Evals)
+
+- Built `HomeScoutCopilot.Evaluator` (new `dotnet/tools/` project) so the now-live copilot is
+  **measured**, not just working. `evaluator safety [--data <path>]` runs deterministic
+  HomeScout guardrail evaluators — not-mortgage-advice disclaimer present, no mortgage-product
+  recommendation, no safe/unsafe area verdict — over a version-controlled eval dataset
+  (`data/homescout-eval.jsonl`, 6 curated scenarios), scoring pass rates + failures (exit 1 on
+  any).
+- Tests (7): each evaluator passes a compliant answer + catches its violation; the runner
+  summary flags failures; a **drift guard** asserts the committed dataset stays compliant.
+  Tuned the product-recommendation regex to catch multi-word product names while letting
+  "recommend … a mortgage adviser" through. Tool run green (6/6); full fast suite green.
+- Queued next (planned in [[Work Tracks]]): the **Foundry cloud evals** (model-graded
+  intent/relevance/groundedness over live copilot responses), **AgentOps `CreateAgentVersion`**
+  live-deploy, and the **area-comparison endpoint**. Also made the work-tracks branch rule
+  explicit — each agent works on its own branch, never `main`.
+
 ### Backend Iteration 2 — Copilot Evidence Contract (Live-Verified)
 
 - Built the structured evidence seam (unblocks Codex's Evidence panel): `FigureKind` +

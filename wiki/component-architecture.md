@@ -15,20 +15,22 @@ dotnet/
     HomeScoutCopilot.Functional         (FluentResults -> ProblemDetails mappers)
   tools/                                (operational .NET console tools; see GenAIOps
     HomeScoutCopilot.AgentOps           Tooling Plan. NOT in the API runtime.)
-                                        (AgentOps: manifest step done; Evaluator planned)
+    HomeScoutCopilot.Evaluator          (AgentOps: manifest step done. Evaluator: safety
+                                         evals done; Foundry cloud evals next.)
   tests/
     HomeScoutCopilot.API.Test           (NUnit contract + Aspire integration + Reqnroll BDD)
     HomeScoutCopilot.Shared.Test
     HomeScoutCopilot.Functional.Test
     HomeScoutCopilot.AgentOps.Test
+    HomeScoutCopilot.Evaluator.Test
 frontend/         (React/Vite, at repo root)
 ```
 
-The `tools/` folder holds operational console tools. `HomeScoutCopilot.AgentOps` exists (its
-declarative-manifest step is done — `agentops manifest` writes `homescout.agent.yaml`; live
-`CreateAgentVersion` is the next, live-verified step). `HomeScoutCopilot.Evaluator` is still
-planned. They reference `.API.Service` to reuse the single-sourced agent definition and are
-excluded from the API runtime.
+The `tools/` folder holds operational console tools. `HomeScoutCopilot.AgentOps` (declarative
+manifest done; live `CreateAgentVersion` next) and `HomeScoutCopilot.Evaluator` (`evaluator
+safety` runs deterministic guardrail evals over a version-controlled dataset; Foundry cloud
+evals next). They reference `.API.Service` to reuse the single-sourced agent definition and
+are excluded from the API runtime.
 
 .NET projects live under `dotnet/` (RagLab skeleton parity); the React frontend
 stays at the repo root. The `AppHost` references the frontend at `../../../frontend`
