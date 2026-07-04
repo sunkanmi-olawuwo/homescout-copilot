@@ -18,8 +18,14 @@ implemented** — `agentops manifest [--out <path>]` assembles the declarative
 `homescout.agent.yaml` from the single-sourced agent definition (`AgentPrompt` +
 `HomeScoutAgentTools.ToolNames`), committed at
 `dotnet/src/HomeScoutCopilot.API.Service/Prompts/homescout.agent.yaml` and drift-guarded by a
-test. The live `AgentAdministrationClient.CreateAgentVersion` registration is the **next,
-live-verified** step (needs `azd` provision). `HomeScoutCopilot.Evaluator` is not yet created.
+test. The live `AgentAdministrationClient.CreateAgentVersion` registration is queued next
+(needs `azd` provision — now available). **`HomeScoutCopilot.Evaluator` exists** with the
+**safety-evaluation step implemented** — `evaluator safety [--data <path>]` runs the
+deterministic HomeScout guardrail evaluators (not-mortgage-advice, no product recommendation,
+no safe/unsafe area verdict) over a version-controlled eval dataset
+(`tools/HomeScoutCopilot.Evaluator/data/homescout-eval.jsonl`, drift-guarded by a test),
+scoring pass rates + failures (exit 1 on any). The **Foundry cloud evals** (model-graded
+intent/relevance/groundedness over live copilot responses) are the next, live-verified step.
 
 ## Why two projects (not one, not in the test project)
 
