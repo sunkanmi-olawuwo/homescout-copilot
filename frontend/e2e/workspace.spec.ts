@@ -33,6 +33,10 @@ test.beforeEach(async ({ page }) => {
   await page.route('**/api/copilot/ask', async (route) => {
     await route.fulfill({ status: 503, contentType: 'application/json', body: '{}' });
   });
+
+  await page.route('**/api/copilot/session/reset', async (route) => {
+    await route.fulfill({ status: 204, contentType: 'application/json', body: '{}' });
+  });
 });
 
 test('leads with the conversation and opens the API-backed estimator', async ({ page }) => {
@@ -115,4 +119,48 @@ test('copilot answers populate the conversation and evidence rail', async ({ pag
   await expect(page.getByText('Monthly mortgage payment')).toBeVisible();
   await expect(page.getByText('/api/mortgage/estimate')).toBeVisible();
   await expect(page.getByText('Cache')).toBeVisible();
+});
+
+test('new conversation resets the server session and clears the visible thread', async ({ page }) => {
+  await page.unroute('**/api/copilot/ask');
+  await page.route('**/api/copilot/ask', async (route) => {
+    await route.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify({
+        text: '## Greenwich cost context\n\n- Answer carried by the current thread.',
+        toolCalls: [{ name: 'estimate_mortgage', summary: 'Calculated repayment mortgage costs.' }],
+        evidence: [
+          {
+            label: 'Monthly mortgage payment',
+            value: '£2,204.42',
+            kind: 'estimate',
+            source: '/api/mortgage/estimate',
+            provenance: 'Live',
+          },
+        ],
+        assumptions: [],
+        caveats: ['This is an estimate, not mortgage advice — speak to a qualified adviser before deciding.'],
+      }),
+    });
+  });
+
+  const resetRequests: string[] = [];
+  await page.unroute('**/api/copilot/session/reset');
+  await page.route('**/api/copilot/session/reset', async (route) => {
+    resetRequests.push(route.request().method());
+    await route.fulfill({ status: 204, contentType: 'application/json', body: '{}' });
+  });
+
+  await page.goto('/');
+
+  await page.getByLabel('Ask HomeScout').fill('What would this cost monthly?');
+  await page.getByLabel('Ask HomeScout').press('Enter');
+  await expect(page.getByRole('heading', { name: 'Greenwich cost context' })).toBeVisible();
+
+  await page.getByRole('button', { name: 'New conversation' }).click();
+
+  await expect(page.getByRole('heading', { name: /Compare areas and properties/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Greenwich cost context' })).toHaveCount(0);
+  await expect(page.getByText('Evidence appears here')).toBeVisible();
+  expect(resetRequests).toEqual(['POST']);
 });

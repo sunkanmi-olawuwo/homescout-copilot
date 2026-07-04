@@ -97,8 +97,10 @@ Current state (iteration 2, built to the Claude Design):
   `/api/copilot/ask`; successful `CopilotAnswer` responses render the answer text, tool chips,
   assumptions and caveats. Once a conversation starts, the large intro collapses to a compact
   header so the answer remains the focus. Copilot prose is rendered from a small sanitized
-  Markdown subset (no raw HTML injection; unsafe links become text). The UI still **degrades
-  gracefully on 503** for environments without Foundry configuration.
+  Markdown subset (no raw HTML injection; unsafe links become text). The compact header includes
+  a **New conversation** control that calls `POST /api/copilot/session/reset` and clears the
+  visible answer/evidence state; the backend-managed `hs_session` cookie remains automatic. The
+  UI still **degrades gracefully on 503** for environments without Foundry configuration.
 - The right-rail **Evidence** tab hydrates from `CopilotAnswer.Evidence`, rendering each
   figure's lowercase `kind`, Live/Cache/Fallback provenance and source.
 - The **mortgage estimator is a right-rail panel** (Evidence | Estimator tabs) wired to

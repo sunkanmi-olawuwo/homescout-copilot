@@ -61,6 +61,9 @@ function jsonResponse(body: unknown) {
 function statusResponse(status: number) {
   return { ok: false, status, statusText: '', json: () => Promise.resolve({}) } as Response;
 }
+function emptyResponse(status = 204) {
+  return { ok: status >= 200 && status < 300, status, statusText: 'No Content', json: () => Promise.resolve({}) } as Response;
+}
 
 describe('App workspace', () => {
   beforeEach(() => {
@@ -71,6 +74,7 @@ describe('App workspace', () => {
         if (url.endsWith('/api/mortgage/base-rate')) return Promise.resolve(jsonResponse(baseRateBody));
         if (url.endsWith('/api/mortgage/estimate')) return Promise.resolve(jsonResponse(estimateBody));
         if (url.endsWith('/api/copilot/ask')) return Promise.resolve(statusResponse(503));
+        if (url.endsWith('/api/copilot/session/reset')) return Promise.resolve(emptyResponse());
         return Promise.reject(new Error(`Unexpected request: ${url}`));
       }),
     );
@@ -154,6 +158,7 @@ describe('App workspace', () => {
       if (url.endsWith('/api/mortgage/base-rate')) return Promise.resolve(jsonResponse(baseRateBody));
       if (url.endsWith('/api/mortgage/estimate')) return Promise.resolve(jsonResponse(estimateBody));
       if (url.endsWith('/api/copilot/ask')) return Promise.resolve(jsonResponse(copilotAnswer));
+      if (url.endsWith('/api/copilot/session/reset')) return Promise.resolve(emptyResponse());
       return Promise.reject(new Error(`Unexpected request: ${url}`));
     });
 
@@ -189,6 +194,40 @@ describe('App workspace', () => {
     });
   });
 
+  it('starts a new conversation through the session reset endpoint and clears visible state', async () => {
+    const fetchMock = vi.mocked(fetch);
+    fetchMock.mockImplementation((input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.endsWith('/api/mortgage/base-rate')) return Promise.resolve(jsonResponse(baseRateBody));
+      if (url.endsWith('/api/mortgage/estimate')) return Promise.resolve(jsonResponse(estimateBody));
+      if (url.endsWith('/api/copilot/ask')) return Promise.resolve(jsonResponse(copilotAnswer));
+      if (url.endsWith('/api/copilot/session/reset')) return Promise.resolve(emptyResponse());
+      return Promise.reject(new Error(`Unexpected request: ${url}`));
+    });
+
+    const { container } = render(<App />);
+
+    fireEvent.change(screen.getByLabelText('Ask HomeScout'), { target: { value: 'What would this cost monthly?' } });
+    fireEvent.submit(screen.getByLabelText('Ask HomeScout').closest('form') as HTMLFormElement);
+
+    expect(await screen.findByRole('heading', { name: 'Greenwich cost context' })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'New conversation' }));
+
+    await waitFor(() => {
+      expect(
+        fetchMock.mock.calls.some(
+          ([url, init]) => String(url) === '/api/copilot/session/reset' && init?.method === 'POST',
+        ),
+      ).toBe(true);
+    });
+
+    await waitFor(() => expect(screen.queryByRole('heading', { name: 'Greenwich cost context' })).toBeNull());
+    expect(screen.getByRole('heading', { name: /Compare areas and properties/i })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'New conversation' })).toBeNull();
+    expect(screen.getByText('Evidence appears here')).toBeTruthy();
+    expect(container.querySelector('.conversation.active')).toBeNull();
+  });
+
   it('posts start-with cards to the copilot seam', async () => {
     const fetchMock = vi.mocked(fetch);
     fetchMock.mockImplementation((input: RequestInfo | URL) => {
@@ -196,6 +235,7 @@ describe('App workspace', () => {
       if (url.endsWith('/api/mortgage/base-rate')) return Promise.resolve(jsonResponse(baseRateBody));
       if (url.endsWith('/api/mortgage/estimate')) return Promise.resolve(jsonResponse(estimateBody));
       if (url.endsWith('/api/copilot/ask')) return Promise.resolve(jsonResponse(copilotAnswer));
+      if (url.endsWith('/api/copilot/session/reset')) return Promise.resolve(emptyResponse());
       return Promise.reject(new Error(`Unexpected request: ${url}`));
     });
 
