@@ -176,10 +176,13 @@ contract responses in component + Playwright E2E tests.
      adversarial guardrail probes** (`probe-*`: which-mortgage, best-deal, fix-or-track, should-i-buy,
      is-X-safe, safest-area, will-rates-drop, which-lender, remortgage-now). All 30 golden responses
      pass the offline safety evaluators; the probes exercise the live guardrails under pressure.
-  1. **Multi-turn conversation threads (anonymous)** — `AgentThread`-based conversation memory keyed
-     by an **anonymous session id** (no auth needed), so follow-ups keep context; in-memory first,
-     durable (Cosmos / Standard setup) next. End-user auth (**Keycloak**, see [[Plan Divergence]])
-     and per-user history follow later.
+  1. **Multi-turn conversation threads (anonymous)** ([[Conversation Threads Plan]]) —
+     `AgentThread`-based conversation memory keyed by an **anonymous session id** (no auth needed),
+     so follow-ups keep context; in-memory first, durable (Cosmos / Standard setup) next. **No query
+     rewrite** — the model resolves follow-ups from the full history the framework passes; rewrite
+     only matters once RAG lands. Add **multi-turn eval cases** to prove context carries (the
+     `cost-interest-only` follow-up is the canonical test, currently evaluated standalone). End-user
+     auth (**Keycloak**, see [[Plan Divergence]]) and per-user history follow later.
   4. **Foundry portal cloud eval (BYO-responses)** — publish `{query, real answer}` runs to the
      portal via the `EvaluationClient` for portal charts + run comparison, over an expanded (~30)
      curated dataset.
