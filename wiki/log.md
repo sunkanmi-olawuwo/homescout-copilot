@@ -31,6 +31,16 @@
   intent/relevance/groundedness over live copilot responses), **AgentOps `CreateAgentVersion`**
   live-deploy, and the **area-comparison endpoint**. Also made the work-tracks branch rule
   explicit — each agent works on its own branch, never `main`.
+### Frontend Iteration 2 — Copilot Answers + Evidence Panel
+
+- Implemented the second frontend copilot slice on `feature/fe-copilot-evidence`: the composer
+  and START WITH cards now post to `POST /api/copilot/ask`, render `CopilotAnswer.Text`,
+  `ToolCalls`, assumptions and caveats in the conversation, and retain the 503 fallback when
+  Foundry is not configured.
+- Populated the right-rail Evidence tab from `CopilotAnswer.Evidence`, using the contract's
+  lowercase `kind` chip, Live/Cache/Fallback provenance badge and source field.
+- Verified with mocked contract responses in Vitest and Playwright; `pnpm run lint`,
+  `pnpm run test`, `pnpm run build`, and `pnpm run e2e` are green.
 
 ### Backend Iteration 2 — Copilot Evidence Contract (Live-Verified)
 

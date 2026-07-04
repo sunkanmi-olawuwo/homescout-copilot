@@ -21,6 +21,32 @@ const baseRateBody = {
   note: 'Bank Rate is provided for orientation only.',
 };
 
+const copilotAnswer = {
+  text: 'For this Greenwich flat, the estimated monthly repayment is £2,204.42 and the loan-to-value is 80.1%. Treat the base rate as context, not a product recommendation.',
+  toolCalls: [
+    { name: 'estimate_mortgage', summary: 'Calculated repayment mortgage costs.' },
+    { name: 'get_base_rate', summary: 'Checked Bank of England context.' },
+  ],
+  evidence: [
+    {
+      label: 'Monthly mortgage payment',
+      value: '£2,204.42',
+      kind: 'estimate',
+      source: '/api/mortgage/estimate',
+      provenance: 'Live',
+    },
+    {
+      label: 'BoE base rate',
+      value: '4.25%',
+      kind: 'fact',
+      source: 'Bank of England',
+      provenance: 'Cache',
+    },
+  ],
+  assumptions: ['Repayment mortgage at 5.1% over 25 years.'],
+  caveats: ['This is an estimate, not mortgage advice — speak to a qualified adviser before deciding.'],
+};
+
 function jsonResponse(body: unknown) {
   return { ok: true, status: 200, statusText: 'OK', json: () => Promise.resolve(body) } as Response;
 }
@@ -111,6 +137,68 @@ describe('App workspace', () => {
     fireEvent.submit(screen.getByLabelText('Ask HomeScout').closest('form') as HTMLFormElement);
 
     expect(await screen.findByText(/isn.t connected yet/i)).toBeTruthy();
+  });
+
+  it('posts composer questions to the copilot seam and renders answer evidence', async () => {
+    const fetchMock = vi.mocked(fetch);
+    fetchMock.mockImplementation((input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.endsWith('/api/mortgage/base-rate')) return Promise.resolve(jsonResponse(baseRateBody));
+      if (url.endsWith('/api/mortgage/estimate')) return Promise.resolve(jsonResponse(estimateBody));
+      if (url.endsWith('/api/copilot/ask')) return Promise.resolve(jsonResponse(copilotAnswer));
+      return Promise.reject(new Error(`Unexpected request: ${url}`));
+    });
+
+    render(<App />);
+
+    fireEvent.change(screen.getByLabelText('Ask HomeScout'), { target: { value: 'What would this cost monthly?' } });
+    fireEvent.submit(screen.getByLabelText('Ask HomeScout').closest('form') as HTMLFormElement);
+
+    expect(await screen.findByText(/estimated monthly repayment is £2,204.42/i)).toBeTruthy();
+    expect(screen.getByText('estimate_mortgage')).toBeTruthy();
+    expect(screen.getByText('Calculated repayment mortgage costs.')).toBeTruthy();
+    expect(screen.getByText('Evidence trail')).toBeTruthy();
+    expect(screen.getByText('Monthly mortgage payment')).toBeTruthy();
+    expect(screen.getByText('/api/mortgage/estimate')).toBeTruthy();
+    expect(screen.getAllByText('estimate').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Cache').length).toBeGreaterThan(0);
+
+    await waitFor(() => {
+      expect(
+        fetchMock.mock.calls.some(
+          ([url, init]) =>
+            String(url) === '/api/copilot/ask' &&
+            init?.method === 'POST' &&
+            JSON.parse(String(init.body)).message === 'What would this cost monthly?',
+        ),
+      ).toBe(true);
+    });
+  });
+
+  it('posts start-with cards to the copilot seam', async () => {
+    const fetchMock = vi.mocked(fetch);
+    fetchMock.mockImplementation((input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.endsWith('/api/mortgage/base-rate')) return Promise.resolve(jsonResponse(baseRateBody));
+      if (url.endsWith('/api/mortgage/estimate')) return Promise.resolve(jsonResponse(estimateBody));
+      if (url.endsWith('/api/copilot/ask')) return Promise.resolve(jsonResponse(copilotAnswer));
+      return Promise.reject(new Error(`Unexpected request: ${url}`));
+    });
+
+    render(<App />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Compare SE10 vs CR0/i }));
+
+    await waitFor(() => {
+      expect(
+        fetchMock.mock.calls.some(
+          ([url, init]) =>
+            String(url) === '/api/copilot/ask' &&
+            init?.method === 'POST' &&
+            JSON.parse(String(init.body)).message.startsWith('Compare SE10 vs CR0.'),
+        ),
+      ).toBe(true);
+    });
   });
 
   it('supports the scoped light and dark themes', () => {

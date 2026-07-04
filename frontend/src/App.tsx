@@ -4,6 +4,7 @@ import './App.css';
 type Theme = 'light' | 'dark';
 type RepaymentType = 'Repayment' | 'InterestOnly';
 type Provenance = 'Live' | 'Cache' | 'Fallback';
+type FigureKind = 'fact' | 'estimate' | 'assumption' | 'missing';
 type MainTab = 'conversation' | 'comparison';
 type RightTab = 'evidence' | 'estimator';
 
@@ -37,6 +38,27 @@ interface BaseRate {
   provenance: Provenance;
   source: string;
   note: string;
+}
+
+interface CopilotToolCall {
+  name: string;
+  summary: string;
+}
+
+interface EvidenceItem {
+  label: string;
+  value: string;
+  kind: FigureKind;
+  source: string;
+  provenance: Provenance | null;
+}
+
+interface CopilotAnswer {
+  text: string;
+  toolCalls: CopilotToolCall[];
+  evidence: EvidenceItem[];
+  assumptions: string[];
+  caveats: string[];
 }
 
 const savedComparisons = [
@@ -100,6 +122,9 @@ function App() {
   const [estimateError, setEstimateError] = useState<string | null>(null);
   const [baseRate, setBaseRate] = useState<BaseRate | null>(null);
   const [copilotNotice, setCopilotNotice] = useState<string | null>(null);
+  const [copilotAnswer, setCopilotAnswer] = useState<CopilotAnswer | null>(null);
+  const [copilotQuestion, setCopilotQuestion] = useState<string | null>(null);
+  const [isAskingCopilot, setIsAskingCopilot] = useState(false);
 
   const viewport = useViewport();
   const isMobile = viewport < 760;
@@ -135,19 +160,19 @@ function App() {
 
   const depositPercent = request.propertyPrice > 0 ? Math.round((request.deposit / request.propertyPrice) * 100) : 0;
 
-  const openEstimator = () => {
-    setRightTab('estimator');
-    setCopilotNotice(null);
-    if (isMobile) setMainTab('comparison');
-  };
-
   const askCopilot = async (message: string) => {
-    if (!message.trim()) return;
+    const trimmed = message.trim();
+    if (!trimmed || isAskingCopilot) return;
+    setCopilotQuestion(trimmed);
+    setCopilotNotice(null);
+    setCopilotAnswer(null);
+    setRightTab('evidence');
+    setIsAskingCopilot(true);
     try {
       const response = await fetch('/api/copilot/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ message: trimmed }),
       });
       if (response.status === 503) {
         setCopilotNotice('HomeScout’s copilot isn’t connected yet — the reasoning agent is still being provisioned. Meanwhile, the Estimator is live: open it from the panel.');
@@ -157,9 +182,12 @@ function App() {
         setCopilotNotice(`Copilot request failed (${response.status}). The Estimator remains available.`);
         return;
       }
-      setCopilotNotice('Copilot is connected. Streaming answers arrive in a later iteration.');
+      const answer = (await response.json()) as CopilotAnswer;
+      setCopilotAnswer(answer);
     } catch {
       setCopilotNotice('Could not reach the HomeScout API. The Estimator uses the same API and will show its own status.');
+    } finally {
+      setIsAskingCopilot(false);
     }
   };
 
@@ -271,15 +299,23 @@ function App() {
                     type="button"
                     className={`start-card${prompt.upload ? ' upload' : ''}`}
                     key={prompt.title}
-                    onClick={prompt.opensEstimator ? openEstimator : undefined}
+                    onClick={() => void askCopilot(`${prompt.title}. ${prompt.body}`)}
                   >
                     <strong>{prompt.title}</strong>
                     <span>{prompt.body}</span>
                   </button>
                 ))}
               </div>
+              {isAskingCopilot ? (
+                <div className="copilot-loading" role="status">
+                  Asking HomeScout<span aria-hidden="true">…</span>
+                </div>
+              ) : null}
               {copilotNotice ? (
                 <div className="copilot-notice" role="status">{copilotNotice}</div>
+              ) : null}
+              {copilotAnswer ? (
+                <CopilotAnswerCard question={copilotQuestion} answer={copilotAnswer} />
               ) : null}
               <form
                 className="composer"
@@ -318,11 +354,7 @@ function App() {
             </div>
 
             {rightTab === 'evidence' ? (
-              <div className="evidence-empty" role="note">
-                <span className="evidence-mark" aria-hidden="true">▤</span>
-                <strong>Evidence appears here</strong>
-                <p>Ask a question and HomeScout will show every fact, estimate, assumption and gap — each with its source and freshness.</p>
-              </div>
+              <EvidencePanel evidence={copilotAnswer?.evidence ?? []} />
             ) : (
               <EstimatorPanel
                 request={request}
@@ -337,6 +369,78 @@ function App() {
         ) : null}
       </div>
     </div>
+  );
+}
+
+function CopilotAnswerCard({ question, answer }: { question: string | null; answer: CopilotAnswer }) {
+  return (
+    <article className="answer-card" aria-label="Copilot answer">
+      {question ? <p className="answer-question">{question}</p> : null}
+      <p className="answer-text">{answer.text}</p>
+      {answer.toolCalls.length ? (
+        <div className="tool-chip-row" aria-label="Tools used">
+          {answer.toolCalls.map((tool) => (
+            <span className="tool-chip" key={`${tool.name}-${tool.summary}`}>
+              <strong>{tool.name}</strong>
+              {tool.summary}
+            </span>
+          ))}
+        </div>
+      ) : null}
+      {answer.assumptions.length ? (
+        <section className="answer-list" aria-label="Copilot assumptions">
+          <h2>Assumptions</h2>
+          <ul>
+            {answer.assumptions.map((assumption) => (
+              <li key={assumption}>{assumption}</li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+      {answer.caveats.length ? (
+        <div className="answer-caveats" role="note">
+          {answer.caveats.map((caveat) => (
+            <p key={caveat}>{caveat}</p>
+          ))}
+        </div>
+      ) : null}
+    </article>
+  );
+}
+
+function EvidencePanel({ evidence }: { evidence: EvidenceItem[] }) {
+  if (!evidence.length) {
+    return (
+      <div className="evidence-empty" role="note">
+        <span className="evidence-mark" aria-hidden="true">▤</span>
+        <strong>Evidence appears here</strong>
+        <p>Ask a question and HomeScout will show every fact, estimate, assumption and gap — each with its source and freshness.</p>
+      </div>
+    );
+  }
+
+  return (
+    <section className="evidence-panel" aria-label="Evidence trail">
+      <header className="panel-heading">
+        <h2>Evidence trail</h2>
+        <p>Every figure from the copilot answer keeps its status, provenance and source.</p>
+      </header>
+      <div className="evidence-list">
+        {evidence.map((item) => (
+          <article className="evidence-item" key={`${item.label}-${item.value}-${item.source}`}>
+            <div className="evidence-item-head">
+              <span className={`kind-chip ${item.kind}`}>{item.kind}</span>
+              <span className={`provenance ${item.provenance?.toLowerCase() ?? 'missing'}`}>
+                {item.provenance ?? 'Missing'}
+              </span>
+            </div>
+            <strong>{item.value}</strong>
+            <span>{item.label}</span>
+            <small>{item.source}</small>
+          </article>
+        ))}
+      </div>
+    </section>
   );
 }
 
