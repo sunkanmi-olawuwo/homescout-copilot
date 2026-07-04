@@ -42,6 +42,8 @@ public static class CopilotGatewayFactory
             var settings = sp.GetRequiredService<IOptions<FoundryOptions>>().Value;
             return new AIProjectClient(new Uri(settings.ProjectEndpoint), sp.GetRequiredService<TokenCredential>());
         });
+        services.AddOptions<ConversationOptions>();
+        services.AddSingleton<ConversationSessionRegistry>();
         services.AddScoped<HomeScoutAgentTools>();
         services.AddScoped<IHomeScoutAgentGateway, FoundryAgentGateway>();
 

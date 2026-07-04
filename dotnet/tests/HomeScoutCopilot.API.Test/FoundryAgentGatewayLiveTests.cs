@@ -31,17 +31,7 @@ public class FoundryAgentGatewayLiveTests
             Assert.Ignore("Foundry not provisioned (AZURE_FOUNDRY_PROJECT_ENDPOINT / AZURE_FOUNDRY_MODEL_DEPLOYMENT unset).");
         }
 
-        var options = Options.Create(new FoundryOptions
-        {
-            ProjectEndpoint = endpoint!,
-            ModelDeploymentName = model!,
-        });
-        var tools = new HomeScoutAgentTools(
-            new MortgageCostEstimator(),
-            new StubBaseRateProvider(
-                new BaseRate(3.75m, new DateOnly(2026, 6, 19), "Fallback", "Bank of England", "Context only.")));
-        var projectClient = new AIProjectClient(new Uri(endpoint!), new DefaultAzureCredential());
-        var gateway = new FoundryAgentGateway(projectClient, options, tools);
+        var gateway = BuildGateway(endpoint!, model!);
 
         var answer = await gateway.AskAsync(new CopilotRequest(
             "What would the monthly cost be on a £300,000 flat with a 10% deposit at 4.5% over 25 years?"));
@@ -61,5 +51,56 @@ public class FoundryAgentGatewayLiveTests
                 answer.Caveats.Any(c => c.Contains("not mortgage advice", StringComparison.OrdinalIgnoreCase)),
                 Is.True);
         });
+    }
+
+    [Test]
+    public async Task Copilot_keeps_context_across_turns_in_a_session()
+    {
+        var endpoint = Environment.GetEnvironmentVariable("AZURE_FOUNDRY_PROJECT_ENDPOINT");
+        var model = Environment.GetEnvironmentVariable("AZURE_FOUNDRY_MODEL_DEPLOYMENT");
+        if (string.IsNullOrWhiteSpace(endpoint) || string.IsNullOrWhiteSpace(model))
+        {
+            Assert.Ignore("Foundry not provisioned (AZURE_FOUNDRY_PROJECT_ENDPOINT / AZURE_FOUNDRY_MODEL_DEPLOYMENT unset).");
+        }
+
+        const string sessionId = "live-multiturn";
+        // Share one registry across two gateway instances — the production shape (the gateway is
+        // request-scoped, so each turn is a *different* agent instance running the shared session).
+        var sessions = new ConversationSessionRegistry(Options.Create(new ConversationOptions()));
+        var turn1Gateway = BuildGateway(endpoint!, model!, sessions);
+        var turn2Gateway = BuildGateway(endpoint!, model!, sessions);
+
+        // Turn 1: give the figures.
+        await turn1Gateway.AskAsync(
+            new CopilotRequest("What would the monthly cost be on a £300,000 flat with a 10% deposit at 4.5% over 25 years?"),
+            sessionId);
+
+        // Turn 2 (different gateway/agent instance): a context-dependent follow-up with NO figures —
+        // it can only be answered if the shared session carried the earlier figures forward.
+        var followUp = await turn2Gateway.AskAsync(new CopilotRequest("And on interest-only?"), sessionId);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(followUp.Text, Is.Not.Empty);
+            Assert.That(
+                followUp.ToolCalls.Any(t => t.Name == "estimate_mortgage") || followUp.Evidence.Any(e => e.Kind == FigureKind.Estimate),
+                Is.True,
+                "the follow-up should reuse the earlier figures to estimate interest-only — proof the session carried context");
+        });
+        TestContext.Out.WriteLine($"Follow-up answer: {followUp.Text}");
+    }
+
+    private static FoundryAgentGateway BuildGateway(
+        string endpoint, string model, ConversationSessionRegistry? sessions = null)
+    {
+        var options = Options.Create(new FoundryOptions { ProjectEndpoint = endpoint, ModelDeploymentName = model });
+        var tools = new HomeScoutAgentTools(
+            new MortgageCostEstimator(),
+            new StubBaseRateProvider(
+                new BaseRate(3.75m, new DateOnly(2026, 6, 19), "Fallback", "Bank of England", "Context only.")));
+        var projectClient = new AIProjectClient(new Uri(endpoint), new DefaultAzureCredential());
+        return new FoundryAgentGateway(
+            projectClient, options, tools,
+            sessions ?? new ConversationSessionRegistry(Options.Create(new ConversationOptions())));
     }
 }

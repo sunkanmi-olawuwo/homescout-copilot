@@ -2,6 +2,25 @@
 
 ## 2026-07-04
 
+### Multi-Turn Conversation Threads (Backend Slice 1)
+
+- The copilot is now **multi-turn**: follow-ups keep context. Anonymous, no auth.
+  - **Session cookie** — `CopilotEndpoints.ResolveSession` issues/reads an HttpOnly `hs_session`
+    cookie (SameSite=Lax, Secure when HTTPS, 24h). `POST /api/copilot/session/reset` starts fresh.
+  - **`ConversationSessionRegistry`** (singleton) holds session id → `AgentSession`;
+    `FoundryAgentGateway.AskAsync(request, sessionId?)` runs against it (null id = stateless
+    single-turn, unchanged). `ConversationSessionSweeper` (BackgroundService) evicts on 60-min idle
+    / 24-h cap (`ConversationOptions`, tunable).
+- **API note:** the Agent Framework renamed *thread* → **`AgentSession`** (`agent.CreateSessionAsync`,
+  `RunAsync(message, session, …)`, `Serialize/DeserializeSessionAsync` for durable storage later).
+- **Live-verified 2026-07-04:** follow-up "And on interest-only?" with **no figures restated**
+  returned £1,012.50 (interest-only on the £270k loan from turn 1) — across **two gateway instances
+  sharing one registry** (the production scoped shape), proving `AgentSession` carries context
+  cross-instance. Registry reuse/remove/idle-eviction covered offline (`ConversationSessionRegistryTests`).
+- **Frontend (Codex), parallel:** the "New conversation" reset button against the cookie contract —
+  the only required FE change (the cookie is automatic). See [[Conversation Threads Plan]].
+- **Next:** multi-turn eval-harness cases; durable (Cosmos) session store; then Keycloak per-user.
+
 ### Foundry Portal Cloud Eval (BYO-responses) + AIProjectClient Singleton
 
 - **Singleton `AIProjectClient`:** the API/evaluator now hold the Foundry project client as a

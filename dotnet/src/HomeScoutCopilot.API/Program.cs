@@ -66,6 +66,12 @@ if (!string.IsNullOrWhiteSpace(foundryEndpoint))
     builder.Services.AddScoped<IHomeScoutAgentGateway, FoundryAgentGateway>();
 }
 
+// Anonymous multi-turn conversation sessions: keyed by the hs_session cookie, held in memory,
+// swept for idle/absolute expiry. Registered unconditionally so the reset endpoint always resolves.
+builder.Services.AddOptions<ConversationOptions>().BindConfiguration(ConversationOptions.SectionName);
+builder.Services.AddSingleton<ConversationSessionRegistry>();
+builder.Services.AddHostedService<ConversationSessionSweeper>();
+
 var app = builder.Build();
 
 app.UseExceptionHandler();
