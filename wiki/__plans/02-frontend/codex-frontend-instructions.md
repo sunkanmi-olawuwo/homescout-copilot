@@ -140,3 +140,32 @@ interface CopilotAnswer {
 Guardrails unchanged: keep the caveats, crime = context, every figure tagged. Build against
 the contract with mocked `/api/copilot/ask` responses (as the estimator slice did); it works
 live wherever the `AZURE_FOUNDRY_*` env is set.
+
+## Third slice (readability) — collapse the hero + render markdown
+
+Two fixes, both frontend-only. The backend prompt (v2) now returns **structured markdown**, so
+the seam is ready.
+
+1. **Collapse the hero when a conversation is active.** Today the big "Compare areas and
+   properties…" hero H1 + intro + START WITH cards stay pinned above the answer. Once a
+   conversation starts (a `copilotQuestion`/`copilotAnswer` exists), **replace them with a
+   compact header** (small label + a "New question"/reset affordance) and let the thread take
+   over. Show the full hero + cards only in the empty state (before the first question).
+2. **Render the answer as sanitized markdown.** `answer.text` is now Markdown, e.g.:
+   ```md
+   **Estimated monthly repayment: £1,500.75**
+   ## Assumptions
+   - 10% deposit … LTV 90% …
+   ## Context
+   - stress-check at 7.5% …
+   ## Next steps
+   - …
+   This is an estimate, not mortgage advice — speak to a qualified mortgage adviser.
+   ```
+   Render it with a **sanitized** markdown renderer (e.g. `react-markdown` + `rehype-sanitize`,
+   or a tiny safe subset — no raw HTML). Style the bold headline, `##` sub-headings, and bullet
+   lists to the design; the final caveat line should read as the caveat callout. Don't re-list
+   the figures — those stay in the evidence panel (the prompt already avoids repeating them).
+
+Keep the guardrails + evidence panel unchanged. Verify with mocked responses (Vitest +
+Playwright); it renders live wherever `AZURE_FOUNDRY_*` is set.

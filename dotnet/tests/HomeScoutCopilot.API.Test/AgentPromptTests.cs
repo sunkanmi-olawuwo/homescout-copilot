@@ -12,7 +12,7 @@ public class AgentPromptTests
     public void Instructions_load_from_the_embedded_asset()
     {
         Assert.That(AgentPrompt.Instructions, Is.Not.Empty);
-        Assert.That(AgentPrompt.Version, Is.EqualTo("v1"));
+        Assert.That(AgentPrompt.Version, Is.EqualTo("v2"));
     }
 
     [Test]

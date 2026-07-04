@@ -78,9 +78,11 @@ return assumptions + the not-mortgage-advice caveat; no product recommendation; 
 simplistic safe/unsafe area label.
 
 **Implemented (2026-07-04):** the prompt is now a **versioned, first-class asset** —
-`dotnet/src/HomeScoutCopilot.API.Service/Prompts/homescout.v1.md`, embedded in the
-assembly and loaded by `AgentPrompt` (which carries the `Version` constant), instead of
-a hardcoded C# string. This follows Microsoft's GenAIOps prompt-versioning guidance —
+`Prompts/homescout.vN.md`, embedded in the assembly and loaded by `AgentPrompt` (which
+carries the `Version` constant), instead of a hardcoded C# string. **v2** (current) adds
+structured-Markdown formatting guidance (bold headline → `##` sub-headings + bullets; lean on
+the evidence panel for figures) — live-verified: the answer renders as clean sections and the
+safety evals stayed 6/6. v1 is kept as history. This follows Microsoft's GenAIOps prompt-versioning guidance —
 treat prompts as first-class code assets, version them by filename (`vN`), and tag the
 deploy that ships each version so *git tag ↔ prompt version ↔ behaviour* line up:
 
