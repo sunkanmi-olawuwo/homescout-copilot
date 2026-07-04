@@ -63,6 +63,7 @@ React frontend implementation plans and UI wiring guidance.
 - [HomeScout Copilot — Design Brief](./02-frontend/design-brief.md) — the full,
   design-agent-ready specification (vision, IA, all screens/flows, copilot UX, design
   system, states, accessibility, deliverables).
+- [Frontend Implementation Plan — Review The Design, Then Build](./02-frontend/frontend-implementation-plan.md) — the frontend build phase: review the design, then implement the React app against the API.
 - [Frontend Plans (overview)](./02-frontend/README.md)
 
 ### 03-backend

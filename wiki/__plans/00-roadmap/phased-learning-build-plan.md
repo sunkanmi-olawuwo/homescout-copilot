@@ -74,6 +74,12 @@ Design requirements:
 - Use realistic HomeScout language from the start.
 - Prefer compact workflow UI over tutorial chat UI.
 
+The early workspace **shell** lands here; the **full design implementation** (review the
+[Design Brief](../02-frontend/design-brief.md) + design-agent deliverables, then build the
+design system → screens → copilot surface against the API) is owned by the
+[Frontend Implementation Plan](../02-frontend/frontend-implementation-plan.md) and runs as
+the frontend track alongside the backend phases.
+
 Evidence:
 
 - Desktop and mobile screenshots or notes.
@@ -146,10 +152,12 @@ Reference patterns to adopt ([[GenAIOps Reference Implementation]]):
 
 - **Declarative agent manifest** (pattern 2): a `homescout.agent.yaml` (`name` / `model` /
   `instructions_file`) as the single source of truth alongside the prompt asset.
-- **Persisted, versioned agent** (pattern 1): spike whether .NET exposes a
-  `create_version` + `PromptAgentDefinition` equivalent; if so, add a deploy step that
-  registers the prompt as a versioned Foundry agent and have the gateway reference it by
-  name (portal-visible versions + rollback) instead of building it in-process per request.
+- **Persisted, versioned agent** (pattern 1): **.NET path confirmed** (2026-07-04 spike) —
+  add a **.NET** deploy step using `AIProjectClient.AgentAdministrationClient.CreateAgentVersion`
+  (or `CreateAgentFromManifest` for the declarative manifest) that registers the prompt as a
+  versioned Foundry agent, and have the gateway **reference it by name/version**
+  (`AgentReference`) for portal-visible versions + rollback, instead of building it
+  in-process per request. Total .NET stack — Python samples are guidance only.
 
 Testing and evaluation:
 
@@ -159,8 +167,9 @@ Testing and evaluation:
 - **Cloud-eval harness** (reference pattern 4): a JSONL dataset (`query`/`response`/
   `ground_truth`) scored by Foundry's built-in `intent_resolution` / `relevance` /
   `groundedness` evaluators (1–5, pass ≥ 3), **plus HomeScout safety evaluators** for the
-  two boundaries above. Runs `[Category("External")]`, off the blocking gate. Decide the
-  eval-tool language per the reference doc's cross-cutting decision.
+  two boundaries above. Runs `[Category("External")]`, off the blocking gate. **Built in
+  .NET** (decided) via `AIProjectClient.GetProjectOpenAIClient().GetEvaluationClient()`
+  (`OpenAI.Evals`) or the Foundry-native `AIProjectClient.Evaluators` / `.Datasets`.
 
 Evidence:
 

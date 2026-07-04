@@ -9,6 +9,38 @@ Use this page whenever implementation differs from:
 
 ## Entries
 
+### 2026-07-04: GenAIOps Tooling — Total .NET Stack (Python Samples Are Guidance Only)
+
+Context:
+
+- Microsoft's GenAIOps lab (`mslearn-genaiops`, see [[GenAIOps Reference Implementation]])
+  implements agent versioning + evaluation in **Python**. Question was whether HomeScout
+  needs Python for the deploy/eval tooling or can stay pure .NET.
+
+Decision:
+
+- **Total .NET stack — no Python in the repo.** A reflection spike over the restored
+  assemblies confirmed the full pipeline exists in .NET:
+  - Persisted, versioned agents: `Azure.AI.Projects.AIProjectClient.AgentAdministrationClient`
+    → `CreateAgentVersion` / `CreateAgentFromManifest` + `ProjectsAgentDefinition` /
+    `DeclarativeAgentDefinition` (from `Azure.AI.Projects.Agents` 2.0.0, already transitive
+    via `Microsoft.Agents.AI.Foundry` 1.5.0).
+  - Evaluation: `AIProjectClient.GetProjectOpenAIClient().GetEvaluationClient()`
+    (`OpenAI.Evals.EvaluationClient`) and/or Foundry-native `AIProjectClient.Evaluators` /
+    `.Datasets` (`FileDataset`, `PendingUploadResult`).
+  - Runtime reference-by-name: `Azure.AI.Extensions.OpenAI.AgentReference`.
+
+Reason:
+
+- Stack unity, one CI toolchain, keyless `DefaultAzureCredential` throughout. The .NET
+  surface is present today; Python examples remain reference guides only.
+
+Impact:
+
+- Phase 3 moves to a **.NET** agent-deploy step (register versioned agent) + **.NET** eval
+  harness. Confirm any preview/GA labels + exact call shapes against Microsoft Learn at
+  implementation time (per the non-deprecated-API-surface standard).
+
 ### 2026-07-04: Agent Prompt Externalised To A Versioned Embedded Asset (GenAIOps)
 
 Previous state:

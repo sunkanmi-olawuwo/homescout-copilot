@@ -11,6 +11,27 @@
   `security-extended` queries; PR + push-to-main + weekly triggers. Merged via PR #26 (all
   checks green, including `Analyze (csharp)`).
 
+### .NET SDK Spike (GenAIOps) + Frontend Implementation Plan
+
+- **Spike:** reflected over the restored SDK assemblies (`Azure.AI.Projects` 2.0.0,
+  `Azure.AI.Projects.Agents` 2.0.0, `OpenAI` 2.10.0, `Azure.AI.Extensions.OpenAI` 2.0.0)
+  to answer whether HomeScout can do persisted-versioned agents + evaluation in **pure
+  .NET**. Answer: **yes, end-to-end** — `AIProjectClient.AgentAdministrationClient`
+  exposes `CreateAgentVersion` / `CreateAgentFromManifest` (+ `ProjectsAgentDefinition` /
+  `DeclarativeAgentDefinition`); `AIProjectClient.GetProjectOpenAIClient().GetEvaluationClient()`
+  gives `OpenAI.Evals.EvaluationClient` (create/run/output-items); datasets via
+  `AIProjectClient.Datasets`; runtime reference-by-name via `AgentReference`.
+- **Decision (total .NET stack):** no Python in the repo; the lab's Python scripts are
+  guidance only. Recorded in [[Plan Divergence]]; resolved the two open questions in
+  [[GenAIOps Reference Implementation]] (with a Python→.NET surface table) and updated
+  [[Phased Learning And Build Plan]] Phase 3 to the confirmed .NET path.
+- **Frontend:** added [Frontend Implementation Plan](__plans/02-frontend/frontend-implementation-plan.md)
+  — the frontend build phase (Stage 1 review the design brief + design-agent deliverables;
+  Stage 2 implement design system → screens → copilot surface against the API, with
+  component/E2E/a11y tests). Indexed in the 02-frontend + plans READMEs and pointed to from
+  the phased plan's Phase 1.
+- Drift 0 fail; wikilinks + relative links resolve.
+
 ### Infused mslearn-genaiops Patterns Into The Phased Plan + Added As A Reference
 
 - Studied Microsoft's official GenAIOps lab repo (`MicrosoftLearning/mslearn-genaiops`):
