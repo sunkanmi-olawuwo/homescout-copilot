@@ -7,9 +7,18 @@ var sessionsDb = builder.AddPostgres("postgres")
     .WithDataVolume()
     .AddDatabase("sessions");
 
+// End-user sign-in (Keycloak/OIDC), per the Keycloak auth plan. Keycloak keeps its own storage
+// (embedded DB + data volume), separate from the app's Postgres. The realm/clients are imported
+// from the committed export so they're reproducible; the API validates tokens against this realm.
+var keycloak = builder.AddKeycloak("keycloak")
+    .WithDataVolume("homescout-keycloak-data")
+    .WithRealmImport("./keycloak");
+
 var apiService = builder.AddProject<Projects.HomeScoutCopilot_API>("apiservice")
     .WithReference(sessionsDb)
     .WaitFor(sessionsDb)
+    .WithReference(keycloak)
+    .WaitFor(keycloak)
     .WithHttpHealthCheck("/health")
     .WithExternalHttpEndpoints();
 
