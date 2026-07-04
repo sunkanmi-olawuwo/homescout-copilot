@@ -21,13 +21,16 @@ public sealed class CopilotEndpoints : ICarterModule
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status503ServiceUnavailable);
 
-        // Start a fresh conversation: drop the current session's memory and clear the cookie.
+        // Start a fresh conversation: drop the current session from memory + the durable store and
+        // clear the cookie.
         app.MapPost("/api/copilot/session/reset",
-                (HttpContext http, ConversationSessionRegistry sessions, IOptions<ConversationOptions> conversation) =>
+                async (HttpContext http, ConversationSessionRegistry sessions, ISessionStore store,
+                    IOptions<ConversationOptions> conversation) =>
                 {
                     if (http.Request.Cookies.TryGetValue(conversation.Value.CookieName, out var id) && !string.IsNullOrEmpty(id))
                     {
                         sessions.Remove(id);
+                        await store.RemoveAsync(id, http.RequestAborted);
                     }
 
                     http.Response.Cookies.Delete(conversation.Value.CookieName);

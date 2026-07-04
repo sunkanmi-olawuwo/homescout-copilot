@@ -74,4 +74,28 @@ public class CopilotEndpointTests
 
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
     }
+
+    [Test]
+    public async Task Reset_clears_the_session_from_the_durable_store_and_the_cookie()
+    {
+        var store = new RecordingSessionStore();
+        using var factory = new WebApplicationFactory<HomeScoutCopilot.API.ApiMarker>()
+            .WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
+                services.AddSingleton<ISessionStore>(store)));
+
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/copilot/session/reset");
+        request.Headers.Add("Cookie", "hs_session=sess-abc");
+        var response = await factory.CreateClient().SendAsync(request);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
+            // Reset must purge the durable store too, not just in-memory state.
+            Assert.That(store.Removed, Does.Contain("sess-abc"));
+            // And expire the cookie so the browser starts a fresh conversation.
+            Assert.That(
+                response.Headers.TryGetValues("Set-Cookie", out var cookies) && cookies.Any(c => c.Contains("hs_session=")),
+                Is.True);
+        });
+    }
 }

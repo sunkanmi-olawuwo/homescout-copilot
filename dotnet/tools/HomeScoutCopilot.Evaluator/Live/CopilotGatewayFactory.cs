@@ -45,6 +45,8 @@ public static class CopilotGatewayFactory
         });
         services.AddOptions<ConversationOptions>();
         services.AddSingleton<ConversationSessionRegistry>();
+        // The evaluator runs single-turn queries; durability is off (in-memory only).
+        services.AddSingleton<ISessionStore, NullSessionStore>();
         services.AddScoped<HomeScoutAgentTools>();
         services.AddScoped<IHomeScoutAgentGateway, FoundryAgentGateway>();
 

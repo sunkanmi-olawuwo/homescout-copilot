@@ -20,6 +20,10 @@
     <PackageReference Include="NUnit.Analyzers" Version="4.13.0" />
     <PackageReference Include="Reqnroll.NUnit" Version="3.3.4" />
     <PackageReference Include="Allure.Reqnroll" Version="2.15.0" />
+    <!-- Spins up a throwaway PostgreSQL container for PostgresSessionStore integration tests
+         (Category=Database). Hermetic + deterministic, so it runs in the PR gate where Docker is
+         available; the tests self-skip when Docker is not running (local DX). -->
+    <PackageReference Include="Testcontainers.PostgreSql" Version="4.12.0" />
   </ItemGroup>
 
   <ItemGroup>

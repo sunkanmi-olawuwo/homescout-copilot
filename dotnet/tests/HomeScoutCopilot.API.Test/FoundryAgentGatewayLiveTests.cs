@@ -3,6 +3,8 @@ using Azure.Identity;
 using HomeScoutCopilot.API.Service;
 using HomeScoutCopilot.Shared.Contracts;
 using Microsoft.Extensions.Options;
+using Npgsql;
+using Testcontainers.PostgreSql;
 
 namespace HomeScoutCopilot.API.Test;
 
@@ -90,8 +92,59 @@ public class FoundryAgentGatewayLiveTests
         TestContext.Out.WriteLine($"Follow-up answer: {followUp.Text}");
     }
 
+    [Test]
+    public async Task Copilot_recovers_a_session_from_the_durable_store_across_a_restart()
+    {
+        var endpoint = Environment.GetEnvironmentVariable("AZURE_FOUNDRY_PROJECT_ENDPOINT");
+        var model = Environment.GetEnvironmentVariable("AZURE_FOUNDRY_MODEL_DEPLOYMENT");
+        if (string.IsNullOrWhiteSpace(endpoint) || string.IsNullOrWhiteSpace(model))
+        {
+            Assert.Ignore("Foundry not provisioned (AZURE_FOUNDRY_PROJECT_ENDPOINT / AZURE_FOUNDRY_MODEL_DEPLOYMENT unset).");
+        }
+
+        await using var container = new PostgreSqlBuilder("postgres:17-alpine").Build();
+        try
+        {
+            await container.StartAsync();
+        }
+        catch (Exception ex)
+        {
+            Assert.Ignore($"Docker/Testcontainers unavailable: {ex.Message}");
+        }
+
+        await using var dataSource = new NpgsqlDataSourceBuilder(container.GetConnectionString()).Build();
+        var store = new PostgresSessionStore(dataSource, Options.Create(new ConversationOptions()));
+        await store.InitializeAsync();
+
+        const string sessionId = "live-durable-restart";
+
+        // "Process 1": give the figures. The gateway writes the session through to PostgreSQL.
+        var beforeRestart = BuildGateway(
+            endpoint!, model!, new ConversationSessionRegistry(Options.Create(new ConversationOptions())), store);
+        await beforeRestart.AskAsync(
+            new CopilotRequest("What would the monthly cost be on a £300,000 flat with a 10% deposit at 4.5% over 25 years?"),
+            sessionId);
+
+        // "Process 2" after a restart: a brand-new EMPTY in-memory registry, same durable store. The
+        // follow-up restates no figures — it can only be answered if the session was rehydrated from
+        // PostgreSQL, proving history survived the restart.
+        var afterRestart = BuildGateway(
+            endpoint!, model!, new ConversationSessionRegistry(Options.Create(new ConversationOptions())), store);
+        var followUp = await afterRestart.AskAsync(new CopilotRequest("And on interest-only?"), sessionId);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(followUp.Text, Is.Not.Empty);
+            Assert.That(
+                followUp.ToolCalls.Any(t => t.Name == "estimate_mortgage") || followUp.Evidence.Any(e => e.Kind == FigureKind.Estimate),
+                Is.True,
+                "the follow-up should reuse the earlier figures rehydrated from the durable store");
+        });
+        TestContext.Out.WriteLine($"Post-restart follow-up: {followUp.Text}");
+    }
+
     private static FoundryAgentGateway BuildGateway(
-        string endpoint, string model, ConversationSessionRegistry? sessions = null)
+        string endpoint, string model, ConversationSessionRegistry? sessions = null, ISessionStore? store = null)
     {
         var options = Options.Create(new FoundryOptions { ProjectEndpoint = endpoint, ModelDeploymentName = model });
         var tools = new HomeScoutAgentTools(
@@ -102,6 +155,7 @@ public class FoundryAgentGatewayLiveTests
         var projectClient = new AIProjectClient(new Uri(endpoint), new DefaultAzureCredential());
         return new FoundryAgentGateway(
             projectClient, options, tools,
-            sessions ?? new ConversationSessionRegistry(Options.Create(new ConversationOptions())));
+            sessions ?? new ConversationSessionRegistry(Options.Create(new ConversationOptions())),
+            store ?? new NullSessionStore());
     }
 }
