@@ -2,6 +2,22 @@
 
 ## 2026-07-04
 
+### AgentOps — Reasoning Tuning + .NET Tool Packaging + Foundry Reference Doc
+
+- **Reasoning tuning:** the persisted agent definition now sets `ReasoningOptions` (effort `Medium`,
+  summary `Auto`) — the correct knob for our gpt-5 *reasoning* model (temperature/top-p are rejected
+  by reasoning models). `ResponseReasoningOptions` is `[Experimental("OPENAI001")]`, opted into
+  deliberately with a scoped suppression. Verified live: `agentops deploy` created **v2** (content
+  changed → new version, confirming content-based idempotency).
+- **CI-ready tooling:** `agentops` is packable as a **.NET tool** (`PackAsTool`, command `agentops`).
+  Verified `dotnet pack` + `dotnet tool install` + `agentops manifest` end-to-end.
+- **Reference doc:** added `AgenticAICore` (local `~/Downloads/AgenticAICore`) to
+  [[API-First Foundry Agents]] as the Foundry **agent + conversation** reference implementation —
+  the working .NET patterns for `AgentAdministrationClient`, `DeclarativeAgentDefinition`, and
+  thread/conversation management. Also saved as an agent memory.
+- Next (queued): **reference-by-name** (API reads the persisted agent → makes ReasoningOptions
+  runtime-effective + Foundry the source of truth), then **server-side OpenAPI tools**.
+
 ### AgentOps — Persisted, Versioned Foundry Agent (CreateAgentVersion)
 
 - Implemented `agentops deploy`: registers the single-sourced agent as a **persisted, versioned

@@ -7,6 +7,14 @@
     <Nullable>enable</Nullable>
     <RootNamespace>HomeScoutCopilot.AgentOps</RootNamespace>
     <AssemblyName>HomeScoutCopilot.AgentOps</AssemblyName>
+
+    <!-- Packable as a .NET tool so CI (and devs) can invoke it as `agentops <verb>` after
+         `dotnet pack` then `dotnet tool install`, instead of running it via `dotnet run`. -->
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>agentops</ToolCommandName>
+    <PackageId>HomeScoutCopilot.AgentOps</PackageId>
+    <Version>0.1.0</Version>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <!-- References the application layer to reuse the single-sourced agent definition

@@ -2,6 +2,7 @@ using System.ClientModel;
 using Azure.AI.Projects;
 using Azure.AI.Projects.Agents;
 using Azure.Core;
+using OpenAI.Responses;
 
 namespace HomeScoutCopilot.AgentOps;
 
@@ -29,6 +30,7 @@ public sealed class FoundryAgentDeployer
         var declarativeDefinition = new DeclarativeAgentDefinition(definition.Model)
         {
             Instructions = definition.Instructions,
+            ReasoningOptions = BuildReasoningOptions(),
         };
 
         var options = new ProjectsAgentVersionCreationOptions(declarativeDefinition)
@@ -48,4 +50,19 @@ public sealed class FoundryAgentDeployer
 
         return result.Value;
     }
+
+    // The chat model is a gpt-5 reasoning model, so tune it with reasoning effort rather than
+    // temperature/top-p (which reasoning models reject). Medium balances answer quality against
+    // latency/cost for a copilot that reasons about costs and explains its assumptions.
+    // OPENAI001: the reasoning-options surface is the only knob for reasoning models and is still
+    // marked experimental by the OpenAI SDK; opted into deliberately here (a versioned ops asset,
+    // not shipped runtime), scoped to this method.
+#pragma warning disable OPENAI001
+    private static ResponseReasoningOptions BuildReasoningOptions() =>
+        new()
+        {
+            ReasoningEffortLevel = ResponseReasoningEffortLevel.Medium,
+            ReasoningSummaryVerbosity = ResponseReasoningSummaryVerbosity.Auto,
+        };
+#pragma warning restore OPENAI001
 }
