@@ -2,6 +2,27 @@
 
 ## 2026-07-04
 
+### Rental Cost Estimator + Persistence Track Decisions
+
+- Merged the **rental cost estimator** slice (PR #61) and the **accelerator product direction** doc
+  (PR #62). HomeScout now serves renters and buyers end-to-end (mortgage + rental estimators, both
+  delivering an estimated true monthly cost). Drift 0 fail / 0 warn on merged `main`.
+- **Next stage = conversation-persistence track** (from [[Conversation Threads — Multi-Turn, Anonymous]]),
+  chosen over the product-flow slices below. Active sequence:
+  1. Multi-turn eval-harness cases (offline; the live gateway test already proves the mechanism).
+  2. **Durable session store on PostgreSQL** (via `SerializeSessionAsync`) — see decision below.
+  3. Keycloak identity → per-user history (depends on 2).
+- **Decision: durable session store uses PostgreSQL, not Cosmos.** Rationale recorded in the threads
+  plan — a serialized-blob-by-session-id store fits Postgres exactly; Aspire has first-class Postgres
+  support; Keycloak already runs on Postgres (shared engine); far cheaper than Standard-setup Cosmos;
+  the existing `ConversationSessionSweeper` covers TTL. This is separate from the Foundry *Standard*
+  capability-host Cosmos (that stays deferred; we remain on **Basic**/Microsoft-managed threads).
+- **Backlog (documented, deferred):** the product decision-pack slices — **Listing domain model +
+  manual-entry capture + real side-by-side comparison** (replacing the `/api/comparison/sample`
+  placeholder; the MVP spine per [[Accelerator Product Direction]]), **council-tax VOA band lookup**,
+  and **buyer stamp duty (SDLT/LBTT/LTT) + Land Registry fee**. Council tax + stamp duty are also
+  noted as deferred in [[Rental Cost Estimator — Design]]. Revisit after the persistence track.
+
 ### Accelerator Product Direction
 
 - Captured the product-strategy discussion in [[Accelerator Product Direction]]: HomeScout should
