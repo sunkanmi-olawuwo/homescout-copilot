@@ -2,6 +2,20 @@
 
 ## 2026-07-05
 
+### Multi-Turn Eval-Harness Cases
+
+- Added the multi-turn (context-carry) eval capability — persistence-track step 4. New
+  `data/homescout-multiturn-eval.jsonl` (ordered `turns` + tolerant `expectFinalContains` marker;
+  one buying and one renting follow-up), `MultiTurnEvaluation.RunAsync` that drives each
+  conversation against **one session** and asserts the final answer carried context, and an
+  `evaluator multiturn` CLI verb.
+- Offline `MultiTurnHarnessTests` (in the PR gate) lock the parser + runner with a recording fake:
+  turns replay in order, one session id per case (different cases don't bleed), pass when the final
+  answer carries the figure, fail when the copilot re-asks. `MultiTurnLiveTests`
+  (`[Category("External")]`) runs the dataset against the real copilot — **pending live Foundry
+  verification**. Evaluator.Test 13 → 20. Plan: [[Conversation Threads — Multi-Turn, Anonymous]]
+  step 4. Persistence track now: only Keycloak per-user history remains.
+
 ### Durable PostgreSQL Session Store + CodeQL Private-Repo Fix
 
 - **Repo went private** (per the accelerator strategy). Two CI side-effects surfaced and were
