@@ -119,14 +119,13 @@ answer rendering build against a contract the backend must define **first**. So:
 
 ## Next set of work (active)
 
-**Frontend (Codex) — the copilot second slice.** Now unblocked (evidence contract merged,
-copilot live). Follow [Codex Frontend Instructions](../02-frontend/codex-frontend-instructions.md)
-"Second slice":
-- **Conversation answers** — send the composer + START WITH cards to `POST /api/copilot/ask`;
-  render `text` + tool chips; keep the graceful 503 fallback for envs without Foundry.
-- **Evidence panel** — populate the right-rail Evidence tab from `answer.evidence` (the
-  lowercase `kind` chip + `provenance` badge + source), per the design. Build against the merged
-  contract with mocks; works live wherever `AZURE_FOUNDRY_*` is set. Branch `feature/fe-*`.
+**Frontend (Codex) — the copilot second slice.** ✅ **Implemented on
+`feature/fe-copilot-evidence` (PR/review pending):** the composer and START WITH cards now post
+to `POST /api/copilot/ask`; successful answers render `text`, `toolCalls`, assumptions and
+caveats in the conversation; the right-rail Evidence tab hydrates from `answer.evidence`
+using the lowercase `kind` chip, Live/Cache/Fallback provenance badge and source. The graceful
+503 fallback remains for environments without Foundry configuration. Verified with mocked
+contract responses in component + Playwright E2E tests.
 
 **Backend (lead) — active + queued:**
 - ✅ **Evaluator harness — safety evals done** ([[GenAIOps Tooling Plan]]):

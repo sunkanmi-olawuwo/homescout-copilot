@@ -86,15 +86,19 @@ Responsibilities:
 - User workspace for property and area comparison.
 - Future chat UI, upload controls, saved comparisons, and preference views.
 
-Current state (iteration 1, built to the Claude Design):
+Current state (iteration 2, built to the Claude Design):
 
 - Scoped light/dark design tokens + IBM Plex fonts; the three-region workspace from the
   design — navy app bar, left rail (New comparison, saved-search filter, saved comparisons,
   Case file / Preferences / Settings), main surface, right rail. Mobile (<760) collapses the
   left rail into a hamburger drawer, content-first.
 - The **copilot conversation is the main surface** (status pill, heading, intro, START WITH
-  suggestion cards, composer, inline caveat). The composer posts to `/api/copilot/ask` and
-  **degrades gracefully on 503** until the Foundry agent is provisioned.
+  suggestion cards, composer, inline caveat). The composer and START WITH cards post to
+  `/api/copilot/ask`; successful `CopilotAnswer` responses render the answer text, tool chips,
+  assumptions and caveats. The UI still **degrades gracefully on 503** for environments without
+  Foundry configuration.
+- The right-rail **Evidence** tab hydrates from `CopilotAnswer.Evidence`, rendering each
+  figure's lowercase `kind`, Live/Cache/Fallback provenance and source.
 - The **mortgage estimator is a right-rail panel** (Evidence | Estimator tabs) wired to
   `/api/mortgage/estimate` + `/api/mortgage/base-rate`: monthly payment, loan, LTV, total
   interest, total repayable, +3% stress payment, and Live/Cache base-rate provenance. Every
