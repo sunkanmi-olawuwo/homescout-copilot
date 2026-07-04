@@ -183,6 +183,9 @@ contract responses in component + Playwright E2E tests.
      only matters once RAG lands. Add **multi-turn eval cases** to prove context carries (the
      `cost-interest-only` follow-up is the canonical test, currently evaluated standalone). End-user
      auth (**Keycloak**, see [[Plan Divergence]]) and per-user history follow later.
+     **Parallel split:** backend (lead) — HttpOnly `hs_session` cookie + `AgentThread` registry +
+     `POST /api/copilot/session/reset` (60-min idle / 24-h cap); frontend (Codex) — a "New
+     conversation" button against that contract (the cookie is automatic, so no other FE change).
   4. **Foundry portal cloud eval (BYO-responses)** — publish `{query, real answer}` runs to the
      portal via the `EvaluationClient` for portal charts + run comparison, over an expanded (~30)
      curated dataset.
