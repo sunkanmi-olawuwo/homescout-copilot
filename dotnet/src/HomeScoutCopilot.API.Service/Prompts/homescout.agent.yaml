@@ -2,7 +2,8 @@
 # Source of truth is the prompt asset; regenerate on prompt/model/tool changes.
 name: HomeScout
 model: chat
-instructions_file: Prompts/homescout.v2.md
+instructions_file: Prompts/homescout.v3.md
 tools:
   - estimate_mortgage
   - get_base_rate
+  - estimate_rental_cost

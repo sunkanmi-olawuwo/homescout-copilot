@@ -30,7 +30,7 @@ public class EvaluatorLiveTests
         }
 
         var options = Options.Create(new FoundryOptions { ProjectEndpoint = endpoint!, ModelDeploymentName = model! });
-        var tools = new HomeScoutAgentTools(new MortgageCostEstimator(), new StubBaseRateProvider());
+        var tools = new HomeScoutAgentTools(new MortgageCostEstimator(), new StubBaseRateProvider(), new RentalCostEstimator());
         var projectClient = new AIProjectClient(new Uri(endpoint!), new DefaultAzureCredential());
         var sessions = new ConversationSessionRegistry(Options.Create(new ConversationOptions()));
         var gateway = new FoundryAgentGateway(projectClient, options, tools, sessions);

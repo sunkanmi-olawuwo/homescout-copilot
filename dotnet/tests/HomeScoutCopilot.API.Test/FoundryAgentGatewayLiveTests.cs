@@ -97,7 +97,8 @@ public class FoundryAgentGatewayLiveTests
         var tools = new HomeScoutAgentTools(
             new MortgageCostEstimator(),
             new StubBaseRateProvider(
-                new BaseRate(3.75m, new DateOnly(2026, 6, 19), "Fallback", "Bank of England", "Context only.")));
+                new BaseRate(3.75m, new DateOnly(2026, 6, 19), "Fallback", "Bank of England", "Context only.")),
+            new RentalCostEstimator());
         var projectClient = new AIProjectClient(new Uri(endpoint), new DefaultAzureCredential());
         return new FoundryAgentGateway(
             projectClient, options, tools,

@@ -12,7 +12,7 @@ public class AgentPromptTests
     public void Instructions_load_from_the_embedded_asset()
     {
         Assert.That(AgentPrompt.Instructions, Is.Not.Empty);
-        Assert.That(AgentPrompt.Version, Is.EqualTo("v2"));
+        Assert.That(AgentPrompt.Version, Is.EqualTo("v3"));
     }
 
     [Test]
@@ -27,6 +27,10 @@ public class AgentPromptTests
             Assert.That(prompt, Does.Contain("estimate_mortgage"));
             Assert.That(prompt, Does.Contain("get_base_rate"));
             Assert.That(prompt, Does.Contain("safe or unsafe"));
+            // v3 serves renters too: rental tool + tenancy caveat + tenancy-adviser guardrail.
+            Assert.That(prompt, Does.Contain("estimate_rental_cost"));
+            Assert.That(prompt, Does.Contain("not tenancy advice"));
+            Assert.That(prompt, Does.Contain("tenancy adviser"));
         });
     }
 }

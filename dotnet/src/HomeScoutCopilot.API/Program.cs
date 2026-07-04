@@ -24,6 +24,7 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 // Application services.
 builder.Services.AddScoped<IHomeScoutService, HomeScoutService>();
 builder.Services.AddSingleton<IMortgageCostEstimator, MortgageCostEstimator>();
+builder.Services.AddSingleton<IRentalCostEstimator, RentalCostEstimator>();
 
 builder.Services.AddMemoryCache();
 builder.Services.AddValidatedOptions<BaseRateOptions>(builder.Configuration);

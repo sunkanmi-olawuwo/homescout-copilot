@@ -16,6 +16,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Prompts\homescout.v1.md" LogicalName="HomeScoutCopilot.API.Service.Prompts.homescout.v1.md" />
     <EmbeddedResource Include="Prompts\homescout.v2.md" LogicalName="HomeScoutCopilot.API.Service.Prompts.homescout.v2.md" />
+    <EmbeddedResource Include="Prompts\homescout.v3.md" LogicalName="HomeScoutCopilot.API.Service.Prompts.homescout.v3.md" />
   </ItemGroup>
 
   <!-- Brings HttpClient, IMemoryCache, IOptions, and logging for provider services. -->

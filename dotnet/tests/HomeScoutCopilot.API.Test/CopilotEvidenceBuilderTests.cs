@@ -75,6 +75,39 @@ public class CopilotEvidenceBuilderTests
     }
 
     [Test]
+    public void Rental_estimate_result_maps_to_tagged_estimate_evidence()
+    {
+        var result = Json("""
+            {"weeklyRent":346.15,"depositWeeks":5,"tenancyDeposit":1730.77,"holdingDeposit":346.15,
+             "firstMonthRent":1500,"upfrontCost":3230.77,"totalMonthlyCost":1850,
+             "assumptions":[],"caveats":[]}
+            """);
+
+        var evidence = CopilotEvidenceBuilder.FromToolResult("estimate_rental_cost", result);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(evidence, Has.Count.EqualTo(3));
+            var monthly = evidence.First(e => e.Label == "Total monthly cost");
+            Assert.That(monthly.Kind, Is.EqualTo(FigureKind.Estimate));
+            Assert.That(monthly.Value, Does.Contain("1,850"));
+            Assert.That(monthly.Source, Is.EqualTo("/api/rental/estimate"));
+            Assert.That(monthly.Provenance, Is.EqualTo("Live"));
+            // Money formats to whole pounds (C0): £1,730.77 → "£1,731".
+            Assert.That(evidence.Any(e => e.Label == "Tenancy deposit" && e.Value.Contains("1,731")), Is.True);
+            Assert.That(evidence.Any(e => e.Label.StartsWith("Upfront cost")), Is.True);
+        });
+    }
+
+    [Test]
+    public void Rental_error_result_yields_no_evidence()
+    {
+        var result = Json("""{"error":"Monthly rent must be greater than zero."}""");
+
+        Assert.That(CopilotEvidenceBuilder.FromToolResult("estimate_rental_cost", result), Is.Empty);
+    }
+
+    [Test]
     public void Unknown_tool_yields_no_evidence()
     {
         var result = Json("""{"anything":1}""");

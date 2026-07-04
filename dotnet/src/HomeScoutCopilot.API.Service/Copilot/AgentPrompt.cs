@@ -15,7 +15,7 @@ namespace HomeScoutCopilot.API.Service;
 public static class AgentPrompt
 {
     /// <summary>The current prompt asset version. Bump when the instructions change.</summary>
-    public const string Version = "v2";
+    public const string Version = "v3";
 
     private static readonly string ResourceName =
         $"HomeScoutCopilot.API.Service.Prompts.homescout.{Version}.md";
