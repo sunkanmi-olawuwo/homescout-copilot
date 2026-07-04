@@ -2,6 +2,25 @@
 
 ## 2026-07-05
 
+### Live Foundry Verification — Durable Store + Multi-Turn
+
+- Foundry is still provisioned (azd env `homescout-dev`; account `aif-4md7qbawlhpt2` in
+  `rg-homescout-dev`, `chat`=gpt-5-mini + `judge`=gpt-5.4-mini, both Succeeded). Ran the pending
+  `[Category("External")]` live tests against it (with a Testcontainers Postgres for the durable
+  ones). **All passed** — closing the two outstanding verification gaps:
+  - `Copilot_recovers_a_session_from_the_durable_store_across_a_restart` — turn 1 gave the figures, a
+    fresh empty in-memory registry simulated an API restart, and "and on interest-only?" was answered
+    → the session was rehydrated from PostgreSQL via `DeserializeSessionAsync`. **Durable store
+    live-verified.**
+  - `Committed_multiturn_conversations_carry_context_live` — both the buying and renting
+    conversations in `homescout-multiturn-eval.jsonl` carried context live. **Multi-turn eval
+    live-verified.**
+  - Also re-confirmed the base pipeline live (`estimate_mortgage` tool call + single-session
+    multi-turn context).
+- Updated the threads plan (steps 4 + 5 now live-verified), feature-coverage (copilot row →
+  Implemented/live-verified; durable-store row verified). **Note: Foundry is billable and left up —
+  `azd down` when done to stop spend.**
+
 ### Multi-Turn Eval-Harness Cases
 
 - Added the multi-turn (context-carry) eval capability — persistence-track step 4. New
