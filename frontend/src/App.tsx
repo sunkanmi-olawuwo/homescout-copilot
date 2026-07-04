@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css';
 
 type Theme = 'light' | 'dark';
 type RepaymentType = 'Repayment' | 'InterestOnly';
 type Provenance = 'Live' | 'Cache' | 'Fallback';
-type FigureKind = 'fact' | 'estimate' | 'assumption' | 'missing';
+type MainTab = 'conversation' | 'comparison';
+type RightTab = 'evidence' | 'estimator';
 
 interface MortgageEstimateRequest {
   propertyPrice: number;
@@ -38,57 +39,24 @@ interface BaseRate {
   note: string;
 }
 
-interface RunningCosts {
-  serviceCharge: number;
-  councilTax: number;
-  buildingsInsurance: number;
-  maintenanceReserve: number;
-}
-
-interface EvidenceItem {
-  label: string;
-  value: string;
-  kind: FigureKind;
-  source: string;
-  provenance?: Provenance;
-}
-
 const savedComparisons = [
-  {
-    name: 'Greenwich vs Croydon',
-    meta: 'Commute, schools, budget',
-    age: 'today',
-  },
-  {
-    name: 'Reading family homes',
-    meta: 'Parks, rail, price context',
-    age: '3 days ago',
-  },
-  {
-    name: 'Canary Wharf flats',
-    meta: 'Service charge, commute',
-    age: '1 week ago',
-  },
+  { name: 'Greenwich vs Croydon', meta: 'Commute · schools · monthly cost', age: 'edited just now · 2 areas', active: true },
+  { name: 'Reading family homes', meta: 'Parks · rail · price context', age: '3 days ago · 3 areas', active: false },
+  { name: 'Canary Wharf flats', meta: 'Service charge · commute', age: '1 week ago · 2 areas', active: false },
 ];
 
-const formatter = new Intl.NumberFormat('en-GB', {
-  style: 'currency',
-  currency: 'GBP',
-  maximumFractionDigits: 0,
-});
+const startPrompts = [
+  { title: 'Compare SE10 vs CR0', body: '2-bed flat, on commute, schools, parks, crime context & monthly cost' },
+  { title: 'What would this cost me monthly?', body: 'Ownership cost on your own rate, with a +3% stress test', opensEstimator: true },
+  { title: 'What should I ask at the viewing?', body: 'Questions worth asking for each area, grounded in the data' },
+  { title: 'Upload a listing, EPC or survey', body: 'Extract facts to feed the comparison', upload: true },
+];
 
-const preciseFormatter = new Intl.NumberFormat('en-GB', {
-  style: 'currency',
-  currency: 'GBP',
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
+const gbp0 = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 });
+const gbp2 = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const pct1 = new Intl.NumberFormat('en-GB', { maximumFractionDigits: 1 });
 
-const percentFormatter = new Intl.NumberFormat('en-GB', {
-  maximumFractionDigits: 1,
-});
-
-const initialEstimateRequest: MortgageEstimateRequest = {
+const initialRequest: MortgageEstimateRequest = {
   propertyPrice: 465_000,
   deposit: 92_500,
   annualInterestRatePercent: 5.1,
@@ -96,91 +64,61 @@ const initialEstimateRequest: MortgageEstimateRequest = {
   repaymentType: 'Repayment',
 };
 
-const initialRunningCosts: RunningCosts = {
-  serviceCharge: 185,
-  councilTax: 168,
-  buildingsInsurance: 35,
-  maintenanceReserve: 388,
-};
-
-function currency(value: number | null | undefined) {
-  if (value === null || value === undefined || Number.isNaN(value)) {
-    return 'Missing';
-  }
-
-  return formatter.format(value);
+function currency0(value: number | null | undefined) {
+  return value === null || value === undefined || Number.isNaN(value) ? 'Missing' : gbp0.format(value);
+}
+function currency2(value: number | null | undefined) {
+  return value === null || value === undefined || Number.isNaN(value) ? 'Missing' : gbp2.format(value);
 }
 
-function preciseCurrency(value: number | null | undefined) {
-  if (value === null || value === undefined || Number.isNaN(value)) {
-    return 'Missing';
-  }
-
-  return preciseFormatter.format(value);
-}
-
-async function readJson<T>(
-  url: string,
-  options?: RequestInit,
-  signal?: AbortSignal,
-): Promise<T> {
+async function readJson<T>(url: string, options?: RequestInit, signal?: AbortSignal): Promise<T> {
   const response = await fetch(url, { ...options, signal });
-
   if (!response.ok) {
     throw new Error(`${response.status} ${response.statusText}`);
   }
-
   return (await response.json()) as T;
+}
+
+function useViewport() {
+  const [width, setWidth] = useState(() => (typeof window === 'undefined' ? 1280 : window.innerWidth));
+  useEffect(() => {
+    const onResize = () => setWidth(window.innerWidth);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+  return width;
 }
 
 function App() {
   const [theme, setTheme] = useState<Theme>('light');
-  const [request, setRequest] = useState<MortgageEstimateRequest>(
-    initialEstimateRequest,
-  );
-  const [runningCosts, setRunningCosts] =
-    useState<RunningCosts>(initialRunningCosts);
+  const [mainTab, setMainTab] = useState<MainTab>('conversation');
+  const [rightTab, setRightTab] = useState<RightTab>('evidence');
+  const [navOpen, setNavOpen] = useState(false);
+
+  const [request, setRequest] = useState<MortgageEstimateRequest>(initialRequest);
   const [estimate, setEstimate] = useState<MortgageEstimateResult | null>(null);
-  const [baseRate, setBaseRate] = useState<BaseRate | null>(null);
   const [estimateError, setEstimateError] = useState<string | null>(null);
-  const [baseRateError, setBaseRateError] = useState<string | null>(null);
-  const [loadingEstimate, setLoadingEstimate] = useState(false);
+  const [baseRate, setBaseRate] = useState<BaseRate | null>(null);
+  const [copilotNotice, setCopilotNotice] = useState<string | null>(null);
+
+  const viewport = useViewport();
+  const isMobile = viewport < 760;
 
   useEffect(() => {
     const controller = new AbortController();
-
-    void readJson<BaseRate>(
-      '/api/mortgage/base-rate',
-      undefined,
-      controller.signal,
-    )
-      .then((data) => {
-        setBaseRate(data);
-        setBaseRateError(null);
-      })
-      .catch((error: Error) => {
-        if (controller.signal.aborted) {
-          return;
-        }
-
-        setBaseRate(null);
-        setBaseRateError(error.message);
+    void readJson<BaseRate>('/api/mortgage/base-rate', undefined, controller.signal)
+      .then((data) => setBaseRate(data))
+      .catch(() => {
+        if (!controller.signal.aborted) setBaseRate(null);
       });
-
     return () => controller.abort();
   }, []);
 
   useEffect(() => {
     const controller = new AbortController();
-    setLoadingEstimate(true);
-
     void readJson<MortgageEstimateResult>(
       '/api/mortgage/estimate',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(request),
-      },
+      { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(request) },
       controller.signal,
     )
       .then((data) => {
@@ -188,147 +126,100 @@ function App() {
         setEstimateError(null);
       })
       .catch((error: Error) => {
-        if (controller.signal.aborted) {
-          return;
-        }
-
+        if (controller.signal.aborted) return;
         setEstimate(null);
         setEstimateError(error.message);
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) {
-          setLoadingEstimate(false);
-        }
       });
-
     return () => controller.abort();
   }, [request]);
 
-  const monthlyRunningCosts = useMemo(
-    () =>
-      runningCosts.serviceCharge +
-      runningCosts.councilTax +
-      runningCosts.buildingsInsurance +
-      runningCosts.maintenanceReserve,
-    [runningCosts],
-  );
+  const depositPercent = request.propertyPrice > 0 ? Math.round((request.deposit / request.propertyPrice) * 100) : 0;
 
-  const ownershipTotal =
-    estimate === null ? null : estimate.monthlyPayment + monthlyRunningCosts;
-
-  const evidence: EvidenceItem[] = [
-    {
-      label: 'Monthly mortgage payment',
-      value:
-        estimate === null ? 'Awaiting API estimate' : preciseCurrency(estimate.monthlyPayment),
-      kind: estimate === null ? 'missing' : 'estimate',
-      source: '/api/mortgage/estimate',
-      provenance: estimate === null ? undefined : 'Live',
-    },
-    {
-      label: 'Loan to value',
-      value:
-        estimate === null
-          ? 'Awaiting API estimate'
-          : `${percentFormatter.format(estimate.ltvPercent)}%`,
-      kind: estimate === null ? 'missing' : 'estimate',
-      source: '/api/mortgage/estimate',
-      provenance: estimate === null ? undefined : 'Live',
-    },
-    {
-      label: 'Running costs',
-      value: `${currency(monthlyRunningCosts)} / mo`,
-      kind: 'assumption',
-      source: 'Buyer inputs and HomeScout defaults',
-    },
-    {
-      label: 'BoE base rate',
-      value: baseRate === null ? 'Unavailable' : `${baseRate.ratePercent}%`,
-      kind: baseRate === null ? 'missing' : 'fact',
-      source: baseRate?.source ?? '/api/mortgage/base-rate',
-      provenance: baseRate?.provenance,
-    },
-  ];
-
-  const caveats =
-    estimate?.caveats.length ? estimate.caveats : ['This is an estimate, not mortgage advice. Speak to a qualified mortgage adviser before deciding.'];
-
-  const updateRequest = (
-    key: keyof MortgageEstimateRequest,
-    value: string | number,
-  ) => {
-    setRequest((current) => ({
-      ...current,
-      [key]:
-        key === 'repaymentType'
-          ? value
-          : Number.isInteger(current[key] as number)
-            ? Math.round(Number(value))
-            : Number(value),
-    }));
+  const openEstimator = () => {
+    setRightTab('estimator');
+    setCopilotNotice(null);
+    if (isMobile) setMainTab('comparison');
   };
 
-  const updateRunningCost = (key: keyof RunningCosts, value: string) => {
-    setRunningCosts((current) => ({
-      ...current,
-      [key]: Math.max(0, Number(value)),
-    }));
+  const askCopilot = async (message: string) => {
+    if (!message.trim()) return;
+    try {
+      const response = await fetch('/api/copilot/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message }),
+      });
+      if (response.status === 503) {
+        setCopilotNotice('HomeScout’s copilot isn’t connected yet — the reasoning agent is still being provisioned. Meanwhile, the Estimator is live: open it from the panel.');
+        return;
+      }
+      if (!response.ok) {
+        setCopilotNotice(`Copilot request failed (${response.status}). The Estimator remains available.`);
+        return;
+      }
+      setCopilotNotice('Copilot is connected. Streaming answers arrive in a later iteration.');
+    } catch {
+      setCopilotNotice('Could not reach the HomeScout API. The Estimator uses the same API and will show its own status.');
+    }
   };
 
   return (
-    <div className="homescout-app" data-theme={theme}>
+    <div className="homescout-app" data-theme={theme} data-viewport={isMobile ? 'mobile' : 'wide'}>
       <header className="top-bar">
+        {isMobile ? (
+          <button
+            className="icon-button nav-toggle"
+            type="button"
+            aria-label={navOpen ? 'Close navigation' : 'Open navigation'}
+            aria-expanded={navOpen}
+            onClick={() => setNavOpen((open) => !open)}
+          >
+            ☰
+          </button>
+        ) : null}
         <div className="brand-lockup" aria-label="HomeScout Copilot">
-          <span className="brand-mark" aria-hidden="true">
-            H
-          </span>
+          <span className="brand-mark" aria-hidden="true">H</span>
           <div>
-            <strong>
-              HomeScout <span>Copilot</span>
-            </strong>
+            <strong>HomeScout <span>Copilot</span></strong>
             <small>Greenwich vs Croydon · draft</small>
           </div>
         </div>
         <span className="decision-pill">Decision support, not advice</span>
         <div className="top-actions">
-          <button className="toolbar-button" type="button">
-            Search
-            <kbd>⌘K</kbd>
-          </button>
+          <button className="toolbar-button" type="button">Search<kbd>⌘K</kbd></button>
           <button
             className="icon-button"
             type="button"
             aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
-            onClick={() =>
-              setTheme((current) => (current === 'dark' ? 'light' : 'dark'))
-            }
             title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
+            onClick={() => setTheme((current) => (current === 'dark' ? 'light' : 'dark'))}
           >
             {theme === 'dark' ? '☀' : '◐'}
           </button>
-          <button className="avatar-button" type="button" aria-label="Account">
-            AO
-          </button>
+          <button className="avatar-button" type="button" aria-label="Account">AO</button>
         </div>
       </header>
 
       <div className="workspace-grid">
-        <aside className="left-rail" aria-label="Saved comparisons and tools">
-          <button className="new-comparison" type="button">
-            + New comparison
-          </button>
-          <nav className="primary-nav" aria-label="Workspace tools">
-            <button type="button">Area comparison</button>
-            <button className="active" type="button">
-              Mortgage cost estimator
-            </button>
-            <button type="button">Settings</button>
-          </nav>
+        <aside
+          className={`left-rail${navOpen ? ' open' : ''}`}
+          aria-label="Saved comparisons and tools"
+          aria-hidden={isMobile && !navOpen}
+        >
+          <button className="new-comparison" type="button">+ New comparison</button>
+          <label className="rail-search">
+            <span aria-hidden="true">⌕</span>
+            <input type="search" placeholder="Filter saved searches" aria-label="Filter saved searches" />
+          </label>
           <section aria-labelledby="saved-comparisons-heading">
             <h2 id="saved-comparisons-heading">Saved comparisons</h2>
             <div className="saved-list">
               {savedComparisons.map((comparison) => (
-                <button type="button" className="saved-item" key={comparison.name}>
+                <button
+                  type="button"
+                  className={`saved-item${comparison.active ? ' active' : ''}`}
+                  key={comparison.name}
+                >
                   <strong>{comparison.name}</strong>
                   <span>{comparison.meta}</span>
                   <small>{comparison.age}</small>
@@ -336,367 +227,229 @@ function App() {
               ))}
             </div>
           </section>
+          <nav className="rail-footer" aria-label="Workspace">
+            <button type="button">Case file<span className="badge">2</span></button>
+            <button type="button">Preferences<span className="badge">5</span></button>
+            <button type="button">Settings</button>
+          </nav>
         </aside>
+        {isMobile && navOpen ? (
+          <button className="rail-scrim" type="button" aria-label="Close navigation" onClick={() => setNavOpen(false)} />
+        ) : null}
 
-        <main className="main-workspace" aria-label="Mortgage cost estimator">
+        <main className="main-workspace" aria-label="HomeScout workspace">
           <div className="workspace-tabs" role="tablist" aria-label="Workspace views">
-            <button type="button" role="tab" aria-selected="false">
-              Copilot
+            <button type="button" role="tab" aria-selected={mainTab === 'conversation'} onClick={() => setMainTab('conversation')}>
+              Conversation
             </button>
-            <button type="button" role="tab" aria-selected="true">
-              Mortgage estimate
-            </button>
-            <button type="button" role="tab" aria-selected="false">
-              Comparison canvas
+            <button
+              type="button"
+              role="tab"
+              aria-selected={mainTab === 'comparison'}
+              onClick={() => {
+                setMainTab('comparison');
+                if (isMobile) setRightTab('estimator');
+              }}
+            >
+              {isMobile ? 'Estimator' : 'Comparison'}
             </button>
           </div>
 
-          <section className="estimator-surface" aria-labelledby="estimator-heading">
-            <div className="surface-heading">
-              <div>
-                <p className="eyebrow">API-backed cost view</p>
-                <h1 id="estimator-heading">Mortgage cost estimator</h1>
-                <p>
-                  Uses your own quoted or assumed rate. HomeScout does not
-                  recommend mortgage products.
-                </p>
-              </div>
-              <div className="api-state" data-state={estimateError ? 'error' : 'ready'}>
-                {estimateError ? 'API unavailable' : loadingEstimate ? 'Updating' : 'Live API'}
-              </div>
-            </div>
-
-            <div className="estimator-grid">
-              <form className="input-stack" aria-label="Mortgage inputs">
-                <MoneyInput
-                  label="Property price"
-                  value={request.propertyPrice}
-                  min={150_000}
-                  max={900_000}
-                  step={5_000}
-                  onChange={(value) => updateRequest('propertyPrice', value)}
-                />
-                <MoneyInput
-                  label="Deposit"
-                  value={request.deposit}
-                  min={0}
-                  max={Math.max(request.propertyPrice, 1)}
-                  step={2_500}
-                  onChange={(value) => updateRequest('deposit', value)}
-                />
-                <SliderInput
-                  label="Interest rate"
-                  suffix="%"
-                  value={request.annualInterestRatePercent}
-                  min={1}
-                  max={10}
-                  step={0.1}
-                  onChange={(value) =>
-                    updateRequest('annualInterestRatePercent', value)
-                  }
-                />
-                <SliderInput
-                  label="Term"
-                  suffix="years"
-                  value={request.termYears}
-                  min={5}
-                  max={40}
-                  step={1}
-                  onChange={(value) => updateRequest('termYears', value)}
-                />
-                <fieldset className="segmented-control">
-                  <legend>Repayment type</legend>
+          {mainTab === 'conversation' || !isMobile ? (
+            <section className="conversation" aria-label="HomeScout copilot">
+              <span className="status-pill"><i aria-hidden="true" />Copilot ready · public-data tools connected</span>
+              <h1>Compare areas and properties, with the evidence shown.</h1>
+              <p className="conversation-lead">
+                Ask HomeScout to compare two or three postcodes or listings. It reasons over public data, your
+                uploads and saved preferences — and every figure keeps its source, freshness and assumptions.
+                This is decision support, never mortgage advice.
+              </p>
+              <p className="eyebrow">Start with</p>
+              <div className="start-grid">
+                {startPrompts.map((prompt) => (
                   <button
                     type="button"
-                    aria-pressed={request.repaymentType === 'Repayment'}
-                    onClick={() => updateRequest('repaymentType', 'Repayment')}
+                    className={`start-card${prompt.upload ? ' upload' : ''}`}
+                    key={prompt.title}
+                    onClick={prompt.opensEstimator ? openEstimator : undefined}
                   >
-                    Repayment
+                    <strong>{prompt.title}</strong>
+                    <span>{prompt.body}</span>
                   </button>
-                  <button
-                    type="button"
-                    aria-pressed={request.repaymentType === 'InterestOnly'}
-                    onClick={() => updateRequest('repaymentType', 'InterestOnly')}
-                  >
-                    Interest-only
-                  </button>
-                </fieldset>
+                ))}
+              </div>
+              {copilotNotice ? (
+                <div className="copilot-notice" role="status">{copilotNotice}</div>
+              ) : null}
+              <form
+                className="composer"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  const input = event.currentTarget.elements.namedItem('copilot-message') as HTMLInputElement;
+                  void askCopilot(input.value);
+                  input.value = '';
+                }}
+              >
+                <input
+                  name="copilot-message"
+                  type="text"
+                  aria-label="Ask HomeScout"
+                  placeholder="Ask about an area, add a property, or estimate cost…"
+                />
+                <button type="submit" aria-label="Send">→</button>
               </form>
-
-              <section className="result-panel" aria-label="Mortgage estimate result">
-                {estimateError ? (
-                  <div className="empty-state" role="status">
-                    The mortgage API could not be reached from this preview.
-                    Connect the HomeScout API service to calculate this estimate.
-                  </div>
-                ) : (
-                  <>
-                    <div className="hero-figure">
-                      <span>Estimated monthly mortgage</span>
-                      <strong>
-                        {estimate === null
-                          ? 'Loading'
-                          : preciseCurrency(estimate.monthlyPayment)}
-                      </strong>
-                    </div>
-                    <div className="figure-grid">
-                      <MetricCard
-                        label="Loan amount"
-                        value={currency(estimate?.loan)}
-                        kind={estimate === null ? 'missing' : 'estimate'}
-                        provenance={estimate === null ? undefined : 'Live'}
-                      />
-                      <MetricCard
-                        label="LTV"
-                        value={
-                          estimate === null
-                            ? 'Missing'
-                            : `${percentFormatter.format(estimate.ltvPercent)}%`
-                        }
-                        kind={estimate === null ? 'missing' : 'estimate'}
-                        provenance={estimate === null ? undefined : 'Live'}
-                      />
-                      <MetricCard
-                        label={`Stress test at ${
-                          estimate === null
-                            ? '+3%'
-                            : `${estimate.stressTest.ratePercent}%`
-                        }`}
-                        value={preciseCurrency(estimate?.stressTest.monthlyPayment)}
-                        kind={estimate === null ? 'missing' : 'estimate'}
-                        provenance={estimate === null ? undefined : 'Live'}
-                      />
-                      <MetricCard
-                        label="Total interest"
-                        value={preciseCurrency(estimate?.totalInterest)}
-                        kind={estimate === null ? 'missing' : 'estimate'}
-                        provenance={estimate === null ? undefined : 'Live'}
-                      />
-                    </div>
-                  </>
-                )}
-              </section>
-            </div>
-
-            <section className="running-costs" aria-labelledby="running-costs-heading">
-              <div>
-                <p className="eyebrow">Ownership context</p>
-                <h2 id="running-costs-heading">Running costs</h2>
-              </div>
-              <div className="running-grid">
-                <NumberInput
-                  label="Service charge"
-                  value={runningCosts.serviceCharge}
-                  onChange={(value) => updateRunningCost('serviceCharge', value)}
-                />
-                <NumberInput
-                  label="Council tax"
-                  value={runningCosts.councilTax}
-                  onChange={(value) => updateRunningCost('councilTax', value)}
-                />
-                <NumberInput
-                  label="Buildings insurance"
-                  value={runningCosts.buildingsInsurance}
-                  onChange={(value) =>
-                    updateRunningCost('buildingsInsurance', value)
-                  }
-                />
-                <NumberInput
-                  label="Maintenance reserve"
-                  value={runningCosts.maintenanceReserve}
-                  onChange={(value) =>
-                    updateRunningCost('maintenanceReserve', value)
-                  }
-                />
-              </div>
-              <div className="ownership-total">
-                <span>Total monthly ownership estimate</span>
-                <strong>
-                  {ownershipTotal === null
-                    ? 'Awaiting mortgage API'
-                    : `${preciseCurrency(ownershipTotal)} / mo`}
-                </strong>
-              </div>
+              <p className="caveat-inline">
+                Estimates and public-data summaries — <strong>not mortgage advice</strong>. Speak to a qualified
+                adviser before deciding.
+              </p>
             </section>
-          </section>
+          ) : null}
         </main>
 
-        <aside className="evidence-rail" aria-label="Evidence panel">
-          <div className="rail-tabs" role="tablist" aria-label="Right panel views">
-            <button type="button" role="tab" aria-selected="true">
-              Evidence
-            </button>
-            <button type="button" role="tab" aria-selected="false">
-              Uploads
-            </button>
-          </div>
-          <EvidenceList items={evidence} />
-
-          <section className="assumption-block" aria-labelledby="assumptions-heading">
-            <h2 id="assumptions-heading">Assumptions</h2>
-            <ul>
-              {(estimate?.assumptions ?? [
-                'Mortgage calculation comes from /api/mortgage/estimate.',
-                'Running costs are editable buyer inputs.',
-              ]).map((assumption) => (
-                <li key={assumption}>{assumption}</li>
-              ))}
-            </ul>
-          </section>
-
-          <section className="base-rate-card" aria-label="Base rate reference">
-            <div>
-              <span
-                className={`provenance ${baseRate?.provenance.toLowerCase() ?? 'missing'}`}
-              >
-                {baseRate?.provenance ?? 'Missing'}
-              </span>
-              <strong>
-                {baseRate === null
-                  ? 'Base rate unavailable'
-                  : `BoE base rate ${baseRate.ratePercent}%`}
-              </strong>
+        {(!isMobile || mainTab === 'comparison') ? (
+          <aside className="evidence-rail" aria-label="Evidence and estimator">
+            <div className="rail-tabs" role="tablist" aria-label="Right panel views">
+              <button type="button" role="tab" aria-selected={rightTab === 'evidence'} onClick={() => setRightTab('evidence')}>
+                Evidence
+              </button>
+              <button type="button" role="tab" aria-selected={rightTab === 'estimator'} onClick={() => setRightTab('estimator')}>
+                Estimator
+              </button>
             </div>
-            <p>
-              {baseRate === null
-                ? `Could not reach /api/mortgage/base-rate${
-                    baseRateError ? ` (${baseRateError})` : ''
-                  }.`
-                : `${baseRate.note} Effective ${baseRate.effectiveDate}. Context only.`}
-            </p>
-          </section>
 
-          <div className="caveat">
-            {caveats.map((caveat) => (
-              <p key={caveat}>{caveat}</p>
-            ))}
-          </div>
-        </aside>
-      </div>
-    </div>
-  );
-}
-
-function MoneyInput(props: {
-  label: string;
-  value: number;
-  min: number;
-  max: number;
-  step: number;
-  onChange: (value: string) => void;
-}) {
-  return (
-    <label className="range-field">
-      <span>
-        {props.label}
-        <strong>{currency(props.value)}</strong>
-      </span>
-      <input
-        type="range"
-        min={props.min}
-        max={props.max}
-        step={props.step}
-        value={props.value}
-        onChange={(event) => props.onChange(event.target.value)}
-      />
-    </label>
-  );
-}
-
-function SliderInput(props: {
-  label: string;
-  suffix: string;
-  value: number;
-  min: number;
-  max: number;
-  step: number;
-  onChange: (value: string) => void;
-}) {
-  return (
-    <label className="range-field">
-      <span>
-        {props.label}
-        <strong>
-          {props.value} {props.suffix}
-        </strong>
-      </span>
-      <input
-        type="range"
-        min={props.min}
-        max={props.max}
-        step={props.step}
-        value={props.value}
-        onChange={(event) => props.onChange(event.target.value)}
-      />
-    </label>
-  );
-}
-
-function NumberInput(props: {
-  label: string;
-  value: number;
-  onChange: (value: string) => void;
-}) {
-  return (
-    <label className="number-field">
-      <span>{props.label}</span>
-      <div>
-        <span>£</span>
-        <input
-          aria-label={props.label}
-          type="number"
-          min="0"
-          step="1"
-          value={props.value}
-          onChange={(event) => props.onChange(event.target.value)}
-        />
-      </div>
-    </label>
-  );
-}
-
-function MetricCard(props: {
-  label: string;
-  value: string;
-  kind: FigureKind;
-  provenance?: Provenance;
-}) {
-  return (
-    <div className="metric-card">
-      <span>{props.label}</span>
-      <strong>{props.value}</strong>
-      <div className="chip-row">
-        <span className={`kind-chip ${props.kind}`}>{props.kind}</span>
-        {props.provenance ? (
-          <span className={`provenance ${props.provenance.toLowerCase()}`}>
-            {props.provenance}
-          </span>
+            {rightTab === 'evidence' ? (
+              <div className="evidence-empty" role="note">
+                <span className="evidence-mark" aria-hidden="true">▤</span>
+                <strong>Evidence appears here</strong>
+                <p>Ask a question and HomeScout will show every fact, estimate, assumption and gap — each with its source and freshness.</p>
+              </div>
+            ) : (
+              <EstimatorPanel
+                request={request}
+                setRequest={setRequest}
+                depositPercent={depositPercent}
+                estimate={estimate}
+                estimateError={estimateError}
+                baseRate={baseRate}
+              />
+            )}
+          </aside>
         ) : null}
       </div>
     </div>
   );
 }
 
-function EvidenceList({ items }: { items: EvidenceItem[] }) {
+function EstimatorPanel(props: {
+  request: MortgageEstimateRequest;
+  setRequest: React.Dispatch<React.SetStateAction<MortgageEstimateRequest>>;
+  depositPercent: number;
+  estimate: MortgageEstimateResult | null;
+  estimateError: string | null;
+  baseRate: BaseRate | null;
+}) {
+  const { request, setRequest, depositPercent, estimate, estimateError, baseRate } = props;
+
+  const update = (key: keyof MortgageEstimateRequest, value: string | number) =>
+    setRequest((current) => ({
+      ...current,
+      [key]: key === 'repaymentType' ? value : Number(value),
+    }));
+
+  const caveats = estimate?.caveats.length
+    ? estimate.caveats
+    : ['This is an estimate, not mortgage advice — speak to a qualified adviser before deciding.'];
+
   return (
-    <section className="evidence-list" aria-labelledby="evidence-heading">
-      <h2 id="evidence-heading">Evidence</h2>
-      {items.map((item) => (
-        <article className="evidence-item" key={item.label}>
-          <div>
-            <span className={`kind-chip ${item.kind}`}>{item.kind}</span>
-            {item.provenance ? (
-              <span className={`provenance ${item.provenance.toLowerCase()}`}>
-                {item.provenance}
-              </span>
-            ) : null}
+    <section className="estimator-panel" aria-label="Mortgage cost estimator">
+      <header className="panel-heading">
+        <h2>Mortgage cost estimator</h2>
+        <p>Uses <strong>your own rate</strong>, not a recommended product. SE10 · Greenwich.</p>
+      </header>
+
+      <div className="panel-fields">
+        <RangeField label="Property price" value={currency0(request.propertyPrice)} min={150_000} max={900_000} step={5_000} raw={request.propertyPrice} onChange={(v) => update('propertyPrice', v)} />
+        <RangeField label="Deposit" value={`${currency0(request.deposit)} · ${depositPercent}%`} min={0} max={Math.max(request.propertyPrice, 1)} step={2_500} raw={request.deposit} onChange={(v) => update('deposit', v)} />
+        <RangeField label="Interest rate (your figure)" value={`${request.annualInterestRatePercent}%`} min={1} max={10} step={0.1} raw={request.annualInterestRatePercent} onChange={(v) => update('annualInterestRatePercent', v)} />
+        <RangeField label="Term" value={`${request.termYears} yrs`} min={5} max={40} step={1} raw={request.termYears} onChange={(v) => update('termYears', v)} />
+        <fieldset className="segmented-control">
+          <legend>Repayment type</legend>
+          <div className="segmented-options">
+            <button type="button" aria-pressed={request.repaymentType === 'Repayment'} onClick={() => update('repaymentType', 'Repayment')}>Repayment</button>
+            <button type="button" aria-pressed={request.repaymentType === 'InterestOnly'} onClick={() => update('repaymentType', 'InterestOnly')}>Interest-only</button>
           </div>
-          <strong>{item.label}</strong>
-          <p>{item.value}</p>
-          <small>{item.source}</small>
-        </article>
-      ))}
+        </fieldset>
+      </div>
+
+      {estimateError ? (
+        <div className="empty-state" role="status">
+          The mortgage API could not be reached from this preview. Connect the HomeScout API service to calculate this estimate.
+        </div>
+      ) : (
+        <>
+          <div className="payment-card">
+            <span>Monthly payment<span className="kind-chip estimate">estimate</span></span>
+            <strong>{estimate === null ? 'Loading…' : currency2(estimate.monthlyPayment)}</strong>
+          </div>
+          <dl className="metric-rows">
+            <MetricRow label="Loan amount" value={currency0(estimate?.loan)} />
+            <MetricRow label="Loan-to-value" value={estimate === null ? 'Missing' : `${pct1.format(estimate.ltvPercent)}%`} />
+            <MetricRow label="Total interest" value={currency0(estimate?.totalInterest)} />
+            <MetricRow label="Total repayable" value={estimate?.totalRepayment == null ? '—' : currency0(estimate.totalRepayment)} />
+          </dl>
+          <div className="stress-row">
+            <span>+3% stress payment</span>
+            <strong>{currency0(estimate?.stressTest.monthlyPayment)}</strong>
+          </div>
+        </>
+      )}
+
+      <div className="base-rate-line">
+        <span className={`provenance ${baseRate?.provenance.toLowerCase() ?? 'missing'}`}>{baseRate?.provenance ?? 'Missing'}</span>
+        {baseRate === null ? 'BoE base rate unavailable' : `BoE base rate ${baseRate.ratePercent}% — context only`}
+      </div>
+
+      <section className="assumption-block" aria-labelledby="assumptions-heading">
+        <h3 id="assumptions-heading">Assumptions</h3>
+        <ul>
+          {(estimate?.assumptions ?? ['Mortgage calculation comes from /api/mortgage/estimate.']).map((assumption) => (
+            <li key={assumption}>{assumption}</li>
+          ))}
+        </ul>
+      </section>
+
+      <div className="caveat">
+        {caveats.map((caveat) => (
+          <p key={caveat}>{caveat}</p>
+        ))}
+      </div>
     </section>
+  );
+}
+
+function RangeField(props: {
+  label: string;
+  value: string;
+  min: number;
+  max: number;
+  step: number;
+  raw: number;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="range-field">
+      <span>{props.label}<strong>{props.value}</strong></span>
+      <input type="range" min={props.min} max={props.max} step={props.step} value={props.raw} onChange={(event) => props.onChange(event.target.value)} />
+    </label>
+  );
+}
+
+function MetricRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="metric-row">
+      <dt>{label}</dt>
+      <dd>{value}</dd>
+    </div>
   );
 }
 

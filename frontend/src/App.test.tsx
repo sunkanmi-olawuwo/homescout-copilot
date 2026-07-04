@@ -8,17 +8,9 @@ const estimateBody = {
   monthlyPayment: 2204.42,
   totalRepayment: 661326,
   totalInterest: 288826,
-  stressTest: {
-    ratePercent: 8.1,
-    monthlyPayment: 2924.82,
-  },
-  assumptions: [
-    'Repayment mortgage at 5.1% over 25 years.',
-    'Payments are monthly and on time.',
-  ],
-  caveats: [
-    'This is an estimate, not mortgage advice - speak to a qualified mortgage adviser.',
-  ],
+  stressTest: { ratePercent: 8.1, monthlyPayment: 2924.82 },
+  assumptions: ['Repayment mortgage at 5.1% over 25 years.', 'Payments are monthly and on time.'],
+  caveats: ['This is an estimate, not mortgage advice — speak to a qualified adviser before deciding.'],
 };
 
 const baseRateBody = {
@@ -30,29 +22,21 @@ const baseRateBody = {
 };
 
 function jsonResponse(body: unknown) {
-  return {
-    ok: true,
-    status: 200,
-    statusText: 'OK',
-    json: () => Promise.resolve(body),
-  } as Response;
+  return { ok: true, status: 200, statusText: 'OK', json: () => Promise.resolve(body) } as Response;
+}
+function statusResponse(status: number) {
+  return { ok: false, status, statusText: '', json: () => Promise.resolve({}) } as Response;
 }
 
-describe('App mortgage workspace', () => {
+describe('App workspace', () => {
   beforeEach(() => {
     vi.stubGlobal(
       'fetch',
       vi.fn((input: RequestInfo | URL) => {
         const url = String(input);
-
-        if (url.endsWith('/api/mortgage/base-rate')) {
-          return Promise.resolve(jsonResponse(baseRateBody));
-        }
-
-        if (url.endsWith('/api/mortgage/estimate')) {
-          return Promise.resolve(jsonResponse(estimateBody));
-        }
-
+        if (url.endsWith('/api/mortgage/base-rate')) return Promise.resolve(jsonResponse(baseRateBody));
+        if (url.endsWith('/api/mortgage/estimate')) return Promise.resolve(jsonResponse(estimateBody));
+        if (url.endsWith('/api/copilot/ask')) return Promise.resolve(statusResponse(503));
         return Promise.reject(new Error(`Unexpected request: ${url}`));
       }),
     );
@@ -63,26 +47,33 @@ describe('App mortgage workspace', () => {
     vi.unstubAllGlobals();
   });
 
-  it('renders the app shell and API-backed mortgage result', async () => {
+  it('leads with the copilot conversation as the main surface', () => {
     render(<App />);
 
     expect(screen.getByLabelText('HomeScout Copilot')).toBeTruthy();
-    expect(
-      screen.getByRole('button', { name: 'Mortgage cost estimator' }),
-    ).toBeTruthy();
-    expect(
-      screen.getByRole('heading', { name: 'Mortgage cost estimator' }),
-    ).toBeTruthy();
-
-    expect((await screen.findAllByText('£2,204.42')).length).toBeGreaterThan(0);
-    expect(screen.getByText('£372,500')).toBeTruthy();
-    expect(screen.getAllByText('80.1%').length).toBeGreaterThan(0);
-    expect(screen.getByText('BoE base rate 4.25%')).toBeTruthy();
-    expect(screen.getAllByText('Live').length).toBeGreaterThan(0);
+    expect(screen.getByRole('button', { name: /Greenwich vs Croydon/ })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: /Compare areas and properties/i })).toBeTruthy();
+    // Estimator lives in the right rail, not the main surface.
+    expect(screen.getByRole('tab', { name: 'Estimator' })).toBeTruthy();
     expect(screen.getByText(/not mortgage advice/i)).toBeTruthy();
   });
 
-  it('posts the typed mortgage estimate request to the API seam', async () => {
+  it('shows the API-backed estimator in the right rail', async () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Estimator' }));
+
+    expect((await screen.findAllByText('£2,204.42')).length).toBeGreaterThan(0);
+    expect(screen.getByText('£372,500')).toBeTruthy();
+    expect(screen.getByText('80.1%')).toBeTruthy();
+    expect(screen.getByText(/BoE base rate 4.25%/)).toBeTruthy();
+    expect(screen.getAllByText('Live').length).toBeGreaterThan(0);
+    // Total repayable is now surfaced (design parity), plus the +3% stress payment.
+    expect(screen.getByText('Total repayable')).toBeTruthy();
+    expect(screen.getByText('+3% stress payment')).toBeTruthy();
+  });
+
+  it('posts the typed mortgage estimate request (string enum) to the seam', async () => {
     const fetchMock = vi.mocked(fetch);
     render(<App />);
 
@@ -98,8 +89,8 @@ describe('App mortgage workspace', () => {
       ).toBe(true);
     });
 
-    const interestOnly = screen.getByRole('button', { name: 'Interest-only' });
-    fireEvent.click(interestOnly);
+    fireEvent.click(screen.getByRole('tab', { name: 'Estimator' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Interest-only' }));
 
     await waitFor(() => {
       expect(
@@ -113,29 +104,21 @@ describe('App mortgage workspace', () => {
     });
   });
 
-  it('updates running-cost assumptions without changing the API contract', async () => {
+  it('degrades gracefully when the copilot is not provisioned (503)', async () => {
     render(<App />);
 
-    await screen.findAllByText('£2,204.42');
-    expect(screen.getByText('£2,980.42 / mo')).toBeTruthy();
+    fireEvent.change(screen.getByLabelText('Ask HomeScout'), { target: { value: 'Compare SE10 vs CR0' } });
+    fireEvent.submit(screen.getByLabelText('Ask HomeScout').closest('form') as HTMLFormElement);
 
-    fireEvent.change(screen.getByLabelText('Service charge'), {
-      target: { value: '200' },
-    });
-
-    expect(screen.getByText('£2,995.42 / mo')).toBeTruthy();
-    expect(screen.getByText('Buyer inputs and HomeScout defaults')).toBeTruthy();
+    expect(await screen.findByText(/isn.t connected yet/i)).toBeTruthy();
   });
 
   it('supports the scoped light and dark themes', () => {
     const { container } = render(<App />);
-
     const app = container.querySelector('.homescout-app');
 
     expect(app?.getAttribute('data-theme')).toBe('light');
-
     fireEvent.click(screen.getByLabelText('Switch to dark theme'));
-
     expect(app?.getAttribute('data-theme')).toBe('dark');
   });
 });
