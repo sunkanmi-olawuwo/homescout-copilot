@@ -75,6 +75,7 @@ API, service-layer, persistence, and backend integration plans.
 - [API Vertical Slices + Validated Options — Plan (RagLab parity)](./03-backend/api-vertical-slice-plan.md)
 - [Copilot Agent Gateway — Design (Foundry Agent Service)](./03-backend/copilot-agent-gateway-plan.md)
 - [GenAIOps Tooling — AgentOps + Evaluator Projects](./03-backend/genaiops-tooling-plan.md) — the two .NET tool projects for deploying versioned agents and running evaluations.
+- [Server-Side Tools — OpenAPI Tools on the Foundry Agent](./03-backend/server-side-tools-plan.md) — design-first plan (managed-identity auth, endpoint contract, egress, startup provisioning); prerequisite for reference-by-name.
 - [Mortgage Cost Estimator — Design (MVP)](./03-backend/cost-estimator-mortgage-plan.md)
 - [Backend Plans (overview)](./03-backend/README.md)
 
