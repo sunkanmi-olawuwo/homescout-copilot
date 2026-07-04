@@ -21,12 +21,18 @@ calls for.
   (`AIProjectClient.AgentAdministrationClient.CreateAgentVersionAsync`, `Azure.AI.Projects.Agents`
   2.0.0 GA, via a `DeclarativeAgentDefinition` from the same single source) so it appears in the
   Foundry portal as a named, versioned asset — the in-process `AsAIAgent` path the API serves with
-  is ephemeral and shows nothing. Idempotent on identical content (same definition → same version,
-  no spam). Verified live 2026-07-04 (`FoundryAgentDeployerLiveTests`, `[External]`): agent
-  `HomeScout` v1 registered and confirmed present in the project. Tools stay client-side (the API
-  runs the deterministic HomeScout tools in-process), so the persisted definition carries model +
-  guardrail instructions, not tool declarations — and cloud eval evaluates real answers via
-  [BYO-responses], not agent-target, since our functions don't execute server-side.
+  is ephemeral and shows nothing. **Content-idempotent**: identical definition → same version (no
+  spam); the definition changing (e.g. adding reasoning options) creates a new version (verified
+  live: v1 → v2 on 2026-07-04). Tools stay client-side (the API runs the deterministic HomeScout
+  tools in-process), so the persisted definition carries model + guardrail instructions, not tool
+  declarations — cloud eval evaluates real answers via [BYO-responses], not agent-target.
+  - **Reasoning tuning:** the definition sets `ReasoningOptions` (effort `Medium`) — the correct
+    knob for our gpt-5 *reasoning* model, which rejects `temperature`/`top_p`. (`ResponseReasoningOptions`
+    is `[Experimental("OPENAI001")]`; opted into deliberately, scoped.)
+  - **CI-ready:** `agentops` is packable as a **.NET tool** (`PackAsTool`, command `agentops`) — CI
+    can `dotnet pack` then `dotnet tool install` and invoke `agentops deploy`, verified 2026-07-04.
+  - Reference patterns for the Foundry agent SDK live in [[API-First Foundry Agents]] → Reference
+    Implementations (`AgenticAICore`).
 
 **`HomeScoutCopilot.Evaluator` exists** with:
 - `evaluator safety [--data <path>]` — deterministic HomeScout guardrail evaluators

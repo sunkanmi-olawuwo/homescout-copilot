@@ -158,6 +158,27 @@ We still follow the course step by step, but translate implementation boundaries
 
 When the course puts logic directly into Blazor, HomeScout should usually place that logic behind an API/service boundary unless the logic is purely presentation state.
 
+## Reference Implementations
+
+**`AgenticAICore`** (local: `~/Downloads/AgenticAICore`, solution `HBK.AgenticAI.sln`) — a working
+.NET reference for the **new Foundry Agent Service** SDK surface. Consult it first when the Azure
+SDK is undocumented or awkward, before reverse-engineering assemblies. It unblocked HomeScout's
+`agentops deploy` (CreateAgentVersion).
+
+- **Agent provisioning** — `src/HBK.AgenticAI.Core/Agent/AgentProvisioningStrategyFoundry.cs`:
+  persisted-agent CRUD via `AIProjectClient.AgentAdministrationClient` (the accessor is a
+  **property**, not `.Agents`; needs `Azure.AI.Projects` 2.0.1 + `Azure.AI.Projects.Agents` 2.0.0).
+  Shows `CreateAgentVersionAsync` (returns `ClientResult<ProjectsAgentVersion>`), `GetAgents`,
+  `GetAgentVersions`, `DeleteAgentAsync`; the concrete definition is `DeclarativeAgentDefinition`
+  (not `PromptAgentDefinition`), with `Instructions` / `Temperature` / `TopP` / `ReasoningOptions`
+  / `Tools`.
+- **Conversation / threads** — `src/HBK.AgenticAI.Core/ConversationThread/*` and
+  `.../Conversation/*` (e.g. `ThreadManagementStrategyFoundry`, `ConversationManagementStrategy*`):
+  Foundry vs local thread-management strategies, single-turn vs multi-turn conversation handling —
+  the patterns HomeScout will need when it adds multi-turn conversation threads.
+- Also: YAML agent-schema parsing, agent-config validation, and a local-completion client for
+  offline/dev.
+
 ## Fact-Check Sources
 
 Checked on 2026-07-02:
