@@ -8,9 +8,13 @@
     <Project Path="src/HomeScoutCopilot.Functional/HomeScoutCopilot.Functional.csproj" />
     <Project Path="src/HomeScoutCopilot.ServiceDefaults/HomeScoutCopilot.ServiceDefaults.csproj" />
   </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/HomeScoutCopilot.AgentOps/HomeScoutCopilot.AgentOps.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/HomeScoutCopilot.API.Test/HomeScoutCopilot.API.Test.csproj" />
     <Project Path="tests/HomeScoutCopilot.Shared.Test/HomeScoutCopilot.Shared.Test.csproj" />
     <Project Path="tests/HomeScoutCopilot.Functional.Test/HomeScoutCopilot.Functional.Test.csproj" />
+    <Project Path="tests/HomeScoutCopilot.AgentOps.Test/HomeScoutCopilot.AgentOps.Test.csproj" />
   </Folder>
 </Solution>
