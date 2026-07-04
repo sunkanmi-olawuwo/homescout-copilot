@@ -1,57 +1,72 @@
 # Readiness Checklist
 
-This page is the starting gate for HomeScout implementation sessions.
+This page is the starting gate for HomeScout implementation sessions. Updated 2026-07-04.
 
 ## Current State
 
-- Repository is on `main`.
-- GitHub origin is `https://github.com/sunkanmi-olawuwo/homescout-copilot.git`.
-- React is the frontend from the start.
-- `HomeScoutCopilot.ApiService` is the frontend-facing API.
-- Microsoft Foundry Agent Service is the target agent platform.
-- The OpenAI SDK against Foundry `/openai/v1` is the preferred first path for direct model calls.
-- The Foundry SDK is the planned path for project, agent, index, evaluation, and tracing platform work.
-- The course companion repo remains reference material for concepts, sequencing, and standard patterns, not the implementation shape.
+- Repository is on `main`; origin `https://github.com/sunkanmi-olawuwo/homescout-copilot.git`.
+- The RagLab skeleton migration is complete: `dotnet/src` (AppHost, ServiceDefaults, **API**
+  host, **API.Service** application layer, API.Client, Shared, Functional) + `dotnet/tests`;
+  React frontend at `frontend/` (pnpm). The frontend-facing API is `HomeScoutCopilot.API`
+  (the Aspire resource is named `apiservice`).
+- **Shipped:** the mortgage cost estimator + BoE base-rate provider (live, provenance-tagged);
+  the copilot boundary `IHomeScoutAgentGateway` + `FoundryAgentGateway` (Microsoft Agent
+  Framework, keyless `DefaultAzureCredential`) + `HomeScoutAgentTools`; the versioned agent
+  prompt asset (`Prompts/homescout.v1.md` via `AgentPrompt`); Carter + MediatR vertical
+  slices with validated options; `infra/` (azd + bicep, Basic Foundry setup).
+- Endpoints live: `/api/status`, `/api/comparison/sample`, `/api/mortgage/estimate`,
+  `/api/mortgage/base-rate`, `/api/copilot/ask` (503 until Foundry is provisioned).
+- Microsoft Foundry Agent Service is the target platform. GenAIOps tooling is **total .NET**
+  (no Python) — confirmed by SDK spike; see [[Plan Divergence]].
 - `wiki/` is the canonical project memory.
 
 ## Plans In Sync
 
-- [[Phased Learning And Build Plan]] is the canonical day-to-day sequence.
-- [[Video Implementation Roadmap]] maps available playlist videos and companion commits.
-- [[GenAIOps Learning Path Integration]] maps Microsoft Learn modules into prompt governance, evaluations, monitoring, and tracing.
-- [[RAG Architecture]] defines user-owned case files and the curated HomeScout knowledge base.
-- [[API-First Foundry Agents]] defines the backend boundary and Foundry agent direction.
-- [[Frontend Design Guidelines]] is binding for UI work.
-- [[Testing Strategy]] defines unit, API, integration, UI, retrieval, and AI evaluation expectations.
+- [[Work Tracks]] — the two parallel tracks (frontend / backend) and the API seam between them.
+- [[Phased Learning And Build Plan]] — the canonical day-to-day sequence.
+- [[GenAIOps Reference Implementation]] — adoptable patterns from `mslearn-genaiops`.
+- [[GenAIOps Tooling Plan]] — the `AgentOps` + `Evaluator` tool projects (backend next step).
+- [[Frontend Implementation Plan]] — review the design, then build (frontend track).
+- [[GenAIOps Learning Path Integration]] — Microsoft Learn modules → prompt governance,
+  evaluations, monitoring, tracing.
+- [[API-First Foundry Agents]] — the backend boundary and Foundry direction.
+- [[Frontend Design Guidelines]] — binding for UI work.
+- [[Testing Strategy]] — unit, API, integration, UI, retrieval, and AI-evaluation expectations.
 
-## Start Here
+## Start Here (by track)
 
-Next implementation session:
+Pick the track you own — see [[Work Tracks]] for the boundaries and the shared API seam.
 
-1. Work Phase 1 from [[Phased Learning And Build Plan]].
-2. Watch or review playlist Parts 1-2 with the current repo open.
-3. Keep React as the product UI and translate course Blazor behavior into React/API boundaries.
-4. Verify the current workspace shell against [[Frontend Design Guidelines]].
-5. Build the first real Phase 1 increment: a polished comparison workspace shell with API status integration and placeholder states that match HomeScout language.
-6. Run frontend build, API build, and the current test project.
-7. Update [[Feature Coverage]], [[Component Architecture]], and [[Log]].
+**Backend / GenAIOps track:**
+
+1. Build [[GenAIOps Tooling Plan]] Phase 3: `HomeScoutCopilot.AgentOps` — register the
+   versioned Foundry agent from the prompt asset/manifest (`CreateAgentVersion`).
+2. Then `HomeScoutCopilot.Evaluator` + a first hand-curated eval set (built-in + HomeScout
+   safety evaluators).
+3. Keep the API contract + [[Endpoint Summary]] stable; announce any DTO/endpoint change.
+
+**Frontend track:**
+
+1. [[Frontend Implementation Plan]] Stage 1 — review the design brief + design-agent
+   deliverables; extract design tokens to code.
+2. Stage 2 — design system → screens → copilot conversation surface, against the live API
+   via `HomeScoutApiClient`.
 
 ## Not Yet Started
 
-- Real `POST /api/comparisons/draft` endpoint.- Prompt inventory.
-- Foundry agent gateway abstraction.
-- Exact package versions for OpenAI SDK, Foundry SDK, and Azure Identity.
-- Curated knowledge-base folder.
-- User-owned case-file storage.
-- AI evaluation dataset and rubric.
-- Azure deployment plan.
+- Persisted, versioned Foundry agent deploy (`AgentOps`) + the eval harness (`Evaluator`).
+- AI evaluation dataset + rubric (safety evaluators).
+- Full frontend design implementation (design system → screens → copilot surface).
+- Curated knowledge-base folder + user-owned case-file storage + retrieval (Phase 6).
+- Streaming + tracing/monitoring (Phases 4/7).
+- `azd provision` live-verification of the Foundry slices; CI Azure OIDC.
 
 ## Ready Criteria
 
 We are ready to start implementation when:
 
 - The working tree is clean or only contains intentional current-session changes.
-- The next phase is clear from [[Phased Learning And Build Plan]].
-- The relevant video note has been read before implementation.
-- Any course divergence is recorded in [[Plan Divergence]].
-- Significant code work will be paired with wiki updates and tests.
+- The track and next step are clear from [[Work Tracks]] + the owning plan.
+- Any course/plan divergence is recorded in [[Plan Divergence]].
+- Significant code work will be paired with wiki updates and tests, on its own branch → PR →
+  gated merge.

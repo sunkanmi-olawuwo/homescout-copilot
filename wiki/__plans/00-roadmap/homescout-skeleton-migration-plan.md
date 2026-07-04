@@ -25,6 +25,9 @@ Reference skeleton: `/Users/olaheavy/source/code/netcore/HBK.Insights.Raglab`.
   [phased learning and build plan](./phased-learning-build-plan.md)); an experiment
   sandbox (`poc/`) is added only if/when we actually spike retrieval/agent work. The
   course companion (`rwjdk/chatbot`) stays an external reference, not vendored.
+  (Applied, not broken: `infra/` was added early for the Foundry slice, and `dotnet/tools/`
+  arrives with the Phase-3 agent-deploy + eval work — each on real need, recorded in Plan
+  Divergence.)
 - **Frontend package manager:** **pnpm** (RagLab parity). The version is pinned via
   `packageManager` in `frontend/package.json`; pnpm settings (build allowlist,
   overrides) live in `frontend/pnpm-workspace.yaml`; Aspire's `AddViteApp` uses

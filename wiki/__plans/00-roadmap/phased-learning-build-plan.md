@@ -148,7 +148,9 @@ Build:
 - Evidence panel that separates facts, estimates, assumptions, and missing data.
 - Link prompts and evaluations to curated HomeScout knowledge-base entries for terminology, source reliability, and safety rules.
 
-Reference patterns to adopt ([[GenAIOps Reference Implementation]]):
+These land in the two GenAIOps tool projects — `HomeScoutCopilot.AgentOps` (deploy) and
+`HomeScoutCopilot.Evaluator` (evaluation) — per [[GenAIOps Tooling Plan]]. Reference
+patterns to adopt ([[GenAIOps Reference Implementation]]):
 
 - **Declarative agent manifest** (pattern 2): a `homescout.agent.yaml` (`name` / `model` /
   `instructions_file`) as the single source of truth alongside the prompt asset.

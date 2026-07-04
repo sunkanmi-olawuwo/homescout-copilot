@@ -41,6 +41,31 @@ Impact:
   harness. Confirm any preview/GA labels + exact call shapes against Microsoft Learn at
   implementation time (per the non-deprecated-API-surface standard).
 
+### 2026-07-04: `dotnet/tools/` Projects Added On Real Need (AgentOps + Evaluator)
+
+Master-plan rule:
+
+- "No premature scaffolding" — `infra/`, `poc/`, tool scaffolding are added only when a real
+  need arrives, not mirrored as empty folders up front.
+
+Direction:
+
+- A new `dotnet/tools/` solution folder holds two operational console tools —
+  `HomeScoutCopilot.AgentOps` (deploy/manage agents, indexes, datasets) and
+  `HomeScoutCopilot.Evaluator` (run evaluations). See [[GenAIOps Tooling Plan]].
+
+Reason / consistency:
+
+- This **honours** the rule rather than breaking it: the persisted-agent-deploy + eval work
+  (Phase 3) is the real need. Same reasoning that justified adding `infra/` early for the
+  Foundry slice. The tools are created **when that work starts**, not now as empty stubs.
+
+Impact:
+
+- The `src`/`tests` layout gains a sibling `tools/`. Tools reference `.API.Service` (reuse
+  the single-sourced agent definition) and are excluded from the API runtime; they build
+  with the solution so `backend-ci` gives them compile-safety.
+
 ### 2026-07-04: Agent Prompt Externalised To A Versioned Embedded Asset (GenAIOps)
 
 Previous state:

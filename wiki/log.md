@@ -11,6 +11,27 @@
   `security-extended` queries; PR + push-to-main + weekly triggers. Merged via PR #26 (all
   checks green, including `Analyze (csharp)`).
 
+### GenAIOps Tooling Decision + Plan Review (Parallel-Work Ready)
+
+- **Decision:** two dedicated .NET tool projects under a new `dotnet/tools/` — added
+  [[GenAIOps Tooling Plan]] (`HomeScoutCopilot.AgentOps` = deploy/manage agents, indexes,
+  datasets; `HomeScoutCopilot.Evaluator` = run evaluations). Both reference `.API.Service`
+  (single-sourced agent definition), keyless, build with the solution; deploy/eval live runs
+  are `[Category("External")]`, off the blocking gate. Recorded the `tools/` scaffolding as
+  on-real-need in [[Plan Divergence]] and reconciled with the master plan's
+  "no premature scaffolding" rule.
+- **Parallel work:** added [[Work Tracks]] — frontend track (owns `frontend/`, calls the API
+  via `HomeScoutApiClient`, never touches agent code) vs backend/GenAIOps track (owns
+  `dotnet/` + `tools/` + `infra/`), with the **API seam** (Shared DTOs + endpoints + typed
+  client) as the only coupling and a seam-first contract-change rule. Lets another agent take
+  the frontend while this one does the backend.
+- **Plan review / sync fixes:** rewrote the stale [[Readiness Checklist]] (it listed the
+  shipped agent gateway + prompt inventory as "not started" and pointed at building the
+  long-done workspace shell) to current reality + per-track next steps. Updated
+  [[Component Architecture]] with the planned `tools/`; pointed phased-plan Phase 3 at the
+  tool projects; firmed the reference doc's tooling location. Drift 0 fail; all new
+  wikilinks resolve.
+
 ### .NET SDK Spike (GenAIOps) + Frontend Implementation Plan
 
 - **Spike:** reflected over the restored SDK assemblies (`Azure.AI.Projects` 2.0.0,
