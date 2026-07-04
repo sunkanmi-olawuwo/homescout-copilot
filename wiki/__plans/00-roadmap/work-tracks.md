@@ -151,12 +151,16 @@ contract responses in component + Playwright E2E tests.
   2026-07-04 (`FoundryAgentDeployerLiveTests`). Tools stay client-side, so cloud eval uses
   BYO-responses (not agent-target).
 - **Queued next (planned):**
-  1. **Reference-by-name** — the API's `FoundryAgentGateway` reads the persisted `HomeScout` agent
-     by name at startup (instead of building in-process), so Foundry is the runtime source of truth
-     and the deployed `ReasoningOptions` take effect. Graceful fallback if the agent isn't deployed.
-  2. **Server-side OpenAPI tools** — expose `estimate_mortgage`/`get_base_rate` as an authenticated
-     OpenAPI tool the Foundry service calls, so the agent is self-contained (portal playground
-     computes + agent-target cloud eval). Larger, security-sensitive (inbound auth + egress).
+  1. **Server-side tools FIRST** — expose `estimate_mortgage`/`get_base_rate` as tools **on the
+     persisted agent definition** (OpenAPI tool the Foundry service calls, authenticated), so the
+     agent is self-contained. **Hard dependency for reference-by-name** (below). Larger,
+     security-sensitive (inbound auth + egress).
+  2. **Reference-by-name** — the API's `FoundryAgentGateway` reads the persisted `HomeScout` agent
+     by name so Foundry is the runtime source of truth and the deployed `ReasoningOptions` take
+     effect. **Blocked on (1):** a live spike (2026-07-04) proved that serving the persisted agent
+     with **client-side-only tools breaks tool-calling** — the model never sees `estimate_mortgage`,
+     so the copilot stops calculating. The persisted definition must carry the tools first. Reverted
+     the spike; the working in-process gateway stays until (1) lands.
   3. **Multi-turn conversation threads (anonymous)** — `AgentThread`-based conversation memory keyed
      by an **anonymous session id** (no auth needed), so follow-ups keep context; in-memory first,
      durable (Cosmos / Standard setup) next. End-user auth (**Keycloak**, see [[Plan Divergence]])

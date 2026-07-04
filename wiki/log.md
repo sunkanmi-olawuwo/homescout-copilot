@@ -2,6 +2,20 @@
 
 ## 2026-07-04
 
+### Spike: Reference-by-name Depends on Server-Side Tools (reverted)
+
+- Spiked **reference-by-name** (API serves the persisted `HomeScout` agent instead of building
+  in-process, via a singleton `HomeScoutAgentSource` + `AsAIAgent(ProjectsAgentVersion, tools)`).
+- **Live verification caught a blocker:** with the persisted agent, the copilot **stopped calling
+  `estimate_mortgage`** entirely (no tool calls, no evidence) — failed deterministically across
+  runs. Cause: the persisted definition declares **no tools**, and client-attached tools aren't
+  presented to the model on the referenced-agent path the way the in-process
+  `AsAIAgent(model, name, instructions, tools)` path presents them. (AgenticAICore confirms:
+  referenced agents carry tools **in the definition**.)
+- **Conclusion:** reference-by-name has a **hard dependency on server-side tools** — the persisted
+  agent must carry `estimate_mortgage`/`get_base_rate` first. Re-sequenced work-tracks (server-side
+  tools before reference-by-name). **Reverted the spike**; the working in-process gateway stays.
+
 ### AgentOps — Reasoning Tuning + .NET Tool Packaging + Foundry Reference Doc
 
 - **Reasoning tuning:** the persisted agent definition now sets `ReasoningOptions` (effort `Medium`,
