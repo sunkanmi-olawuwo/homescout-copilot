@@ -2,6 +2,17 @@
 
 ## 2026-07-04
 
+### Iteration 2 Kickoff — Copilot Evidence Contract + Foundry Provisioning (Plan)
+
+- Planned iteration 2 ("light up the copilot"): the backend defines a structured **evidence
+  contract** first (`FigureKind` + `EvidenceItem` + a new `CopilotAnswer.Evidence` field;
+  gateway maps tool results → provenance-tagged evidence), which is the seam-first dependency
+  that unblocks Codex's Evidence panel + conversation-answer rendering. Spec added to
+  [[Copilot Agent Gateway]]; both tracks laid out in [[Work Tracks]].
+- Flagged **Foundry provisioning** as user-gated (billable `azd provision`; the lead can't
+  self-provision) — it lights up `/api/copilot/ask` and enables the live-verified AgentOps
+  `CreateAgentVersion`. Until then the copilot path is contract-complete + mock-verified.
+
 ### Frontend Iteration 1 — Workspace + Estimator, Reviewed Against The Design
 
 - Codex built the first frontend slice (design tokens, IBM Plex, workspace shell, API-backed

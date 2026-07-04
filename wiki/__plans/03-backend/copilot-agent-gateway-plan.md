@@ -182,6 +182,39 @@ thread persistence / RAG matter — not piecemeal. Document Intelligence remains
    gateway (`ConfigureTestServices`). The React conversation surface is the next,
    separate slice.
 
+## Evidence contract (iteration 2 — the seam)
+
+The design's Evidence panel needs **structured, tagged, provenance'd** items, but
+`CopilotAnswer` today carries only `Text`, `ToolCalls`, `Assumptions` (flat strings), and
+`Caveats` — no structured evidence. Iteration 2 adds the contract (backend-led, seam-first —
+it unblocks the frontend Evidence panel):
+
+```csharp
+// Shared/Contracts
+public enum FigureKind { Fact, Estimate, Assumption, Missing }
+
+public record EvidenceItem(
+    string Label,
+    string Value,
+    FigureKind Kind,
+    string Source,
+    string? Provenance);   // "Live" / "Cache" / "Fallback", or null
+
+public record CopilotAnswer(
+    string Text,
+    IReadOnlyList<CopilotToolCall> ToolCalls,
+    IReadOnlyList<EvidenceItem> Evidence,   // NEW
+    IReadOnlyList<string> Assumptions,
+    IReadOnlyList<string> Caveats);
+```
+
+The gateway maps each tool result → evidence items: `estimate_mortgage` → monthly payment /
+LTV as `Estimate` (Source `/api/mortgage/estimate`); `get_base_rate` → base rate as `Fact`
+with the provider's `Live`/`Cache`/`Fallback` provenance. Offline-testable via the fake
+gateway; contract/endpoint tests lock the shape before the live agent populates it. The
+frontend renders these as the design's `fact`/`estimate`/`assumption`/`missing` chips +
+provenance badges (see `wiki/__plans/00-roadmap/work-tracks.md` → Iteration 2 plan).
+
 ## Out of scope now
 
 Streaming, RAG retrieval (case-file / curated KB), hosted-agent deployment, memory,
