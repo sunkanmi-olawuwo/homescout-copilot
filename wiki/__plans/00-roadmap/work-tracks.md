@@ -144,9 +144,16 @@ contract responses in component + Playwright E2E tests.
   keyless **Azure ADLS Gen2** store (`infra/modules/eval-storage.bicep`) for regression history +
   `dotnet aieval` reports (`scripts/eval-report.sh`). All live-verified 2026-07-04. Only the Foundry
   *portal* evaluation runs remain optional — see [[Plan Divergence]].
+- ✅ **AgentOps `CreateAgentVersion` — done, live-verified** ([[GenAIOps Tooling Plan]]):
+  `agentops deploy` registers the agent as a persisted, versioned Foundry agent
+  (`AgentAdministrationClient.CreateAgentVersionAsync`, `Azure.AI.Projects.Agents` 2.0.0 GA) so it
+  shows in the portal as a named, versioned asset. Idempotent on identical content. Verified live
+  2026-07-04 (`FoundryAgentDeployerLiveTests`). Tools stay client-side, so cloud eval uses
+  BYO-responses (not agent-target).
 - **Queued next (planned):**
-  1. **AgentOps `CreateAgentVersion`** — the deferred live-deploy: register the versioned agent
-     server-side (portal versions + reference-by-name) now that Foundry is up.
+  1. **Foundry portal cloud eval (BYO-responses)** — publish `{query, real answer}` runs to the
+     Foundry portal via the `EvaluationClient` for portal-visible charts + run comparison, over an
+     expanded (~30) curated dataset.
   2. **Area-comparison endpoint** — product breadth (the design's Greenwich/Croydon screen:
      commute/crime/EPC/schools); needs public-data sources, edging into Phase 6.
 

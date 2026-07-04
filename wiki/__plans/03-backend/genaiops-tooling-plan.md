@@ -13,13 +13,22 @@ This is the concrete home for the ".NET deploy step" and ".NET eval harness" the
 [Phased Learning And Build Plan](../00-roadmap/phased-learning-build-plan.md) Phase 3/6
 calls for.
 
-**Status (2026-07-04):** `HomeScoutCopilot.AgentOps` exists with the **manifest step
-implemented** — `agentops manifest [--out <path>]` assembles the declarative
-`homescout.agent.yaml` from the single-sourced agent definition (`AgentPrompt` +
-`HomeScoutAgentTools.ToolNames`), committed at
-`dotnet/src/HomeScoutCopilot.API.Service/Prompts/homescout.agent.yaml` and drift-guarded by a
-test. The live `AgentAdministrationClient.CreateAgentVersion` registration is queued next
-(needs `azd` provision — now available). **`HomeScoutCopilot.Evaluator` exists** with:
+**Status (2026-07-04):** `HomeScoutCopilot.AgentOps` exists with **both steps implemented**:
+- `agentops manifest [--out <path>]` assembles the declarative `homescout.agent.yaml` from the
+  single-sourced agent definition (`AgentPrompt` + `HomeScoutAgentTools.ToolNames`), committed at
+  `dotnet/src/HomeScoutCopilot.API.Service/Prompts/homescout.agent.yaml` and drift-guarded.
+- `agentops deploy` **registers the agent as a persisted, versioned Foundry agent**
+  (`AIProjectClient.AgentAdministrationClient.CreateAgentVersionAsync`, `Azure.AI.Projects.Agents`
+  2.0.0 GA, via a `DeclarativeAgentDefinition` from the same single source) so it appears in the
+  Foundry portal as a named, versioned asset — the in-process `AsAIAgent` path the API serves with
+  is ephemeral and shows nothing. Idempotent on identical content (same definition → same version,
+  no spam). Verified live 2026-07-04 (`FoundryAgentDeployerLiveTests`, `[External]`): agent
+  `HomeScout` v1 registered and confirmed present in the project. Tools stay client-side (the API
+  runs the deterministic HomeScout tools in-process), so the persisted definition carries model +
+  guardrail instructions, not tool declarations — and cloud eval evaluates real answers via
+  [BYO-responses], not agent-target, since our functions don't execute server-side.
+
+**`HomeScoutCopilot.Evaluator` exists** with:
 - `evaluator safety [--data <path>]` — deterministic HomeScout guardrail evaluators
   (not-mortgage-advice, no product recommendation, no safe/unsafe area verdict) over a
   version-controlled eval dataset (`data/homescout-eval.jsonl`, drift-guarded), scoring pass
