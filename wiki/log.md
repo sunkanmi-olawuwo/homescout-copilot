@@ -2,6 +2,17 @@
 
 ## 2026-07-04
 
+### Accelerator Product Direction
+
+- Captured the product-strategy discussion in [[Accelerator Product Direction]]: HomeScout should
+  focus on renter/buyer due diligence after listing discovery, not generic AI property search.
+- Documented the core flow (add listings -> compare homes -> evidence-backed decision pack), renter
+  and buyer use cases, accelerator framing, validation plan, business model options, 30-day plan,
+  and private-repo posture.
+- Aligned the doc with shipped reality: added a "Current Implementation Status" section noting the
+  mortgage + rental cost estimators already deliver the "estimated true monthly cost" for both
+  tenures, and listing the MVP decision-pack pieces still to build.
+
 ### Frontend Multi-Turn Thread Slice — New Conversation Reset
 
 - Added the frontend half of the anonymous multi-turn thread contract: once a copilot

@@ -13,6 +13,7 @@ This wiki is the canonical development memory for HomeScout Copilot.
 - [[Feature Coverage]] - Implemented, scaffolded, planned, and deferred features.
 - [[Frontend Design Guidelines]] - Strict frontend design direction for HomeScout UI work.
 - [[RAG Architecture]] - Case-file RAG and curated HomeScout knowledge-base design for agentic retrieval.
+- [[Accelerator Product Direction]] - Product strategy for taking HomeScout toward an accelerator-ready renter/buyer due-diligence copilot.
 - [[Onboarding Article]] - Narrative guide for returning to the project and understanding what exists.
 - [[Log]] - Chronological record of sessions and decisions.
 
