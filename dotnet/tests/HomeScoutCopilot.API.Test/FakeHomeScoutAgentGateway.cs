@@ -18,6 +18,7 @@ internal sealed class FakeHomeScoutAgentGateway(Func<CopilotRequest, CopilotAnsw
 
     private readonly Func<CopilotRequest, CopilotAnswer> _responder = responder ?? (_ => Default);
 
-    public Task<CopilotAnswer> AskAsync(CopilotRequest request, CancellationToken cancellationToken = default)
+    public Task<CopilotAnswer> AskAsync(
+        CopilotRequest request, string? sessionId = null, CancellationToken cancellationToken = default)
         => Task.FromResult(_responder(request));
 }

@@ -19,7 +19,8 @@ public static class LiveEvaluation
         var live = new List<EvaluationCase>();
         foreach (var scenario in cases)
         {
-            var answer = await gateway.AskAsync(new CopilotRequest(scenario.Query), cancellationToken);
+            // Each eval case is an independent single-turn ask (no session).
+            var answer = await gateway.AskAsync(new CopilotRequest(scenario.Query), cancellationToken: cancellationToken);
             var response = answer.Caveats.Count > 0
                 ? $"{answer.Text}\n{string.Join("\n", answer.Caveats)}"
                 : answer.Text;

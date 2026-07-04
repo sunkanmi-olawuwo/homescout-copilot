@@ -34,8 +34,14 @@ public sealed class FoundryAgentGateway : IHomeScoutAgentGateway
     });
 
     private readonly AIAgent _agent;
+    private readonly ConversationSessionRegistry _sessions;
 
-    public FoundryAgentGateway(AIProjectClient projectClient, IOptions<FoundryOptions> options, HomeScoutAgentTools tools) =>
+    public FoundryAgentGateway(
+        AIProjectClient projectClient,
+        IOptions<FoundryOptions> options,
+        HomeScoutAgentTools tools,
+        ConversationSessionRegistry sessions)
+    {
         // The AIProjectClient is a thread-safe singleton; only the agent (which binds request-scoped
         // tools) is built per request. Construction is local — the network call is in RunAsync.
         _agent = projectClient.AsAIAgent(
@@ -43,10 +49,21 @@ public sealed class FoundryAgentGateway : IHomeScoutAgentGateway
             name: AgentName,
             instructions: AgentPrompt.Instructions,
             tools: tools.Build().ToList());
+        _sessions = sessions;
+    }
 
-    public async Task<CopilotAnswer> AskAsync(CopilotRequest request, CancellationToken cancellationToken = default)
+    public async Task<CopilotAnswer> AskAsync(
+        CopilotRequest request, string? sessionId = null, CancellationToken cancellationToken = default)
     {
-        var response = await _agent.RunAsync(request.Message, options: RunOptions, cancellationToken: cancellationToken);
+        // With a session id, run against the stored multi-turn session (follow-ups keep context);
+        // without one, run stateless (single-turn) exactly as before.
+        var response = string.IsNullOrWhiteSpace(sessionId)
+            ? await _agent.RunAsync(request.Message, options: RunOptions, cancellationToken: cancellationToken)
+            : await _agent.RunAsync(
+                request.Message,
+                await _sessions.GetOrCreateAsync(sessionId, () => _agent.CreateSessionAsync(cancellationToken).AsTask()),
+                RunOptions,
+                cancellationToken);
 
         var contents = response.Messages.SelectMany(message => message.Contents).ToList();
 
