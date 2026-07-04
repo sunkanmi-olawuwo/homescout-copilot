@@ -2,6 +2,19 @@
 
 ## 2026-07-04
 
+### Prompt v2 — Structured, Readable Copilot Answers
+
+- After the user flagged the copilot's wall-of-text answers, agreed the approach (markdown-driven
+  structure + collapse the conversation hero) and built the backend half: **prompt v2**
+  (`homescout.v2.md`, `AgentPrompt.Version` → `v2`) instructs the agent to answer in structured
+  Markdown (bold headline → `##` sub-headings + bullets) and to lean on the evidence panel for
+  figures rather than re-listing them. All guardrail phrases kept.
+- Live-verified: a real v2 answer renders as `**headline**` + `## Assumptions` / `## Context` /
+  `## Next steps` sections; `evaluator run` stayed **6/6** against the live agent. Regenerated
+  the agent manifest to `homescout.v2.md`; v1 kept as history; `AgentPromptTests` → v2.
+- Handed the frontend half to Codex (collapse the hero to a compact header once a conversation
+  is active; render `answer.text` as sanitized Markdown) — see the Codex handoff "Third slice".
+
 ### Evaluator Live Mode — Safety Checks Against The Real Agent
 
 - Added `evaluator run [--data <path>]`: asks the **live** copilot each dataset *query* and runs

@@ -15,6 +15,7 @@
        pinned so AgentPrompt's resource lookup is stable. -->
   <ItemGroup>
     <EmbeddedResource Include="Prompts\homescout.v1.md" LogicalName="HomeScoutCopilot.API.Service.Prompts.homescout.v1.md" />
+    <EmbeddedResource Include="Prompts\homescout.v2.md" LogicalName="HomeScoutCopilot.API.Service.Prompts.homescout.v2.md" />
   </ItemGroup>
 
   <!-- Brings HttpClient, IMemoryCache, IOptions, and logging for provider services. -->

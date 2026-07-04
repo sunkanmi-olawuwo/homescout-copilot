@@ -142,3 +142,18 @@ contract responses in component + Playwright E2E tests.
 
 **Then (lead):** review Codex's frontend + the backend slice, merge individually, E2E check
 (copilot conversation ↔ live `/api/copilot/ask`), then plan iteration 3.
+
+## Copilot answer readability (in flight)
+
+Two coordinated fixes so the answer reads well and the conversation view behaves like a chat:
+
+- ✅ **Backend (lead) — prompt v2 (done, live-verified):** `homescout.v2.md` (bump
+  `AgentPrompt.Version` → `v2`) instructs the agent to answer in **structured Markdown**
+  (bold headline → `##` sub-headings + bullets), and to lean on the evidence panel for figures
+  rather than re-listing them. Guardrails intact; `evaluator run` stayed 6/6 against the live
+  agent. Manifest regenerated to `homescout.v2.md`.
+- **Frontend (Codex):** (1) **collapse the hero** (big "Compare areas and properties…" H1 +
+  START WITH cards) into a compact header once a conversation is active — empty state only
+  before the first question; (2) **render `answer.text` as sanitized Markdown** (headings /
+  bullets / bold). See [Codex Frontend Instructions](../02-frontend/codex-frontend-instructions.md)
+  "Third slice".
