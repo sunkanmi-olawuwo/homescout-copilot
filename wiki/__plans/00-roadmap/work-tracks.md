@@ -108,29 +108,31 @@ answer rendering build against a contract the backend must define **first**. So:
    Offline unit + endpoint tests, plus the live agent test asserting real evidence. **Codex is
    unblocked** — see [Codex Frontend Instructions](../02-frontend/codex-frontend-instructions.md)
    "Second slice".
-2. Then both tracks run in parallel:
+2. ✅ **Foundry provisioning (done + live-verified 2026-07-04).** `azd provision` into
+   subscription **HomeScoutPilot** (eastus2): account + `gpt-5-mini` `chat` deployment + project
+   + RBAC. Fixed three real deployability issues found live (deprecated model → gpt-5-mini,
+   GlobalStandard SKU, `allowProjectManagement`). `/api/copilot/ask` is **live** with the
+   `AZURE_FOUNDRY_*` env set; `FoundryAgentGatewayLiveTests` green. See [infra README](../../../infra/README.md).
 
-**Backend (lead):**
-- The evidence contract above (item 1).
-- **Foundry provisioning** — `azd provision` the Basic setup in `infra/` (currently *not*
-  azd-up-verified). ⚠️ **User-gated:** creates **billable** Azure resources and needs the
-  user's `azd`/Azure auth — the lead can't self-provision. Once up: live-verify
-  `FoundryAgentGatewayLiveTests` + run the deferred **AgentOps `CreateAgentVersion`** (register
-  the versioned agent). This lights up `/api/copilot/ask`.
+## Next set of work (active)
 
-**Frontend (Codex):**
-- **Conversation answers** — render the assistant prose + tool chips from `CopilotAnswer`; make
-  the START WITH suggestion cards and the composer send real prompts (replace the 503 notice
-  with a proper streaming/answer surface; keep graceful degradation).
-- **Evidence panel** — populate from `CopilotAnswer.Evidence`: the `fact`/`estimate`/
-  `assumption`/`missing` chips + `Live`/`Cache`/`Fallback` provenance badges + source, per the
-  design (the "evidence appears here" empty state → populated). Build against the contract with
-  mocked responses (as iteration 1 did), so it lands before Foundry is live.
+**Frontend (Codex) — the copilot second slice.** Now unblocked (evidence contract merged,
+copilot live). Follow [Codex Frontend Instructions](../02-frontend/codex-frontend-instructions.md)
+"Second slice":
+- **Conversation answers** — send the composer + START WITH cards to `POST /api/copilot/ask`;
+  render `text` + tool chips; keep the graceful 503 fallback for envs without Foundry.
+- **Evidence panel** — populate the right-rail Evidence tab from `answer.evidence` (the
+  lowercase `kind` chip + `provenance` badge + source), per the design. Build against the merged
+  contract with mocks; works live wherever `AZURE_FOUNDRY_*` is set. Branch `feature/fe-*`.
 
-**Dependencies / gates:**
-- Codex's work depends on the **evidence-contract PR** being merged (seam-first).
-- **Live** end-to-end depends on **Foundry provisioning** (user-gated). Until then the copilot
-  path is contract-complete + mock-verified, and `/api/copilot/ask` stays 503 in dev.
+**Backend (lead) — next slice (pick one; the copilot itself is done):**
+- **Evaluator harness** ([[GenAIOps Tooling Plan]]) — *recommended*: the copilot is live but
+  **unmeasured**. A hand-curated eval set + Foundry evals (intent/relevance/groundedness +
+  HomeScout safety evaluators) makes answer quality/safety measurable. Highest GenAIOps value.
+- **AgentOps `CreateAgentVersion`** — the deferred live-deploy: register the versioned agent
+  server-side (portal versions + reference-by-name) now that Foundry is up. GenAIOps completeness.
+- **Area-comparison endpoint** — product breadth (the design's Greenwich/Croydon screen);
+  bigger — needs public-data sources (crime/schools/amenities), edging into Phase 6.
 
-**Then (lead):** review both, merge individually, E2E check (mock-verified now; live once
-Foundry is provisioned), then plan iteration 3.
+**Then (lead):** review Codex's frontend + the backend slice, merge individually, E2E check
+(copilot conversation ↔ live `/api/copilot/ask`), then plan iteration 3.
