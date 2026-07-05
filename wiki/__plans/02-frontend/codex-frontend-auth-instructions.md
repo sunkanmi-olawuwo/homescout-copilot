@@ -33,6 +33,8 @@ All under the same origin; the existing `hs_session` **HttpOnly cookie** stays (
 | `/api/copilot/history` | GET | **bearer required** | `{ conversations: [{ sessionId, createdAt, lastActiveAt }] }` — most-recent-first. Empty array if none. |
 | `/api/copilot/history/{sessionId}` | GET | **bearer required** | `ConversationSummary`, or **404** if not owned. |
 | `/api/copilot/session/reset` | POST | none | 204 — "New conversation" (already wired). |
+| `/api/config` | GET | **none** | `{ authEnabled, authority, clientId, audience }` — read at startup to configure OIDC (no hardcoded Keycloak URL). |
+| `/api/copilot/session/resume/{sessionId}` | POST | **bearer required** | 204 — re-open an owned conversation (points `hs_session` at it; next ask resumes with context). **404** if not owned. |
 
 Notes:
 - **Send the bearer header on every authenticated call** (`/api/me`, `/api/copilot/history*`, and
@@ -59,17 +61,18 @@ Notes:
   renew** for refresh.
 - **Access-token lifetime** is 15 min in the realm; rely on silent renew.
 
-## Two things to confirm / flag back to the backend (me)
+## Backend companions — both delivered ✅ (live-verified 2026-07-05)
 
-1. **Surfacing the Keycloak URL to the SPA.** Aspire injects the Keycloak endpoint into the *API*,
-   not the Vite app. For dev, set `VITE_OIDC_AUTHORITY` from the Aspire-assigned Keycloak URL (or we
-   add a tiny unauthenticated `GET /api/config` that returns `{ authority, clientId }` for the SPA to
-   read at startup — tell me if you'd prefer that; it's a small backend add).
-2. **Re-opening a past conversation.** `hs_session` is an **HttpOnly cookie the SPA can't set**, so
-   clicking a history item can't resume that thread yet. For the first cut, render history as a
-   **read-only list** (proof of per-user history). Full "re-open" needs a small backend companion —
-   `POST /api/copilot/session/resume/{sessionId}` (owner-checked, sets the `hs_session` cookie). Ask
-   me to build it when you want re-open wired.
+Both items originally flagged here are now **built and live-verified**, so you can wire the full UX:
+
+1. **`GET /api/config`** — read it at startup and use `authority` + `clientId` (+ `audience` for the
+   token scope) to configure the OIDC client. `authEnabled=false` (and `authority=null`) means no
+   Keycloak — hide the sign-in UI and stay anonymous. No hardcoded Keycloak URL needed.
+2. **`POST /api/copilot/session/resume/{sessionId}`** — call it (with the bearer token) when a user
+   clicks a history item; it points `hs_session` at that owned session (204), and the **next
+   `/api/copilot/ask` resumes with full context** (verified: a follow-up answered from the original
+   turn's figures). **404** if the session isn't theirs. So the history panel can be **fully
+   interactive**, not read-only.
 
 ## Anonymous → authenticated continuity (already handled by the backend)
 
@@ -89,8 +92,9 @@ Follow [Frontend Design Guidelines](../../frontend-design-guidelines.md) and the
 - **Header (navy):** a **Sign in** button when anonymous; the user's name/email + **Sign out** when
   authenticated. Reuse the existing header action styling.
 - **Left sidebar:** a **"Your conversations"** section (the history list) under the existing *Saved
-  comparisons* — visible only when signed in. Each row shows a date; clicking is a no-op until the
-  resume endpoint lands (or navigate/annotate per the design).
+  comparisons* — visible only when signed in. Each row shows a date; **clicking calls
+  `POST /api/copilot/session/resume/{sessionId}` then loads that conversation** (the resume endpoint
+  is live).
 - Keep the not-mortgage/tenancy-advice and provenance conventions intact.
 
 ## Testing

@@ -47,6 +47,36 @@ public sealed class CopilotEndpoints : ICarterModule
             .WithTags("Copilot")
             .WithSummary("Start a new conversation (clear the anonymous session)")
             .Produces(StatusCodes.Status204NoContent);
+
+        // Re-open a past conversation: point the hs_session cookie at an owned session so the next
+        // ask resumes it (the SPA can't set the HttpOnly cookie itself). Owner-checked — 404 if the
+        // session isn't the caller's, so history items can't be probed.
+        app.MapPost("/api/copilot/session/resume/{sessionId}",
+                async (string sessionId, HttpContext http, IUserResolver resolver, ISessionStore store,
+                    IOptions<ConversationOptions> conversation) =>
+                {
+                    var userId = await resolver.ResolveUserIdAsync(http.User, http.RequestAborted);
+                    if (userId is null)
+                    {
+                        return Results.NotFound();
+                    }
+
+                    var owned = await store.GetForUserAsync(sessionId, userId.Value, http.RequestAborted);
+                    if (owned is null)
+                    {
+                        return Results.NotFound();
+                    }
+
+                    http.Response.Cookies.Append(conversation.Value.CookieName, sessionId, SessionCookie(http, conversation.Value));
+                    return Results.NoContent();
+                })
+            .RequireAuthorization()
+            .WithName("ResumeCopilotSession")
+            .WithTags("Copilot")
+            .WithSummary("Re-open one of your past conversations")
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status404NotFound);
     }
 
     // Reads the anonymous session cookie, issuing a fresh HttpOnly one on first contact. The id is
@@ -59,16 +89,19 @@ public sealed class CopilotEndpoints : ICarterModule
         }
 
         var sessionId = Guid.NewGuid().ToString("N");
-        http.Response.Cookies.Append(options.CookieName, sessionId, new CookieOptions
-        {
-            HttpOnly = true,
-            SameSite = SameSiteMode.Lax,
-            Secure = http.Request.IsHttps,
-            MaxAge = options.AbsoluteLifetime,
-            Path = "/",
-        });
+        http.Response.Cookies.Append(options.CookieName, sessionId, SessionCookie(http, options));
         return sessionId;
     }
+
+    // The HttpOnly session cookie shape, shared by first-contact issuance and resume.
+    private static CookieOptions SessionCookie(HttpContext http, ConversationOptions options) => new()
+    {
+        HttpOnly = true,
+        SameSite = SameSiteMode.Lax,
+        Secure = http.Request.IsHttps,
+        MaxAge = options.AbsoluteLifetime,
+        Path = "/",
+    };
 }
 
 public sealed record AskCopilotCommand(CopilotRequest Request, string SessionId, Guid? UserId) : IRequest<IResult>;
