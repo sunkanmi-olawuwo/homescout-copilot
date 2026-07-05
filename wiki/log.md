@@ -2,6 +2,15 @@
 
 ## 2026-07-05
 
+### Frontend — Reliable First-Click Sign-In
+
+- Fixed the first-click quirk seen in live testing (a cold OIDC discovery-metadata fetch made the
+  first Sign in click a no-op): `AuthGate` now owns the `UserManager`, **preloads the discovery
+  document + JWKS on mount**, and exposes an `isReady` flag; `AccountControls` **disables the Sign in
+  button (shows "Loading…") until ready**, so the first enabled click always redirects. Vitest test
+  added for the disabled state (14 total). **Live-verified**: after clearing state, the first click
+  redirected straight to the Keycloak login page.
+
 ### Keycloak Auth — Live Browser Sign-In Verified (feature complete)
 
 - Closed step 8: drove a **real browser** through the full flow against the running stack (Keycloak +
