@@ -22,6 +22,10 @@
     <!-- Builds the NpgsqlDataSource for the durable session store from the Aspire-injected
          "sessions" connection string. -->
     <PackageReference Include="Npgsql" Version="10.0.2" />
+    <!-- End-user auth: validate Keycloak-issued JWTs. Aspire.Keycloak.Authentication wires the
+         authority from the "keycloak" service reference; preview, pinned to match the AppHost. -->
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.8" />
+    <PackageReference Include="Aspire.Keycloak.Authentication" Version="13.4.5-preview.1.26316.12" />
   </ItemGroup>
 
 </Project>

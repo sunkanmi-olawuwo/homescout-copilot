@@ -4,6 +4,7 @@ using Azure.Core;
 using Azure.Identity;
 using Carter;
 using HomeScoutCopilot.API.Service;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Npgsql;
 
@@ -68,6 +69,30 @@ if (!string.IsNullOrWhiteSpace(foundryEndpoint))
     builder.Services.AddScoped<IHomeScoutAgentGateway, FoundryAgentGateway>();
 }
 
+// End-user authentication (Keycloak/OIDC). Anonymous-capable: the copilot works without login, so
+// only the per-user endpoints RequireAuthorization. The Keycloak JWT scheme is wired only when the
+// "keycloak" service reference is present (Aspire injects it); the API still runs standalone without
+// it (no default scheme → UseAuthentication is a no-op, and the anonymous copilot is unaffected).
+// Tokens are validated against the homescout realm + the homescout-api audience.
+var keycloakConfigured = builder.Configuration.GetSection("services:keycloak").GetChildren().Any();
+if (keycloakConfigured)
+{
+    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddKeycloakJwtBearer("keycloak", realm: "homescout", options =>
+        {
+            options.Audience = "homescout-api";
+            options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
+        });
+}
+else
+{
+    // No Keycloak configured (standalone run / tests): register authentication with no default
+    // scheme so UseAuthentication stays inert; tests supply their own scheme for authorized routes.
+    builder.Services.AddAuthentication();
+}
+
+builder.Services.AddAuthorization();
+
 // Anonymous multi-turn conversation sessions: keyed by the hs_session cookie, held in memory,
 // swept for idle/absolute expiry. Registered unconditionally so the reset endpoint always resolves.
 builder.Services.AddOptions<ConversationOptions>().BindConfiguration(ConversationOptions.SectionName);
@@ -98,6 +123,9 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapCarter();
 
