@@ -2,6 +2,19 @@
 
 ## 2026-07-05
 
+### Keycloak Auth Step 6 — Anon→Auth Hand-off (backend auth complete)
+
+- Closed the anonymous→authenticated hand-off (persistence-track step 6). The mechanism shipped in
+  step 4 (the `SaveAsync` `user_id` COALESCE); added an offline regression guard
+  (`AskOwnerThreadingTests`: an authenticated `/ask` threads the internal owner to the gateway, an
+  anonymous one passes null). **Live-verified**: an anonymous session (`user_id <null>`) was claimed
+  by dev on the first post-login ask with the same cookie, then appeared in dev's
+  `/api/copilot/history`.
+- **Backend Keycloak auth is now complete + live-verified end-to-end** (steps 1–6). Remaining:
+  step 7 — the frontend (Codex): login/logout, bearer header, history panel against the ready API
+  contract (`/api/me`, `/api/copilot/history[/{id}]`, anonymous-capable `/api/copilot/ask`). API.Test
+  86 → 88. Foundry left up (billable) at the user's request.
+
 ### Keycloak Auth Steps 4 + 5 — Session↔User Association + Per-User History
 
 - **Step 4 (session↔user association).** Added `conversation_sessions.user_id` (soft column + ALTER
