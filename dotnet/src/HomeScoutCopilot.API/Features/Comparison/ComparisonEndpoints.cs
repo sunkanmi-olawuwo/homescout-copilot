@@ -9,21 +9,20 @@ namespace HomeScoutCopilot.API.Features.Comparison;
 public sealed class ComparisonEndpoints : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app) =>
-        app.MapGet("/api/comparison/sample", (IMediator mediator) => mediator.Send(GetComparisonSampleQuery.Instance))
-            .WithName("GetComparisonSample")
+        app.MapPost("/api/comparison", (IMediator mediator, ComparisonRequest request)
+                => mediator.Send(new CompareListingsCommand(request)))
+            .WithName("CompareListings")
             .WithTags("Comparison")
-            .WithSummary("Placeholder sample comparison")
-            .Produces<ComparisonSample>();
+            .WithSummary("Compare 2–4 listings side by side from their facts (price per ft², indicative monthly cost, completeness)")
+            .Produces<ComparisonResult>()
+            .ProducesProblem(StatusCodes.Status400BadRequest);
 }
 
-public sealed record GetComparisonSampleQuery : IRequest<IResult>
-{
-    public static GetComparisonSampleQuery Instance { get; } = new();
-}
+public sealed record CompareListingsCommand(ComparisonRequest Request) : IRequest<IResult>;
 
-public sealed class GetComparisonSampleHandler(IHomeScoutService service)
-    : IRequestHandler<GetComparisonSampleQuery, IResult>
+public sealed class CompareListingsHandler(IListingComparisonService service)
+    : IRequestHandler<CompareListingsCommand, IResult>
 {
-    public Task<IResult> Handle(GetComparisonSampleQuery request, CancellationToken cancellationToken)
-        => Task.FromResult(service.GetComparisonSample().ToHttpResult());
+    public Task<IResult> Handle(CompareListingsCommand command, CancellationToken cancellationToken)
+        => Task.FromResult(service.Compare(command.Request).ToHttpResult());
 }

@@ -21,8 +21,14 @@ public sealed class HomeScoutApiClient(HttpClient httpClient)
     public Task<HomeScoutStatus?> GetStatusAsync(CancellationToken cancellationToken = default) =>
         httpClient.GetFromJsonAsync<HomeScoutStatus>("/api/status", Json, cancellationToken);
 
-    public Task<ComparisonSample?> GetComparisonSampleAsync(CancellationToken cancellationToken = default) =>
-        httpClient.GetFromJsonAsync<ComparisonSample>("/api/comparison/sample", Json, cancellationToken);
+    public async Task<ComparisonResult?> CompareListingsAsync(
+        ComparisonRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var response = await httpClient.PostAsJsonAsync("/api/comparison", request, Json, cancellationToken);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<ComparisonResult>(Json, cancellationToken);
+    }
 
     public Task<BaseRate?> GetBaseRateAsync(CancellationToken cancellationToken = default) =>
         httpClient.GetFromJsonAsync<BaseRate>("/api/mortgage/base-rate", Json, cancellationToken);
