@@ -1,4 +1,5 @@
 using System.Text.Json;
+using HomeScoutCopilot.Shared.Contracts;
 
 namespace HomeScoutCopilot.API.Service;
 
@@ -40,4 +41,18 @@ public interface ISessionStore
     /// <see cref="ConversationOptions.AbsoluteLifetime"/>. Returns the number deleted.
     /// </summary>
     Task<int> SweepExpiredAsync(DateTimeOffset now, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// The user's own conversations, most-recent-first, capped at <paramref name="limit"/> — the
+    /// per-user history list. Owner-scoped; never returns another user's sessions.
+    /// </summary>
+    Task<IReadOnlyList<ConversationSummary>> ListForUserAsync(
+        Guid userId, int limit, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// A specific conversation <em>if owned by</em> <paramref name="userId"/>, else null (so the
+    /// endpoint returns 404 without leaking whether the session exists for another user).
+    /// </summary>
+    Task<ConversationSummary?> GetForUserAsync(
+        string sessionId, Guid userId, CancellationToken cancellationToken = default);
 }
