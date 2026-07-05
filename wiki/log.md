@@ -11,6 +11,14 @@
 - Hardened the caveat rendering so a trailing markdown "not mortgage advice" line is promoted into
   the caveat callout when the structured `caveats` array is empty; covered by Vitest.
 
+### HomeScout Skilled Worker Visa Program Filter
+
+- Added [[HomeScout Skilled Worker Visa Program Filter]] to separate product fit from immigration
+  risk for accelerator choices.
+- Captured the Skilled Worker additional-work constraint, Innovator Founder and Global Talent routes,
+  low-commitment support options, visa-transition endorsing bodies, higher-risk accelerator patterns,
+  and the questions to ask before applying.
+
 ### Keycloak Auth Step 6 — Anon→Auth Hand-off (backend auth complete)
 
 - Closed the anonymous→authenticated hand-off (persistence-track step 6). The mechanism shipped in
