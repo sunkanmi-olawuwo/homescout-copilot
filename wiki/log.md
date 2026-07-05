@@ -2,6 +2,15 @@
 
 ## 2026-07-05
 
+### Market Landscape And Product Lessons
+
+- Added [[Market Landscape And Product Lessons]] to capture the competitor/adjacent-product scan
+  across portals, AI search, property-data reports, area research, rental infrastructure, reviews,
+  service-matching, and generic ChatGPT risk.
+- Converted the research into HomeScout product lessons: keep the wedge as the evidence-backed
+  decision layer after listing discovery; prioritise manual/listing capture, true-cost comparison,
+  missing-info checks, area evidence, viewing questions, and shareable decision packs.
+
 ### Keycloak Auth — Design-First Plan + Step 1 (Realm + Aspire Hosting)
 
 - Wrote [[Keycloak Auth + Per-User History — Design]] (persistence-track step 6), modelled on
