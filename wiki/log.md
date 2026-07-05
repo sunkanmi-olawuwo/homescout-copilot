@@ -2,6 +2,22 @@
 
 ## 2026-07-05
 
+### Keycloak Auth Steps 4 + 5 — Session↔User Association + Per-User History
+
+- **Step 4 (session↔user association).** Added `conversation_sessions.user_id` (soft column + ALTER
+  migration + owner index — no hard FK, to avoid coupling the two initializers' startup order).
+  `ISessionStore.SaveAsync(…, userId?)` with a COALESCE upsert (which also *is* the anon→auth hand-off
+  mechanism). New cached `IUserResolver` (ClaimsPrincipal → internal id) threaded through
+  `/api/copilot/ask`; gateway `AskAsync` gains `userId`. **Live-verified**: an authenticated ask
+  stamped the session with the caller's internal id.
+- **Step 5 (per-user history).** `GET /api/copilot/history` (owner's sessions, most-recent-first,
+  capped) + `GET /api/copilot/history/{sessionId}` (owned conversation; 404 not 403 when not owned).
+  `ISessionStore` gains `ListForUserAsync` + `GetForUserAsync`, owner-scoped in SQL. Tests incl. the
+  cross-user isolation guarantee (Alice never sees Bob's/anonymous sessions). **Live-verified**: dev's
+  history returned their session, jane's was empty, no token → 401. API.Test 80 → 86.
+- Persistence-track step 6 now: steps 1–5 done + live-verified; remaining: anon→auth hand-off
+  semantics (mechanism already in the COALESCE), frontend login (Codex), final live pass. Foundry up.
+
 ### HomeScout Accelerator Shortlist
 
 - Added [[HomeScout Accelerator Shortlist]] with the HomeScout-specific accelerator targets:

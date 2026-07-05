@@ -1,4 +1,5 @@
 using System.Text.Json;
+using HomeScoutCopilot.Shared.Contracts;
 using Microsoft.Extensions.Options;
 using Npgsql;
 using NpgsqlTypes;
@@ -100,5 +101,56 @@ public sealed class PostgresSessionStore(NpgsqlDataSource dataSource, IOptions<C
         command.Parameters.AddWithValue("idleCutoff", now - _options.IdleTimeout);
         command.Parameters.AddWithValue("absoluteCutoff", now - _options.AbsoluteLifetime);
         return await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<IReadOnlyList<ConversationSummary>> ListForUserAsync(
+        Guid userId, int limit, CancellationToken cancellationToken = default)
+    {
+        // Owner-scoped by the WHERE clause — never returns another user's sessions.
+        await using var command = dataSource.CreateCommand($"""
+            SELECT session_id, created_at, last_active_at
+            FROM {TableName}
+            WHERE user_id = @userId
+            ORDER BY last_active_at DESC
+            LIMIT @limit
+            """);
+        command.Parameters.AddWithValue("userId", userId);
+        command.Parameters.AddWithValue("limit", limit);
+
+        var summaries = new List<ConversationSummary>();
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
+        while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+        {
+            summaries.Add(new ConversationSummary(
+                reader.GetString(0),
+                reader.GetFieldValue<DateTimeOffset>(1),
+                reader.GetFieldValue<DateTimeOffset>(2)));
+        }
+
+        return summaries;
+    }
+
+    public async Task<ConversationSummary?> GetForUserAsync(
+        string sessionId, Guid userId, CancellationToken cancellationToken = default)
+    {
+        // Ownership is part of the WHERE clause: a session owned by someone else simply isn't found.
+        await using var command = dataSource.CreateCommand($"""
+            SELECT session_id, created_at, last_active_at
+            FROM {TableName}
+            WHERE session_id = @id AND user_id = @userId
+            """);
+        command.Parameters.AddWithValue("id", sessionId);
+        command.Parameters.AddWithValue("userId", userId);
+
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
+        if (!await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+        {
+            return null;
+        }
+
+        return new ConversationSummary(
+            reader.GetString(0),
+            reader.GetFieldValue<DateTimeOffset>(1),
+            reader.GetFieldValue<DateTimeOffset>(2));
     }
 }

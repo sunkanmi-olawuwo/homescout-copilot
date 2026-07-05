@@ -1,4 +1,5 @@
 using System.Text.Json;
+using HomeScoutCopilot.Shared.Contracts;
 
 namespace HomeScoutCopilot.API.Service;
 
@@ -23,4 +24,12 @@ public sealed class NullSessionStore : ISessionStore
 
     public Task<int> SweepExpiredAsync(DateTimeOffset now, CancellationToken cancellationToken = default)
         => Task.FromResult(0);
+
+    public Task<IReadOnlyList<ConversationSummary>> ListForUserAsync(
+        Guid userId, int limit, CancellationToken cancellationToken = default)
+        => Task.FromResult<IReadOnlyList<ConversationSummary>>([]);
+
+    public Task<ConversationSummary?> GetForUserAsync(
+        string sessionId, Guid userId, CancellationToken cancellationToken = default)
+        => Task.FromResult<ConversationSummary?>(null);
 }

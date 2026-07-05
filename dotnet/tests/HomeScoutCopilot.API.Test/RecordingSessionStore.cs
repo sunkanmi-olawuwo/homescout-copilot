@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Text.Json;
 using HomeScoutCopilot.API.Service;
+using HomeScoutCopilot.Shared.Contracts;
 
 namespace HomeScoutCopilot.API.Test;
 
@@ -33,4 +34,20 @@ internal sealed class RecordingSessionStore : ISessionStore
 
     public Task<int> SweepExpiredAsync(DateTimeOffset now, CancellationToken cancellationToken = default)
         => Task.FromResult(0);
+
+    public Task<IReadOnlyList<ConversationSummary>> ListForUserAsync(
+        Guid userId, int limit, CancellationToken cancellationToken = default)
+    {
+        var owned = Owners
+            .Where(kvp => kvp.Value == userId)
+            .Select(kvp => new ConversationSummary(kvp.Key, DateTimeOffset.UnixEpoch, DateTimeOffset.UnixEpoch))
+            .ToList();
+        return Task.FromResult<IReadOnlyList<ConversationSummary>>(owned);
+    }
+
+    public Task<ConversationSummary?> GetForUserAsync(
+        string sessionId, Guid userId, CancellationToken cancellationToken = default)
+        => Task.FromResult(Owners.TryGetValue(sessionId, out var owner) && owner == userId
+            ? new ConversationSummary(sessionId, DateTimeOffset.UnixEpoch, DateTimeOffset.UnixEpoch)
+            : null);
 }

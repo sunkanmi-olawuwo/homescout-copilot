@@ -257,7 +257,14 @@ API-first, so Codex builds login while the backend builds validation:
    threaded through `/api/copilot/ask` → gateway write-through. **Live-verified**: an authenticated ask
    stamped the session with the caller's internal id. (Note: the COALESCE lands the hand-off *mechanism*
    here; step 6 is now just the explicit product semantics/verification.)
-5. **History endpoints** — `GET /api/copilot/history[/{id}]`, owner-scoped, authorized; tests.
+5. ✅ **History endpoints** *(done + live-verified 2026-07-05)* — `GET /api/copilot/history` (the
+   user's sessions, most-recent-first, capped) + `GET /api/copilot/history/{sessionId}` (a specific
+   owned conversation; **404 not 403** when not owned, so existence isn't leaked). `ISessionStore`
+   gains `ListForUserAsync` + `GetForUserAsync`, both owner-scoped in the SQL `WHERE user_id = @me`.
+   Authorized; resolves the caller via `IUserResolver` (empty history when no DB). Tests:
+   `HistoryEndpointTests` (auth + no-DB), `PostgresSessionStoreTests` owner-scoping (Alice never sees
+   Bob's or anonymous sessions) + ordering/cap. **Live-verified**: dev's history returned their
+   session, **jane's was empty** (cross-user isolation), no token → 401.
 6. **Anonymous→authenticated hand-off** — claim an anonymous session on first authenticated ask.
 7. **Frontend (Codex)** — login/logout, bearer header, history panel.
 8. **Live verification** — end-to-end against Aspire Keycloak; record in the log.

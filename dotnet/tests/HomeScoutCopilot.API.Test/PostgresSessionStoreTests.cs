@@ -145,6 +145,44 @@ public class PostgresSessionStoreTests
     }
 
     [Test]
+    public async Task History_is_owner_scoped_and_never_leaks_another_users_sessions()
+    {
+        var alice = Guid.NewGuid();
+        var bob = Guid.NewGuid();
+        await _store.SaveAsync("a1", Payload("""{"t":1}"""), userId: alice);
+        await _store.SaveAsync("a2", Payload("""{"t":1}"""), userId: alice);
+        await _store.SaveAsync("b1", Payload("""{"t":1}"""), userId: bob);
+        await _store.SaveAsync("anon", Payload("""{"t":1}"""), userId: null);
+
+        var aliceList = await _store.ListForUserAsync(alice, limit: 50);
+
+        Assert.Multiple(async () =>
+        {
+            // Alice sees only her own two sessions — never Bob's or the anonymous one.
+            Assert.That(aliceList.Select(c => c.SessionId), Is.EquivalentTo(new[] { "a1", "a2" }));
+            // Single-conversation access is owner-scoped: Alice can fetch her own...
+            Assert.That((await _store.GetForUserAsync("a1", alice))?.SessionId, Is.EqualTo("a1"));
+            // ...but Bob's session is 404 (null) for Alice, and the anonymous one too.
+            Assert.That(await _store.GetForUserAsync("b1", alice), Is.Null);
+            Assert.That(await _store.GetForUserAsync("anon", alice), Is.Null);
+        });
+    }
+
+    [Test]
+    public async Task History_is_ordered_most_recently_active_first_and_capped()
+    {
+        var user = Guid.NewGuid();
+        await _store.SaveAsync("older", Payload("""{"t":1}"""), userId: user);
+        await Task.Delay(10);
+        await _store.SaveAsync("newer", Payload("""{"t":1}"""), userId: user);
+
+        var list = await _store.ListForUserAsync(user, limit: 1);
+
+        // Only the single most-recently-active session comes back (order + cap).
+        Assert.That(list.Single().SessionId, Is.EqualTo("newer"));
+    }
+
+    [Test]
     public async Task Sweep_keeps_fresh_sessions_but_evicts_idle_ones()
     {
         await _store.SaveAsync("s1", Payload("""{"turn":1}"""));
