@@ -14,7 +14,7 @@ namespace HomeScoutCopilot.API.Features.Identity;
 public sealed class IdentityEndpoints : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app) =>
-        app.MapGet("/api/me", async (ClaimsPrincipal user, IUserDirectory directory, CancellationToken cancellationToken) =>
+        app.MapGet("/api/me", async (ClaimsPrincipal user, IUserResolver resolver, CancellationToken cancellationToken) =>
             {
                 // The subject is the stable identity key. A validated token without one is unusable.
                 var subject = user.FindFirstValue("sub") ?? user.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -28,9 +28,9 @@ public sealed class IdentityEndpoints : ICarterModule
                     ?? user.FindFirstValue("preferred_username")
                     ?? user.Identity?.Name;
 
-                // Resolve (get-or-create) the internal user; null when no database is configured.
-                var record = await directory.RecordAsync(UserIdentityProviders.Keycloak, subject, email, name, cancellationToken);
-                return Results.Ok(new MeResponse(record?.Id, subject, record?.Email ?? email, record?.Name ?? name));
+                // Resolve (get-or-create, cached) the internal user id; null when no database.
+                var userId = await resolver.ResolveUserIdAsync(user, cancellationToken);
+                return Results.Ok(new MeResponse(userId, subject, email, name));
             })
             .RequireAuthorization()
             .WithName("GetMe")

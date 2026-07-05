@@ -56,7 +56,7 @@ public sealed class FoundryAgentGateway : IHomeScoutAgentGateway
     }
 
     public async Task<CopilotAnswer> AskAsync(
-        CopilotRequest request, string? sessionId = null, CancellationToken cancellationToken = default)
+        CopilotRequest request, string? sessionId = null, Guid? userId = null, CancellationToken cancellationToken = default)
     {
         // With a session id, run against the multi-turn session (follow-ups keep context); without
         // one, run stateless (single-turn) exactly as before. The in-memory registry is the hot
@@ -87,7 +87,7 @@ public sealed class FoundryAgentGateway : IHomeScoutAgentGateway
             var serialized = await _agent
                 .SerializeSessionAsync(session, jsonSerializerOptions: null, cancellationToken)
                 .ConfigureAwait(false);
-            await _store.SaveAsync(sessionId!, serialized, cancellationToken).ConfigureAwait(false);
+            await _store.SaveAsync(sessionId!, serialized, userId, cancellationToken).ConfigureAwait(false);
         }
 
         var contents = response.Messages.SelectMany(message => message.Contents).ToList();

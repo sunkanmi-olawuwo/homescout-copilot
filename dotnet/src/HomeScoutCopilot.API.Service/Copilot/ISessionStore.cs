@@ -24,8 +24,13 @@ public interface ISessionStore
     /// <summary>Loads the serialized session state for <paramref name="sessionId"/>, or null if absent.</summary>
     Task<JsonElement?> TryLoadAsync(string sessionId, CancellationToken cancellationToken = default);
 
-    /// <summary>Upserts the serialized session state, refreshing its last-active timestamp.</summary>
-    Task SaveAsync(string sessionId, JsonElement payload, CancellationToken cancellationToken = default);
+    /// <summary>
+    /// Upserts the serialized session state, refreshing its last-active timestamp. When
+    /// <paramref name="userId"/> is non-null the session is stamped with its owner (per-user history);
+    /// a null owner never clears an already-stamped session (supports the anonymous→authenticated
+    /// hand-off).
+    /// </summary>
+    Task SaveAsync(string sessionId, JsonElement payload, Guid? userId = null, CancellationToken cancellationToken = default);
 
     /// <summary>Removes a session (conversation reset). Returns true if a row was deleted.</summary>
     Task<bool> RemoveAsync(string sessionId, CancellationToken cancellationToken = default);

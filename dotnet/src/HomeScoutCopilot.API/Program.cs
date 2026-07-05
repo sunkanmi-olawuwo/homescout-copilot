@@ -97,6 +97,10 @@ else
 
 builder.Services.AddAuthorization();
 
+// Resolves the authenticated caller to HomeScout's internal user id (cached). Always registered —
+// it delegates to IUserDirectory, returning null when that's the no-op directory.
+builder.Services.AddSingleton<IUserResolver, UserResolver>();
+
 // Anonymous multi-turn conversation sessions: keyed by the hs_session cookie, held in memory,
 // swept for idle/absolute expiry. Registered unconditionally so the reset endpoint always resolves.
 builder.Services.AddOptions<ConversationOptions>().BindConfiguration(ConversationOptions.SectionName);

@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using HomeScoutCopilot.API.Service;
+using Microsoft.Extensions.Caching.Memory;
 using Npgsql;
 using Testcontainers.PostgreSql;
 
@@ -99,6 +101,23 @@ public class PostgresUserDirectoryTests
         var b = await _directory.RecordAsync(UserIdentityProviders.Keycloak, "sub-b", null, null);
 
         Assert.That(a!.Id, Is.Not.EqualTo(b!.Id));
+    }
+
+    [Test]
+    public async Task Resolver_resolves_a_principal_to_the_internal_id()
+    {
+        var resolver = new UserResolver(_directory, new MemoryCache(new MemoryCacheOptions()));
+        var principal = new ClaimsPrincipal(new ClaimsIdentity(
+            [new Claim("sub", "resolve-sub"), new Claim("email", "r@b.com"), new Claim("name", "Rey")], "test"));
+
+        var first = await resolver.ResolveUserIdAsync(principal);
+        var second = await resolver.ResolveUserIdAsync(principal);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(first, Is.Not.Null.And.Not.EqualTo(Guid.Empty));
+            Assert.That(second, Is.EqualTo(first), "the same principal resolves to one cached id");
+        });
     }
 
     [Test]

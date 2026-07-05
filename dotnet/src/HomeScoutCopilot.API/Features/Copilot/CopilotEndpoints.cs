@@ -12,8 +12,15 @@ public sealed class CopilotEndpoints : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         app.MapPost("/api/copilot/ask",
-                (HttpContext http, IMediator mediator, CopilotRequest request, IOptions<ConversationOptions> conversation)
-                    => mediator.Send(new AskCopilotCommand(request, ResolveSession(http, conversation.Value))))
+                async (HttpContext http, IMediator mediator, IUserResolver resolver, CopilotRequest request,
+                    IOptions<ConversationOptions> conversation) =>
+                {
+                    // Anonymous-capable: the session id always exists (cookie); the owner is resolved
+                    // only when the request carries a valid token (null otherwise).
+                    var sessionId = ResolveSession(http, conversation.Value);
+                    var userId = await resolver.ResolveUserIdAsync(http.User, http.RequestAborted);
+                    return await mediator.Send(new AskCopilotCommand(request, sessionId, userId));
+                })
             .WithName("AskCopilot")
             .WithTags("Copilot")
             .WithSummary("Ask the copilot a natural-language question")
@@ -64,7 +71,7 @@ public sealed class CopilotEndpoints : ICarterModule
     }
 }
 
-public sealed record AskCopilotCommand(CopilotRequest Request, string SessionId) : IRequest<IResult>;
+public sealed record AskCopilotCommand(CopilotRequest Request, string SessionId, Guid? UserId) : IRequest<IResult>;
 
 // Resolves the gateway from the request scope so the endpoint returns 503 (not a DI
 // failure) when the copilot isn't configured — preserving the pre-slice behaviour.
@@ -86,6 +93,6 @@ public sealed class AskCopilotHandler(IServiceProvider services) : IRequestHandl
                 statusCode: StatusCodes.Status503ServiceUnavailable);
         }
 
-        return Results.Ok(await gateway.AskAsync(command.Request, command.SessionId, cancellationToken));
+        return Results.Ok(await gateway.AskAsync(command.Request, command.SessionId, command.UserId, cancellationToken));
     }
 }

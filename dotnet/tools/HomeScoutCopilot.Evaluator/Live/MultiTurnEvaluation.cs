@@ -28,7 +28,7 @@ public static class MultiTurnEvaluation
             foreach (var turn in scenario.Turns)
             {
                 var answer = await gateway
-                    .AskAsync(new CopilotRequest(turn), sessionId, cancellationToken)
+                    .AskAsync(new CopilotRequest(turn), sessionId, cancellationToken: cancellationToken)
                     .ConfigureAwait(false);
                 finalAnswer = answer.Caveats.Count > 0
                     ? $"{answer.Text}\n{string.Join("\n", answer.Caveats)}"

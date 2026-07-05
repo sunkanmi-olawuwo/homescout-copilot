@@ -16,9 +16,12 @@ internal sealed class RecordingSessionStore : ISessionStore
     public Task<JsonElement?> TryLoadAsync(string sessionId, CancellationToken cancellationToken = default)
         => Task.FromResult(_saved.TryGetValue(sessionId, out var payload) ? payload : (JsonElement?)null);
 
-    public Task SaveAsync(string sessionId, JsonElement payload, CancellationToken cancellationToken = default)
+    public ConcurrentDictionary<string, Guid?> Owners { get; } = new();
+
+    public Task SaveAsync(string sessionId, JsonElement payload, Guid? userId = null, CancellationToken cancellationToken = default)
     {
         _saved[sessionId] = payload.Clone();
+        Owners[sessionId] = userId;
         return Task.CompletedTask;
     }
 
