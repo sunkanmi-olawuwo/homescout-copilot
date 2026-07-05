@@ -95,4 +95,13 @@ describe('auth + per-user history', () => {
     // No token is fetched for /api/me while anonymous.
     expect(records.some((c) => c.url.endsWith('/api/me'))).toBe(false);
   });
+
+  it('disables sign in until auth is ready, so the first click always redirects', async () => {
+    // Auth enabled but not yet ready (OIDC metadata still warming).
+    renderWithAuth({ ...anonymousAuth, authEnabled: true, isReady: false });
+
+    const button = await screen.findByRole('button', { name: 'Loading…' });
+    expect((button as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.queryByRole('button', { name: 'Sign in' })).toBeNull();
+  });
 });

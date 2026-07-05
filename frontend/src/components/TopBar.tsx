@@ -10,6 +10,7 @@ export function TopBar(props: {
   onToggleNav: () => void;
   onToggleTheme: () => void;
   authEnabled: boolean;
+  isReady: boolean;
   isAuthenticated: boolean;
   userName: string | null;
   onSignIn: () => void;
@@ -51,6 +52,7 @@ export function TopBar(props: {
         </button>
         <AccountControls
           authEnabled={props.authEnabled}
+          isReady={props.isReady}
           isAuthenticated={props.isAuthenticated}
           userName={props.userName}
           onSignIn={props.onSignIn}

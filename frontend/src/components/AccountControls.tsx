@@ -1,13 +1,15 @@
 // Header account area. Anonymous (no Keycloak) keeps the placeholder avatar; with auth on it shows a
-// Sign in button, or the signed-in name + Sign out.
+// Sign in button, or the signed-in name + Sign out. Sign in is disabled until auth is ready (OIDC
+// metadata warmed), so the first click always triggers the redirect.
 export function AccountControls(props: {
   authEnabled: boolean;
+  isReady: boolean;
   isAuthenticated: boolean;
   userName: string | null;
   onSignIn: () => void;
   onSignOut: () => void;
 }) {
-  const { authEnabled, isAuthenticated, userName, onSignIn, onSignOut } = props;
+  const { authEnabled, isReady, isAuthenticated, userName, onSignIn, onSignOut } = props;
 
   if (!authEnabled) {
     return <button className="avatar-button" type="button" aria-label="Account">AO</button>;
@@ -15,8 +17,8 @@ export function AccountControls(props: {
 
   if (!isAuthenticated) {
     return (
-      <button className="toolbar-button sign-in" type="button" onClick={onSignIn}>
-        Sign in
+      <button className="toolbar-button sign-in" type="button" onClick={onSignIn} disabled={!isReady}>
+        {isReady ? 'Sign in' : 'Loading…'}
       </button>
     );
   }

@@ -176,6 +176,7 @@ function App() {
         onToggleNav={() => setNavOpen((open) => !open)}
         onToggleTheme={() => setTheme((current) => (current === 'dark' ? 'light' : 'dark'))}
         authEnabled={auth.authEnabled}
+        isReady={auth.isReady}
         isAuthenticated={auth.isAuthenticated}
         userName={me?.name ?? auth.userName}
         onSignIn={auth.signIn}
