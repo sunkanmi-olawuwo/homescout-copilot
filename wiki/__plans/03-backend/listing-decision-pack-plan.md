@@ -148,7 +148,10 @@ and the client's `GetComparisonSampleAsync`; add a typed `CompareListingsAsync` 
 
 ## Related
 
-[[Feature Coverage]] · [[Market Landscape And Product Lessons]] · [[Endpoint Summary]] ·
+[Listing Capture — PDF Extraction Pipeline](./listing-capture-extraction-plan.md) — the on-ramp that
+produces confirmed `Listing`s for this endpoint, and extends the `Listing` model (council tax band,
+property type, price qualifier, address line). · [[Feature Coverage]] ·
+[[Market Landscape And Product Lessons]] · [[Endpoint Summary]] ·
 [Mortgage Cost Estimator](./cost-estimator-mortgage-plan.md) ·
 [Rental Cost Estimator](./rental-cost-estimator-plan.md) · [[Area Evidence Map]] (depends on this
 model's lat/long path).
