@@ -118,6 +118,32 @@ public class PostgresSessionStoreTests
         });
     }
 
+    private async Task<Guid?> OwnerOf(string sessionId)
+    {
+        await using var command = _dataSource.CreateCommand("SELECT user_id FROM conversation_sessions WHERE session_id = @id");
+        command.Parameters.AddWithValue("id", sessionId);
+        var value = await command.ExecuteScalarAsync();
+        return value is null or DBNull ? null : (Guid)value;
+    }
+
+    [Test]
+    public async Task Save_stamps_the_owner_and_a_later_anonymous_save_never_clears_it()
+    {
+        var owner = Guid.NewGuid();
+
+        // Anonymous first turn: no owner.
+        await _store.SaveAsync("s1", Payload("""{"turn":1}"""), userId: null);
+        Assert.That(await OwnerOf("s1"), Is.Null);
+
+        // Authenticated turn stamps the owner (the anon→auth hand-off).
+        await _store.SaveAsync("s1", Payload("""{"turn":2}"""), userId: owner);
+        Assert.That(await OwnerOf("s1"), Is.EqualTo(owner));
+
+        // A subsequent anonymous save must NOT wipe the owner (COALESCE keeps it).
+        await _store.SaveAsync("s1", Payload("""{"turn":3}"""), userId: null);
+        Assert.That(await OwnerOf("s1"), Is.EqualTo(owner));
+    }
+
     [Test]
     public async Task Sweep_keeps_fresh_sessions_but_evicts_idle_ones()
     {

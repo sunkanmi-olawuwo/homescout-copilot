@@ -11,7 +11,7 @@ internal sealed class RecordingGateway(Func<string, CopilotAnswer> responder) : 
     public List<(string Message, string? SessionId)> Calls { get; } = [];
 
     public Task<CopilotAnswer> AskAsync(
-        CopilotRequest request, string? sessionId = null, CancellationToken cancellationToken = default)
+        CopilotRequest request, string? sessionId = null, Guid? userId = null, CancellationToken cancellationToken = default)
     {
         Calls.Add((request.Message, sessionId));
         return Task.FromResult(responder(request.Message));

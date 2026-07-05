@@ -12,8 +12,9 @@ public interface IHomeScoutAgentGateway
     /// <summary>
     /// Answers a request. When <paramref name="sessionId"/> is supplied, the turn runs against that
     /// session's multi-turn conversation state (follow-ups keep context); when null, it's a
-    /// stateless single-turn answer.
+    /// stateless single-turn answer. When <paramref name="userId"/> is supplied (the request is
+    /// authenticated), the persisted session is stamped with that owner for per-user history.
     /// </summary>
     Task<CopilotAnswer> AskAsync(
-        CopilotRequest request, string? sessionId = null, CancellationToken cancellationToken = default);
+        CopilotRequest request, string? sessionId = null, Guid? userId = null, CancellationToken cancellationToken = default);
 }

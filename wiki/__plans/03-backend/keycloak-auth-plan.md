@@ -141,15 +141,24 @@ Models: `RagLab.API/Domain/User.cs`, `Infrastructure/UserDirectory.cs`, `Infrast
 - **`NullUserDirectory`** (graceful degradation, like `NullSessionStore`): when no DB/Keycloak is
   configured, the API still runs — anonymous only.
 
-### 5. Durable store — associate sessions with a user
+### 5. Durable store — associate sessions with a user ✅ (done + live-verified 2026-07-05)
 
-- Add nullable `user_id uuid NULL REFERENCES app_users(id)` to `conversation_sessions` (migration in
-  the `PostgresSessionStore` initializer; anonymous sessions keep `user_id = NULL`).
-- `ISessionStore` gains `SaveAsync(sessionId, payload, userId?)` and
-  `ListForUserAsync(userId)` (most-recent-first, capped). The anonymous flow is the `userId = null`
-  path — unchanged.
-- `FoundryAgentGateway` write-through passes the resolved `userId` (or null) so each persisted turn
-  is stamped with its owner.
+- Added nullable `user_id uuid` to `conversation_sessions` (in the `PostgresSessionStore`
+  initializer — `CREATE TABLE` for fresh DBs + `ALTER TABLE … ADD COLUMN IF NOT EXISTS` for existing,
+  plus an owner index). *Decision:* a **soft column, not a hard `REFERENCES app_users(id)` FK* — the
+  two tables are created by independent initializers, so a FK would couple their startup order and
+  complicate the ALTER migration; the app controls integrity (the id always comes from the directory).
+- `ISessionStore.SaveAsync(sessionId, payload, userId?)` stamps the owner; `user_id` is **COALESCEd**
+  on conflict so a non-null owner stamps the session and a null owner never clears it — which *is* the
+  anonymous→authenticated hand-off (step 7's mechanism lands here). `ListForUserAsync` comes with the
+  history endpoints (next).
+- `FoundryAgentGateway.AskAsync` gains `userId`; the write-through passes it. The `/api/copilot/ask`
+  endpoint resolves the owner via a cached `IUserResolver` (ClaimsPrincipal → internal id) — null when
+  anonymous — so the flow stays anonymous-capable.
+- Tests: `PostgresSessionStoreTests` owner-stamp + COALESCE-preserve; `UserResolverTests` (+ a
+  resolve-and-cache Database test). **Live-verified** (Keycloak + Postgres + Foundry): an
+  authenticated `/api/copilot/ask` stamped `conversation_sessions.user_id` with the same internal id
+  `/api/me` returns.
 
 ### 6. Endpoints
 
@@ -242,8 +251,12 @@ API-first, so Codex builds login while the backend builds validation:
    RagLab's `UserDirectoryConcurrencyTests`); `NullUserDirectoryTests`. **Live-verified** against real
    Keycloak + Postgres: `/api/me` returns a stable internal `userId` across calls and the JIT capture
    created the `app_users` row (`keycloak | <sub> | Dev User`).
-4. **Store user association** — `conversation_sessions.user_id` migration; user-aware `ISessionStore`;
-   gateway stamps the owner.
+4. ✅ **Store user association** *(done + live-verified 2026-07-05)* — `conversation_sessions.user_id`
+   (soft column + ALTER migration + owner index); user-aware `ISessionStore.SaveAsync(…, userId?)` with
+   COALESCE (the anon→auth hand-off mechanism); `IUserResolver` (ClaimsPrincipal → cached internal id)
+   threaded through `/api/copilot/ask` → gateway write-through. **Live-verified**: an authenticated ask
+   stamped the session with the caller's internal id. (Note: the COALESCE lands the hand-off *mechanism*
+   here; step 6 is now just the explicit product semantics/verification.)
 5. **History endpoints** — `GET /api/copilot/history[/{id}]`, owner-scoped, authorized; tests.
 6. **Anonymous→authenticated hand-off** — claim an anonymous session on first authenticated ask.
 7. **Frontend (Codex)** — login/logout, bearer header, history panel.

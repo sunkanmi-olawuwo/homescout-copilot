@@ -15,7 +15,7 @@ public sealed class NullSessionStore : ISessionStore
     public Task<JsonElement?> TryLoadAsync(string sessionId, CancellationToken cancellationToken = default)
         => Task.FromResult<JsonElement?>(null);
 
-    public Task SaveAsync(string sessionId, JsonElement payload, CancellationToken cancellationToken = default)
+    public Task SaveAsync(string sessionId, JsonElement payload, Guid? userId = null, CancellationToken cancellationToken = default)
         => Task.CompletedTask;
 
     public Task<bool> RemoveAsync(string sessionId, CancellationToken cancellationToken = default)

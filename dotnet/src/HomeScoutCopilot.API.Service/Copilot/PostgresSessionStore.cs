@@ -29,9 +29,14 @@ public sealed class PostgresSessionStore(NpgsqlDataSource dataSource, IOptions<C
                 session_id     text        PRIMARY KEY,
                 payload        jsonb       NOT NULL,
                 created_at     timestamptz NOT NULL,
-                last_active_at timestamptz NOT NULL
+                last_active_at timestamptz NOT NULL,
+                user_id        uuid        NULL
             );
+            -- Bring an existing table up to schema (added when per-user history landed).
+            ALTER TABLE {TableName} ADD COLUMN IF NOT EXISTS user_id uuid NULL;
             CREATE INDEX IF NOT EXISTS ix_{TableName}_last_active_at ON {TableName} (last_active_at);
+            -- Owner index for the per-user history query.
+            CREATE INDEX IF NOT EXISTS ix_{TableName}_user_id ON {TableName} (user_id);
             """);
         await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
     }
@@ -54,20 +59,25 @@ public sealed class PostgresSessionStore(NpgsqlDataSource dataSource, IOptions<C
         return document.RootElement.Clone();
     }
 
-    public async Task SaveAsync(string sessionId, JsonElement payload, CancellationToken cancellationToken = default)
+    public async Task SaveAsync(string sessionId, JsonElement payload, Guid? userId = null, CancellationToken cancellationToken = default)
     {
         // Upsert: keep the original created_at on conflict (so the absolute-lifetime cap is honoured),
-        // refresh last_active_at and the payload each turn (write-through).
+        // refresh last_active_at and the payload each turn (write-through). user_id is COALESCEd so a
+        // non-null owner stamps the session and a null owner never clears an existing one — which is
+        // exactly the anonymous→authenticated hand-off (an anon session gains its owner on first
+        // authenticated turn, and stays owned thereafter).
         await using var command = dataSource.CreateCommand($"""
-            INSERT INTO {TableName} (session_id, payload, created_at, last_active_at)
-            VALUES (@id, @payload, @now, @now)
+            INSERT INTO {TableName} (session_id, payload, created_at, last_active_at, user_id)
+            VALUES (@id, @payload, @now, @now, @userId)
             ON CONFLICT (session_id) DO UPDATE
                 SET payload = EXCLUDED.payload,
-                    last_active_at = EXCLUDED.last_active_at
+                    last_active_at = EXCLUDED.last_active_at,
+                    user_id = COALESCE(EXCLUDED.user_id, {TableName}.user_id)
             """);
         command.Parameters.AddWithValue("id", sessionId);
         command.Parameters.Add(new NpgsqlParameter("payload", NpgsqlDbType.Jsonb) { Value = payload.GetRawText() });
         command.Parameters.AddWithValue("now", DateTimeOffset.UtcNow);
+        command.Parameters.AddWithValue("userId", (object?)userId ?? DBNull.Value);
         await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
     }
 
