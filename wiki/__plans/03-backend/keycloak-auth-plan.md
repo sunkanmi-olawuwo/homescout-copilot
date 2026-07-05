@@ -1,9 +1,11 @@
 # Keycloak Auth + Per-User History Plan
 
-**Status:** Design-first (not started). Persistence-track **step 6** — the last item in
-[[Conversation Threads — Multi-Turn, Anonymous]]. Anonymous multi-turn threads + the durable
-PostgreSQL session store are done and live-verified (2026-07-05); this slice adds end-user sign-in
-and makes conversation history **per-user and cross-device**.
+**Status:** **Backend done + live-verified (2026-07-05)** — steps 1–6 (realm + Aspire hosting, JWT
+validation + `/api/me`, user directory + JIT capture, session↔user association, owner-scoped history,
+anonymous→authenticated hand-off) are all implemented and verified against real Keycloak + Postgres
+(+ Foundry). Remaining: **step 7 — the frontend (Codex)** (login/logout, bearer header, history
+panel) against the ready API contract, then a final end-to-end pass. Persistence-track step 6 (the
+last item in [[Conversation Threads — Multi-Turn, Anonymous]]) is thereby delivered on the backend.
 
 **Owning context:** the [[Plan Divergence]] decision *End-User Auth Uses Keycloak, Not Entra ID*
 (2026-07-04) and the durable store in [[Conversation Threads — Multi-Turn, Anonymous]]. **Modelled
@@ -171,12 +173,13 @@ Models: `RagLab.API/Domain/User.cs`, `Infrastructure/UserDirectory.cs`, `Infrast
 - `/api/copilot/ask` unchanged in shape; when authenticated, the resolved `userId` flows to the
   store so the turn joins the user's history.
 
-### 7. Anonymous → authenticated hand-off (HomeScout-specific)
+### 7. Anonymous → authenticated hand-off (HomeScout-specific) ✅ (done + live-verified 2026-07-05)
 
 - On the **first authenticated** `/ask` that still carries an `hs_session` cookie for a
-  `user_id IS NULL` session, **claim** it (set `user_id`) so the in-progress conversation survives
-  login.
-- Open question: does logout also `session/reset`, or continue anonymously?
+  `user_id IS NULL` session, the session is **claimed** (its `user_id` set) so the in-progress
+  conversation survives login — implemented by the `SaveAsync` COALESCE (step 4) + owner resolution
+  in the endpoint. Live-verified end to end.
+- Open question (frontend/step-7 decision): does logout also `session/reset`, or continue anonymously?
 
 ## Auth + session contract (backend ↔ frontend) — enables parallel work
 
@@ -265,7 +268,13 @@ API-first, so Codex builds login while the backend builds validation:
    `HistoryEndpointTests` (auth + no-DB), `PostgresSessionStoreTests` owner-scoping (Alice never sees
    Bob's or anonymous sessions) + ordering/cap. **Live-verified**: dev's history returned their
    session, **jane's was empty** (cross-user isolation), no token → 401.
-6. **Anonymous→authenticated hand-off** — claim an anonymous session on first authenticated ask.
+6. ✅ **Anonymous→authenticated hand-off** *(done + live-verified 2026-07-05)* — the mechanism
+   shipped in step 4 (the `SaveAsync` `user_id` COALESCE): the first authenticated ask on an existing
+   anonymous session stamps its owner. Added an offline regression guard (`AskOwnerThreadingTests`:
+   authenticated ask threads the internal owner to the gateway, anonymous passes null).
+   **Live-verified**: an anonymous session (`user_id <null>`) was claimed by dev on the first
+   post-login ask with the same cookie, and then appeared in dev's `/api/copilot/history`. (Open:
+   logout semantics — leave the cookie session or reset — is a frontend/step-7 decision.)
 7. **Frontend (Codex)** — login/logout, bearer header, history panel.
 8. **Live verification** — end-to-end against Aspire Keycloak; record in the log.
 
