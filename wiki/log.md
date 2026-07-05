@@ -2,6 +2,24 @@
 
 ## 2026-07-05
 
+### Extraction Regression Test On Real Listing PDFs (committed corpus)
+
+- Closed the coverage gap: the extraction tests were all **synthetic fixtures** (they lock the parser
+  logic but can't catch PdfPig's real-world quirks — the token-smushing that gave `beds=173`, the
+  agent-postcode bug). Added `ListingExtractionTests` — a data-driven `[Category("Extraction")]` eval
+  that runs the **real** `PdfPigDocumentReader` + `ListingFactParser` against real listing PDFs and
+  asserts committed ground-truth facts. Runs in the PR gate (PdfPig is cross-platform).
+- **Corpus** in `TestData/listings/` (copied to output via csproj): seeded with two of the six planned
+  PDFs — the Rightmove for-sale bungalow and the Zoopla rent flat. Ground truth includes the honest
+  gaps as assertions (Rightmove's EPC is a graphic → asserted `null`). Data-driven: adding a PDF +
+  one `Expected` row grows the corpus. **Awaiting four more** (a fresh OpenRent + a second buy/rent per
+  site) to reach six.
+- **Committing real PDFs is a deliberate choice** (user's call, private repo): `TestData/listings/NOTICE.md`
+  flags them as private fixtures — the developer's own saved documents (terms-safe, not scraped), used
+  only to test extraction, **not** redistributed as product content; remove the directory (and scrub
+  history) if the repo ever goes public. The always-on unit tests still use synthetic fixtures and don't
+  depend on the PDFs.
+
 ### Frontend — Comparison Decision Card + Capture Confirm Screen
 
 - The tangible "a step above a chatbot" surface (see [[Differentiation And Data Strategy]]): the
