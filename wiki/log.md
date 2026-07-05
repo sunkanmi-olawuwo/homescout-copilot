@@ -2,6 +2,18 @@
 
 ## 2026-07-05
 
+### Keycloak Auth — Live Browser Sign-In Verified (feature complete)
+
+- Closed step 8: drove a **real browser** through the full flow against the running stack (Keycloak +
+  Postgres + API + Vite on `localhost:5173`). Sign in → Keycloak login page (`dev`/`dev`, Auth Code +
+  PKCE, correct `client_id`/`redirect_uri`/`code_challenge`) → redirect back → **signed in as "Dev
+  User"** (from `/api/me`) → asked a cost question → the **real Foundry answer** rendered with the
+  evidence panel, and the bearer-authenticated turn was **owner-stamped and appeared in "Your
+  conversations"**. End-to-end OIDC → identity → per-user history confirmed.
+- **The entire Keycloak auth + per-user history feature (steps 1–8) is complete and live-verified**,
+  backend and frontend. Persistence-track step 6 is fully delivered. Plan:
+  [[Keycloak Auth + Per-User History — Design]]. Foundry left up (billable) per the user.
+
 ### Frontend Refactor + Sign-In & History UI (lead took over the frontend)
 
 - **Refactored the monolith:** split the 829-line `App.tsx` into a clean module structure — `types`,
