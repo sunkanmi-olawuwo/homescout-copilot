@@ -17,6 +17,10 @@ Before applying, HomeScout should have a small proof pack:
 - a short demo video
 - a clear explanation of why this is not regulated mortgage, legal, or tenancy advice
 
+If the founder is on a UK Skilled Worker visa, review [[HomeScout Skilled Worker Visa Program
+Filter]] before applying to any intensive programme, taking funding, becoming a director, or
+switching to a founder route.
+
 ## Best-Fit HomeScout Targets
 
 ### Geovation
@@ -297,6 +301,7 @@ Priority: monitor.
 ## Related Pages
 
 - [[Accelerator Product Direction]]
+- [[HomeScout Skilled Worker Visa Program Filter]]
 - [[Market Landscape And Product Lessons]]
 - [[Feature Coverage]]
 - [[Product Brief]]
