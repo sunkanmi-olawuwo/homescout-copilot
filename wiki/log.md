@@ -2,6 +2,22 @@
 
 ## 2026-07-05
 
+### Frontend Refactor + Sign-In & History UI (lead took over the frontend)
+
+- **Refactored the monolith:** split the 829-line `App.tsx` into a clean module structure — `types`,
+  `data`, `lib/format`, `lib/markdown`, `api/client`, `hooks/useViewport`, and `components/` (TopBar,
+  LeftRail, ConversationPanel, EvidenceRail + presentational CopilotAnswerCard, EvidencePanel,
+  EstimatorPanel, RangeField, MetricRow, icons). `App.tsx` is now a 184-line state+composition
+  container. Identical DOM — all tests unchanged; lint/test/build/e2e green.
+- **Built the Keycloak sign-in + per-user history UI (step 7):** `react-oidc-context` +
+  `oidc-client-ts` (Auth Code + PKCE) bootstrapped from `GET /api/config` via an `AuthGate` bridged
+  to an in-house `useAuth()` (IdP-agnostic + testable; anonymous by default so existing tests are
+  unaffected). Header sign-in/out + name (`/api/me`); left-rail "Your conversations" history;
+  clicking resumes via the resume endpoint; the bearer token is attached to authenticated calls and
+  owner-stamps the session. Vitest 9 → 13 (new auth suite: signed-in header, history, bearer
+  attachment, resume, sign-in state); e2e still 4/4. **Pending:** the interactive browser OIDC
+  handshake against a running Keycloak. Plan: [[Keycloak Auth + Per-User History — Design]] step 7.
+
 ### Frontend Copilot Readability
 
 - Implemented the [[Work Tracks]] copilot readability slice from

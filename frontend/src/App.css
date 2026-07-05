@@ -205,6 +205,28 @@
   background: rgba(255, 255, 255, 0.12);
 }
 
+/* ---------- account / sign-in ---------- */
+.account-signed-in {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.account-name {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy-fg, #fff);
+}
+.history-empty {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--muted, #6b7280);
+  line-height: 1.4;
+}
+
 /* ---------- workspace grid ---------- */
 .workspace-grid {
   flex: 1;

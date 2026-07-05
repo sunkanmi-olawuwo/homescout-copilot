@@ -1,13 +1,19 @@
 import type { SavedComparison } from '../data';
+import type { ConversationSummary } from '../types';
+import { HistoryList } from './HistoryList';
 
-// The left sidebar: new-comparison action, saved-search filter, the saved-comparisons list, and the
-// workspace nav footer. Collapses into a drawer on mobile (driven by navOpen).
+// The left sidebar: new-comparison action, saved-search filter, the saved-comparisons list, the
+// signed-in user's conversation history, and the workspace nav footer. Collapses into a drawer on
+// mobile (driven by navOpen).
 export function LeftRail(props: {
   isMobile: boolean;
   navOpen: boolean;
   savedComparisons: SavedComparison[];
+  showHistory: boolean;
+  history: ConversationSummary[];
+  onResume: (sessionId: string) => void;
 }) {
-  const { isMobile, navOpen, savedComparisons } = props;
+  const { isMobile, navOpen, savedComparisons, showHistory, history, onResume } = props;
 
   return (
     <aside
@@ -36,6 +42,7 @@ export function LeftRail(props: {
           ))}
         </div>
       </section>
+      {showHistory ? <HistoryList conversations={history} onResume={onResume} /> : null}
       <nav className="rail-footer" aria-label="Workspace">
         <button type="button">Case file<span className="badge">2</span></button>
         <button type="button">Preferences<span className="badge">5</span></button>

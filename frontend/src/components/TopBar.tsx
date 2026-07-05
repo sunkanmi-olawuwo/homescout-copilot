@@ -1,13 +1,19 @@
 import type { Theme } from '../types';
+import { AccountControls } from './AccountControls';
 
-// The app header: brand, decision-support pill, and global actions (search, theme toggle, account).
-// On mobile it also carries the navigation drawer toggle.
+// The app header: brand, decision-support pill, and global actions (search, theme toggle, account /
+// sign-in). On mobile it also carries the navigation drawer toggle.
 export function TopBar(props: {
   theme: Theme;
   isMobile: boolean;
   navOpen: boolean;
   onToggleNav: () => void;
   onToggleTheme: () => void;
+  authEnabled: boolean;
+  isAuthenticated: boolean;
+  userName: string | null;
+  onSignIn: () => void;
+  onSignOut: () => void;
 }) {
   const { theme, isMobile, navOpen, onToggleNav, onToggleTheme } = props;
 
@@ -43,7 +49,13 @@ export function TopBar(props: {
         >
           {theme === 'dark' ? '☀' : '◐'}
         </button>
-        <button className="avatar-button" type="button" aria-label="Account">AO</button>
+        <AccountControls
+          authEnabled={props.authEnabled}
+          isAuthenticated={props.isAuthenticated}
+          userName={props.userName}
+          onSignIn={props.onSignIn}
+          onSignOut={props.onSignOut}
+        />
       </div>
     </header>
   );

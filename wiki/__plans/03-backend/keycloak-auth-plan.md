@@ -275,8 +275,19 @@ API-first, so Codex builds login while the backend builds validation:
    **Live-verified**: an anonymous session (`user_id <null>`) was claimed by dev on the first
    post-login ask with the same cookie, and then appeared in dev's `/api/copilot/history`. (Open:
    logout semantics — leave the cookie session or reset — is a frontend/step-7 decision.)
-7. **Frontend (Codex)** — login/logout, bearer header, history panel.
-8. **Live verification** — end-to-end against Aspire Keycloak; record in the log.
+7. ✅ **Frontend** *(done 2026-07-05; lead took it over)* — OIDC (`react-oidc-context` +
+   `oidc-client-ts`, Authorization Code + PKCE) bootstrapped from `GET /api/config` via an `AuthGate`
+   that bridges to a small in-house `useAuth()` (keeps components IdP-agnostic + testable). Header
+   sign-in/out + signed-in name (`/api/me`); left-rail "Your conversations" history panel; clicking
+   an item calls the resume endpoint and invites a follow-up; the bearer token is attached to
+   authenticated calls (`/api/me`, `/api/copilot/history`, `/api/copilot/ask` when signed in) and
+   owner-stamps the session. Anonymous chat unchanged (auth is additive). Vitest coverage for the
+   signed-in header, history list, bearer attachment, resume, and the anonymous/sign-in states;
+   `pnpm lint`/`test`/`build`/`e2e` green. **Pending:** the interactive OIDC redirect handshake
+   against a running Keycloak (browser sign-in) — the library-handled step, to verify on the Aspire
+   stack.
+8. **Live verification** — the interactive browser sign-in through Keycloak on the Aspire stack is
+   the one remaining end-to-end check (every API endpoint is already live-verified).
 
 ## Open questions / verify-at-implementation
 
