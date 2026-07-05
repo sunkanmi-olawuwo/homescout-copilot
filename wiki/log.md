@@ -2,6 +2,29 @@
 
 ## 2026-07-05
 
+### Listing Capture — PDF Extraction Pipeline (design plan)
+
+- Design-first plan for the capture on-ramp to the comparison spine:
+  [[Listing Capture — PDF Extraction Pipeline — Design]]. Terms-safe by construction — the **user
+  provides the document** (saved listing page, EPC, brochure, survey), so HomeScout never scrapes a
+  portal. Grounded in two real PDFs the user supplied (a Rightmove for-sale bungalow and a Zoopla
+  rent flat), extracted with `pdftotext` as the worked examples.
+- **Pipeline:** `text → vision → register cross-check → confidence → confirm`. Text (`pdftotext`-class
+  reader) catches labelled facts; **vision** (Foundry multimodal over rendered pages) reads what text
+  can't — the EPC-as-graphic case we hit on Rightmove; **register cross-check** verifies EPC/council-
+  tax-band/geocode against authoritative sources (gov.uk EPC register, VOA, postcodes.io) rather than
+  trusting the listing; every field carries **provenance + confidence**, conflicts (Zoopla's EPC "C"
+  vs "B") are surfaced not resolved, and **nothing is used until the user confirms**. Seam-first
+  interfaces + offline fakes + `[External]` live tests.
+- **Endpoint:** `POST /api/listings/extract` (1–4 PDFs of one property) → `ListingExtractionResult`
+  (draft `Listing` + per-field `FieldExtraction`/`ExtractionConflict`). Extends the `Listing` model
+  (council tax **band** not £, property type, bathrooms/receptions, price qualifier, address line) —
+  all additive, so the comparison spine is unaffected.
+- **Accuracy is measured, not hoped:** an eval-set section — real-PDF corpus with hand-labelled
+  ground truth, per-field precision / recall / **hallucination rate** / confidence calibration; text
+  layer in the PR gate, vision/register on the nightly schedule. Reuses the existing Evaluator harness.
+- Indexed in the plans README; cross-linked from the comparison-spine plan and feature-coverage.
+
 ### Listing Model + Comparison Spine (decision-pack MVP, Slice 1)
 
 - Started the backend backlog's top item — the **`Listing` domain model + real side-by-side comparison**,

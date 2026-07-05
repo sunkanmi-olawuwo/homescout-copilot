@@ -81,6 +81,7 @@ API, service-layer, persistence, and backend integration plans.
 - [Mortgage Cost Estimator — Design (MVP)](./03-backend/cost-estimator-mortgage-plan.md)
 - [Rental Cost Estimator — Design (renter analogue of the mortgage estimator)](./03-backend/rental-cost-estimator-plan.md) — deterministic true-monthly + upfront/deposit cost for renters (Tenant Fees Act 2019 caps).
 - [Listing Model + Comparison Spine — Design](./03-backend/listing-decision-pack-plan.md) — the `Listing` domain model + real `POST /api/comparison` side-by-side (price per ft², indicative monthly cost, "what's missing?" completeness score), replacing the `/api/comparison/sample` placeholder.
+- [Listing Capture — PDF Extraction Pipeline — Design](./03-backend/listing-capture-extraction-plan.md) — the on-ramp to the comparison: `POST /api/listings/extract` turns a user-provided PDF (saved listing, EPC, brochure) into a draft `Listing` the user confirms, via a text → vision → register-cross-check → confidence pipeline, with an accuracy eval set. No scraping.
 - [Keycloak Auth + Per-User History — Design](./03-backend/keycloak-auth-plan.md) — design-first plan (Aspire-hosted Keycloak; JWT bearer; `(Provider, Subject)` → internal user id; per-user session history; anonymous→authenticated hand-off), modelled on RagLab.
 - [Backend Plans (overview)](./03-backend/README.md)
 

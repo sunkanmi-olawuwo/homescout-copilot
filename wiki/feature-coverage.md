@@ -56,7 +56,7 @@ distinct from portals (discovery), data platforms (B2B reports), and rental mark
 
 | Feature | Status | Notes |
 | --- | --- | --- |
-| Listing capture (manual + paste-link) | Partial | `Listing` model shipped; the manual-entry flow currently means the client builds `Listing`s and POSTs them to `/api/comparison`. A dedicated capture/persistence endpoint + paste-link/upload extraction are later slices. |
+| Listing capture (PDF upload → extract) | Planned (designed) | `Listing` model shipped; capture designed in [[Listing Capture — PDF Extraction Pipeline — Design]]: `POST /api/listings/extract` turns a user-provided PDF (saved listing, EPC, brochure) into a draft `Listing` the user confirms, via text → vision → register-cross-check → confidence, with an accuracy eval set. Terms-safe (user provides the document; no scraping). Browser-extension + persistence are later slices. |
 | Structured listing facts (user-confirmed) | Implemented (model) | `Listing` record: label, mode (Buy/Rent), postcode, price/rent, beds, tenure, EPC, council tax, service charge, floor area (+unit), furnishing, bills, source URL, notes. See [[Listing Model + Comparison Spine — Design]]. |
 | Side-by-side comparison | Implemented (backend) | `POST /api/comparison` via `IListingComparisonService` — the real workflow, replacing the `/api/comparison/sample` placeholder. React compare UI is the next frontend slice. |
 | Missing-information checklist + "what's missing?" score | Implemented (backend) | Differentiator — `CompletenessPercent` + actionable `MissingInformation` per listing, over a mode-specific key-fact set. |
