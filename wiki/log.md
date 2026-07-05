@@ -2,6 +2,24 @@
 
 ## 2026-07-05
 
+### Differentiation & Data Strategy (durable reference page)
+
+- Captured the "what makes us different from a chatbot, and how we get data" strategy as
+  [[Differentiation And Data Strategy]], so product decisions have a reference to point back to.
+- **Moat** (a chatbot can produce a comparison; the difference is elsewhere): verified facts with
+  provenance (registers, not plausible text), deterministic/auditable calculations, the systematic
+  "what's missing" workflow, and a durable/shareable decision artifact + private case file — plus
+  trust-by-design (no verdict, always caveated).
+- **Principle: a step above a chatbot in *everything*.** The comparison is a decision *card* (highlights
+  strip, completeness bars, provenance, "ask the agent" chips), not a markdown table — that card is the
+  reference standard. Litmus test for any surface: "could a general chatbot with browsing do this just
+  as well?" — if yes, add grounding/verification/determinism/persistence until no.
+- **Data stance:** clean sources (user documents, authoritative registers, licensed feeds, browser
+  extension) — *not* scraping portals, ours or via Apify/converters. Outsourcing scraping doesn't change
+  the legal character (ToS breach, DB right, copyright, bot-circumvention, GDPR; vendor pushes liability
+  to us) and it *erodes the moat* (same unverified data a chatbot has). The clean path and the
+  differentiating path are the same. Not legal advice; get counsel if data-acquisition becomes core.
+
 ### Listing Capture — PDF Extraction Pipeline (design plan)
 
 - Design-first plan for the capture on-ramp to the comparison spine:
