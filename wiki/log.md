@@ -2,6 +2,27 @@
 
 ## 2026-07-05
 
+### Local Static-Analysis Capability (replaces dormant CodeQL) — DONE
+
+- Delivered the static-analysis backlog item: real code-quality signal on a private repo without
+  GitHub Advanced Security (which CodeQL's upload needs). Shape:
+  - **`scripts/static-analysis.sh`** is the single source of truth — subcommands `all|complexity|inspect|actions`,
+    advisory (exits 0 unless `--strict`), tools self-skip with install hints, machine-readable reports to
+    the gitignored `artifacts/static-analysis/`.
+  - **Surfaces (parity with CodeQL's languages):** Lizard cyclomatic complexity for C# **and** TypeScript;
+    JetBrains InspectCode for .NET (verified it supports the `.slnx` — the caveat I flagged was a non-issue);
+    actionlint for the workflows; ESLint `complexity`/`max-*` budget added to `frontend/eslint.config.js` as
+    **warnings** (surfaces without failing `frontend-ci`).
+  - **CI:** advisory `.github/workflows/static-analysis.yml` — prints findings + step summary, uploads reports
+    as an artifact, never blocks a merge. Wired into `scripts/quality-gate.sh` as an advisory step.
+  - **Cross-agent:** the capability lives in a script (not the Claude skill) so **all** agents share it —
+    Claude via the `static-analysis` skill, Codex/Copilot via [[Static Analysis]] referenced in `AGENTS.md`.
+    A `SKILL.md` alone would be Claude-only.
+  - **Verified live** (not assumed): Lizard, InspectCode (108 WARNING+ suggestions on the real solution),
+    and actionlint (all workflows clean — it caught an SC2016 in my own new workflow, which I fixed) all run
+    against this repo. Baseline recorded in [[Static Analysis]]. Posture is **advisory first** (user choice);
+    tighten to a blocking gate once the baseline is under budget.
+
 ### Next Steps — Backend Backlog
 
 - The next backend slices, deferred behind the persistence/auth track (both surfaced by the
@@ -10,9 +31,8 @@
     a `Listing` domain model + manual-entry capture + a real side-by-side comparison endpoint
     (replacing the `/api/comparison/sample` placeholder), which unblocks the whole decision-pack flow
     and the frontend shortlist/compare UI. Tracked under "Decision-Pack MVP" in [[Feature Coverage]].
-  - **Local static-analysis skill** — replace the CodeQL scanning lost when the repo went private
-    (GitHub Advanced Security isn't free on private repos, so the workflow is guarded to public-only):
-    a local CodeQL-CLI + code-complexity capability wired into `scripts/quality-gate.sh`.
+  - ~~**Local static-analysis skill**~~ — **DONE** (see the entry above); the capability landed as
+    `scripts/static-analysis.sh` + advisory CI + the `static-analysis` skill. See [[Static Analysis]].
 - The [[Area Evidence Map]] design (below) is a further backend + frontend candidate for after the
   listing spine lands.
 
