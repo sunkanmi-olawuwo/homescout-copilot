@@ -2,6 +2,14 @@
 
 ## 2026-07-05
 
+### HomeScout Accelerator Shortlist
+
+- Added [[HomeScout Accelerator Shortlist]] with the HomeScout-specific accelerator targets:
+  Geovation, REACH UK, Pi Labs, YC, Techstars London, Antler UK, Founders Factory, Microsoft For
+  Startups, and AWS Generative AI Accelerator.
+- Captured each option's fit, pitch angle, readiness bar, priority, source link, and the proof pack
+  HomeScout should prepare before applying.
+
 ### Keycloak Auth Steps 2 + 3 — JWT Validation, /api/me, User Directory
 
 - **Step 2 (JWT validation + `/api/me`).** Wired `AddKeycloakJwtBearer` (realm `homescout`, audience
