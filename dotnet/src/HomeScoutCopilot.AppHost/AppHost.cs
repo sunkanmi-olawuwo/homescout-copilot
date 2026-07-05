@@ -1,3 +1,5 @@
+using Projects;
+
 var builder = DistributedApplication.CreateBuilder(args);
 
 // Durable conversation-session store. A data volume keeps history across container restarts in dev;
@@ -14,7 +16,7 @@ var keycloak = builder.AddKeycloak("keycloak")
     .WithDataVolume("homescout-keycloak-data")
     .WithRealmImport("./keycloak");
 
-var apiService = builder.AddProject<Projects.HomeScoutCopilot_API>("apiservice")
+var apiService = builder.AddProject<HomeScoutCopilot_API>("apiservice")
     .WithReference(sessionsDb)
     .WaitFor(sessionsDb)
     .WithReference(keycloak)

@@ -9,10 +9,10 @@ namespace HomeScoutCopilot.API.Test;
 [TestFixture]
 public class ApiContractTests
 {
-    private WebApplicationFactory<HomeScoutCopilot.API.ApiMarker> _factory = null!;
+    private WebApplicationFactory<ApiMarker> _factory = null!;
 
     [OneTimeSetUp]
-    public void SetUp() => _factory = new WebApplicationFactory<HomeScoutCopilot.API.ApiMarker>();
+    public void SetUp() => _factory = new WebApplicationFactory<ApiMarker>();
 
     [OneTimeTearDown]
     public void TearDown() => _factory.Dispose();

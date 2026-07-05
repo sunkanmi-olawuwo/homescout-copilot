@@ -12,7 +12,7 @@ public class ConfigEndpointTests
     [Test]
     public async Task Config_is_public_and_reports_auth_disabled_without_keycloak()
     {
-        using var factory = new WebApplicationFactory<HomeScoutCopilot.API.ApiMarker>();
+        using var factory = new WebApplicationFactory<ApiMarker>();
 
         var response = await factory.CreateClient().GetAsync("/api/config");
 
@@ -30,7 +30,7 @@ public class ConfigEndpointTests
     [Test]
     public async Task Config_builds_the_authority_from_the_keycloak_service()
     {
-        using var factory = new WebApplicationFactory<HomeScoutCopilot.API.ApiMarker>()
+        using var factory = new WebApplicationFactory<ApiMarker>()
             .WithWebHostBuilder(builder => builder.ConfigureAppConfiguration((_, config) =>
                 config.AddInMemoryCollection(new Dictionary<string, string?>
                 {

@@ -1,5 +1,3 @@
-using HomeScoutCopilot.Evaluator;
-
 namespace HomeScoutCopilot.Evaluator.Test;
 
 // Offline coverage for the multi-turn harness: the dataset parser and the runner that drives an

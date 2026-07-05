@@ -4,6 +4,29 @@ import { currency0, currency2, pct1 } from '../lib/format';
 import { MetricRow } from './MetricRow';
 import { RangeField } from './RangeField';
 
+// The computed figures block: monthly payment, loan/LTV/interest/repayable metrics, and the +3%
+// stress payment. Split out of EstimatorPanel so each stays simple; `null` means still loading.
+function EstimateResult({ estimate }: { estimate: MortgageEstimateResult | null }) {
+  return (
+    <>
+      <div className="payment-card">
+        <span>Monthly payment<span className="kind-chip estimate">estimate</span></span>
+        <strong>{estimate === null ? 'Loading…' : currency2(estimate.monthlyPayment)}</strong>
+      </div>
+      <dl className="metric-rows">
+        <MetricRow label="Loan amount" value={currency0(estimate?.loan)} />
+        <MetricRow label="Loan-to-value" value={estimate === null ? 'Missing' : `${pct1.format(estimate.ltvPercent)}%`} />
+        <MetricRow label="Total interest" value={currency0(estimate?.totalInterest)} />
+        <MetricRow label="Total repayable" value={estimate?.totalRepayment == null ? '—' : currency0(estimate.totalRepayment)} />
+      </dl>
+      <div className="stress-row">
+        <span>+3% stress payment</span>
+        <strong>{currency0(estimate?.stressTest.monthlyPayment)}</strong>
+      </div>
+    </>
+  );
+}
+
 // The mortgage cost estimator (right-rail Estimator tab): user-driven inputs → /api/mortgage/estimate,
 // with the +3% stress payment, LTV, base-rate context, assumptions and the not-mortgage-advice caveat.
 export function EstimatorPanel(props: {
@@ -52,22 +75,7 @@ export function EstimatorPanel(props: {
           The mortgage API could not be reached from this preview. Connect the HomeScout API service to calculate this estimate.
         </div>
       ) : (
-        <>
-          <div className="payment-card">
-            <span>Monthly payment<span className="kind-chip estimate">estimate</span></span>
-            <strong>{estimate === null ? 'Loading…' : currency2(estimate.monthlyPayment)}</strong>
-          </div>
-          <dl className="metric-rows">
-            <MetricRow label="Loan amount" value={currency0(estimate?.loan)} />
-            <MetricRow label="Loan-to-value" value={estimate === null ? 'Missing' : `${pct1.format(estimate.ltvPercent)}%`} />
-            <MetricRow label="Total interest" value={currency0(estimate?.totalInterest)} />
-            <MetricRow label="Total repayable" value={estimate?.totalRepayment == null ? '—' : currency0(estimate.totalRepayment)} />
-          </dl>
-          <div className="stress-row">
-            <span>+3% stress payment</span>
-            <strong>{currency0(estimate?.stressTest.monthlyPayment)}</strong>
-          </div>
-        </>
+        <EstimateResult estimate={estimate} />
       )}
 
       <div className="base-rate-line">

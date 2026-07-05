@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using Projects;
 
 namespace HomeScoutCopilot.API.Test;
 
@@ -13,7 +14,7 @@ public class WebTests
         // Arrange
         var cancellationToken = TestContext.CurrentContext.CancellationToken;
 
-        var appHost = await DistributedApplicationTestingBuilder.CreateAsync<Projects.HomeScoutCopilot_AppHost>(cancellationToken);
+        var appHost = await DistributedApplicationTestingBuilder.CreateAsync<HomeScoutCopilot_AppHost>(cancellationToken);
         appHost.Services.AddLogging(logging =>
         {
             logging.SetMinimumLevel(LogLevel.Debug);

@@ -1,5 +1,4 @@
 using FluentResults;
-using HomeScoutCopilot.Functional;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 

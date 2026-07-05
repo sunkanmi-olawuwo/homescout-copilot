@@ -25,9 +25,7 @@ import {
 import { useAuth } from './auth/authContext';
 import { useViewport } from './hooks/useViewport';
 import { TopBar } from './components/TopBar';
-import { LeftRail } from './components/LeftRail';
-import { ConversationPanel } from './components/ConversationPanel';
-import { EvidenceRail } from './components/EvidenceRail';
+import { WorkspaceBody } from './components/WorkspaceBody';
 
 // The workspace container: owns all state and data fetching, and composes the presentational
 // components (header, left rail, conversation, evidence/estimator rail). The layout switches between
@@ -167,6 +165,12 @@ function App() {
     }
   };
 
+  // On mobile the "Comparison" tab surfaces the Estimator, so opening it also selects that rail tab.
+  const selectMainTab = (tab: MainTab) => {
+    setMainTab(tab);
+    if (tab === 'comparison' && isMobile) setRightTab('estimator');
+  };
+
   return (
     <div className="homescout-app" data-theme={theme} data-viewport={isMobile ? 'mobile' : 'wide'}>
       <TopBar
@@ -183,66 +187,34 @@ function App() {
         onSignOut={auth.signOut}
       />
 
-      <div className="workspace-grid">
-        <LeftRail
-          isMobile={isMobile}
-          navOpen={navOpen}
-          savedComparisons={savedComparisons}
-          showHistory={auth.isAuthenticated}
-          history={history}
-          onResume={(sessionId) => void resumeConversation(sessionId)}
-        />
-        {isMobile && navOpen ? (
-          <button className="rail-scrim" type="button" aria-label="Close navigation" onClick={() => setNavOpen(false)} />
-        ) : null}
-
-        <main className="main-workspace" aria-label="HomeScout workspace">
-          <div className="workspace-tabs" role="tablist" aria-label="Workspace views">
-            <button type="button" role="tab" aria-selected={mainTab === 'conversation'} onClick={() => setMainTab('conversation')}>
-              Conversation
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={mainTab === 'comparison'}
-              onClick={() => {
-                setMainTab('comparison');
-                if (isMobile) setRightTab('estimator');
-              }}
-            >
-              {isMobile ? 'Estimator' : 'Comparison'}
-            </button>
-          </div>
-
-          {mainTab === 'conversation' || !isMobile ? (
-            <ConversationPanel
-              conversationActive={conversationActive}
-              isResettingConversation={isResettingConversation}
-              onResetConversation={() => void resetConversation()}
-              startPrompts={startPrompts}
-              onAsk={(message) => void askCopilot(message)}
-              isAskingCopilot={isAskingCopilot}
-              copilotNotice={copilotNotice}
-              copilotAnswer={copilotAnswer}
-              copilotQuestion={copilotQuestion}
-            />
-          ) : null}
-        </main>
-
-        {(!isMobile || mainTab === 'comparison') ? (
-          <EvidenceRail
-            rightTab={rightTab}
-            onSelectTab={setRightTab}
-            evidence={copilotAnswer?.evidence ?? []}
-            request={request}
-            setRequest={setRequest}
-            depositPercent={depositPercent}
-            estimate={estimate}
-            estimateError={estimateError}
-            baseRate={baseRate}
-          />
-        ) : null}
-      </div>
+      <WorkspaceBody
+        isMobile={isMobile}
+        navOpen={navOpen}
+        onCloseNav={() => setNavOpen(false)}
+        savedComparisons={savedComparisons}
+        showHistory={auth.isAuthenticated}
+        history={history}
+        onResume={(sessionId) => void resumeConversation(sessionId)}
+        mainTab={mainTab}
+        onSelectMainTab={selectMainTab}
+        rightTab={rightTab}
+        onSelectRightTab={setRightTab}
+        conversationActive={conversationActive}
+        isResettingConversation={isResettingConversation}
+        onResetConversation={() => void resetConversation()}
+        startPrompts={startPrompts}
+        onAsk={(message) => void askCopilot(message)}
+        isAskingCopilot={isAskingCopilot}
+        copilotNotice={copilotNotice}
+        copilotAnswer={copilotAnswer}
+        copilotQuestion={copilotQuestion}
+        request={request}
+        setRequest={setRequest}
+        depositPercent={depositPercent}
+        estimate={estimate}
+        estimateError={estimateError}
+        baseRate={baseRate}
+      />
     </div>
   );
 }

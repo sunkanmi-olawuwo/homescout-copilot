@@ -1,5 +1,3 @@
-using HomeScoutCopilot.Evaluator;
-
 namespace HomeScoutCopilot.Evaluator.Test;
 
 [TestFixture]

@@ -3,7 +3,6 @@ using HomeScoutCopilot.API.Service;
 using HomeScoutCopilot.Shared.Contracts;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace HomeScoutCopilot.API.Test;
@@ -18,7 +17,7 @@ public class BaseRateEndpointTests
     {
         var stubValue = new BaseRate(3.75m, new DateOnly(2026, 6, 19), "Fallback", "Bank of England", "Context only.");
 
-        using var factory = new WebApplicationFactory<HomeScoutCopilot.API.ApiMarker>()
+        using var factory = new WebApplicationFactory<ApiMarker>()
             .WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
             {
                 services.RemoveAll<IBaseRateProvider>();

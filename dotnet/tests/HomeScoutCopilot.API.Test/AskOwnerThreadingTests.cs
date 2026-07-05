@@ -41,10 +41,10 @@ public class AskOwnerThreadingTests
         }
     }
 
-    private static (WebApplicationFactory<HomeScoutCopilot.API.ApiMarker> Factory, RecordingAskGateway Gateway) Build()
+    private static (WebApplicationFactory<ApiMarker> Factory, RecordingAskGateway Gateway) Build()
     {
         var gateway = new RecordingAskGateway();
-        var factory = new WebApplicationFactory<HomeScoutCopilot.API.ApiMarker>()
+        var factory = new WebApplicationFactory<ApiMarker>()
             .WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
             {
                 services.AddAuthentication(TestAuthHandler.SchemeName)

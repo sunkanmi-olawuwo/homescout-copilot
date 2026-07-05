@@ -1,6 +1,5 @@
 using System.Text.Json;
 using HomeScoutCopilot.API.Service;
-using Microsoft.Extensions.Options;
 using Npgsql;
 using Testcontainers.PostgreSql;
 

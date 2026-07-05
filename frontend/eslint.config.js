@@ -23,12 +23,13 @@ export default defineConfig(
         'warn',
         { allowConstantExport: true },
       ],
-      // Advisory complexity budget, mirroring the Lizard thresholds used for the backend.
-      // Warnings (not errors) so they surface in `pnpm run lint` without failing the gate;
-      // tighten to 'error' once the frontend baseline sits comfortably under budget.
+      // Advisory complexity budget. Warnings (not errors) so they surface in `pnpm run lint`
+      // without failing the gate; tighten to 'error' once the baseline sits comfortably under.
+      // Cyclomatic complexity, nesting depth and parameter count are the meaningful signals;
+      // raw line count is deliberately not enforced — it is a poor proxy for verbose-but-simple
+      // JSX view components and test bodies (see wiki/static-analysis.md).
       complexity: ['warn', 15],
       'max-depth': ['warn', 4],
-      'max-lines-per-function': ['warn', { max: 80, skipBlankLines: true, skipComments: true }],
       'max-params': ['warn', 5],
     },
   },

@@ -2,6 +2,27 @@
 
 ## 2026-07-05
 
+### Static-Analysis Findings Cleared To A Clean Baseline
+
+- Cleared the first run's findings so the advisory tool starts from zero (rather than letting them pile up):
+  - **InspectCode 108 → 0.** ReSharper `cleanupcode` (redundancy-only profile in the new
+    `dotnet/HomeScoutCopilot.slnx.DotSettings`) removed 36 redundant usings/qualifiers. Two genuine
+    Aspire-scaffold nits fixed in code (a hiding lambda param; an unused return). The rest were
+    intentional conventions / false positives, accepted via the new `dotnet/.editorconfig`
+    (`resharper_*_highlighting = none`), each documented in [[Static Analysis]]: `CheckNamespace`
+    (flat per-project namespaces + Aspire's intentional `Microsoft.Extensions.Hosting`),
+    `NotAccessedPositionalProperty.Global` (serialization DTOs), and redundant-`!`/nullable-contract
+    inspections scoped **off in `tests/`+`tools/` only** (still active in product `src/`).
+  - **Complexity 0 over the default gate.** Refactored the Evaluator `switch` (CCN 27 → per-verb
+    handlers), `RecordAuthenticatedUserAsync` (CCN 17 → claim-resolution helpers), `renderInlineMarkdown`
+    (→ inline matcher list), `EstimatorPanel` (→ `EstimateResult` subcomponent), and `App` (workspace grid
+    → new `WorkspaceBody`). Dropped the noisy frontend `max-lines-per-function` rule (kept `complexity`/
+    `max-depth`/`max-params`) — line count is a poor signal for verbose JSX/tests.
+  - **Fixed a bug in `static-analysis.sh`** surfaced by the clean run: `grep -c … || echo 0` doubled the
+    count to `0\n0` on zero findings, tripping an arithmetic error. Now handled correctly.
+- Verified: full backend suite (incl. Testcontainers DB tests, Docker up) + frontend build/lint/test/e2e
+  all green; `static-analysis.sh all` reports 0 findings across every surface.
+
 ### Local Static-Analysis Capability (replaces dormant CodeQL) — DONE
 
 - Delivered the static-analysis backlog item: real code-quality signal on a private repo without

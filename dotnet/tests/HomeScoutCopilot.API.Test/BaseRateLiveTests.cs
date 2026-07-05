@@ -21,7 +21,7 @@ public class BaseRateLiveTests
     [Test]
     public async Task Base_rate_is_fetched_live_from_the_Bank_of_England()
     {
-        using var factory = new WebApplicationFactory<HomeScoutCopilot.API.ApiMarker>();
+        using var factory = new WebApplicationFactory<ApiMarker>();
 
         var body = await factory.CreateClient().GetFromJsonAsync<BaseRate>("/api/mortgage/base-rate");
 

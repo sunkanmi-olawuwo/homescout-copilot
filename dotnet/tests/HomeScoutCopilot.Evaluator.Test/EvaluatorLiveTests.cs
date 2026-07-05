@@ -1,7 +1,6 @@
 using Azure.AI.Projects;
 using Azure.Identity;
 using HomeScoutCopilot.API.Service;
-using HomeScoutCopilot.Evaluator;
 using HomeScoutCopilot.Shared.Contracts;
 using Microsoft.Extensions.Options;
 
