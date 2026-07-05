@@ -60,3 +60,29 @@ export interface CopilotAnswer {
   assumptions: string[];
   caveats: string[];
 }
+
+// --- Auth + per-user history (Keycloak) ---
+
+export interface AuthConfigResponse {
+  authEnabled: boolean;
+  authority: string | null;
+  clientId: string;
+  audience: string;
+}
+
+export interface MeResponse {
+  userId: string | null;
+  subject: string;
+  email: string | null;
+  name: string | null;
+}
+
+export interface ConversationSummary {
+  sessionId: string;
+  createdAt: string;
+  lastActiveAt: string;
+}
+
+export interface ConversationHistoryResponse {
+  conversations: ConversationSummary[];
+}

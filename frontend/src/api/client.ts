@@ -1,4 +1,12 @@
-import type { BaseRate, CopilotAnswer, MortgageEstimateRequest, MortgageEstimateResult } from '../types';
+import type {
+  AuthConfigResponse,
+  BaseRate,
+  ConversationHistoryResponse,
+  CopilotAnswer,
+  MeResponse,
+  MortgageEstimateRequest,
+  MortgageEstimateResult,
+} from '../types';
 
 // Thin HomeScout API client. Endpoints are same-origin (Vite proxies to the API in dev, and the API
 // serves the built SPA in prod). Callers own UI state; this centralises the fetch mechanics.
@@ -26,14 +34,23 @@ export function fetchMortgageEstimate(
   );
 }
 
+function authHeader(token: string | null | undefined): Record<string, string> {
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 /**
  * Asks the copilot. Returns the HTTP status alongside the parsed answer (when 200) so the caller can
- * map 503 / other failures to the right notice. Network failures reject (the caller catches).
+ * map 503 / other failures to the right notice. Network failures reject (the caller catches). A token
+ * (when signed in) owner-stamps the session for per-user history; anonymous calls send none.
  */
-export async function askCopilot(message: string): Promise<{ status: number; answer: CopilotAnswer | null }> {
+export async function askCopilot(
+  message: string,
+  token?: string | null,
+): Promise<{ status: number; answer: CopilotAnswer | null }> {
   const response = await fetch('/api/copilot/ask', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json', ...authHeader(token) },
     body: JSON.stringify({ message }),
   });
   if (!response.ok) {
@@ -45,6 +62,37 @@ export async function askCopilot(message: string): Promise<{ status: number; ans
 
 export async function resetSession(): Promise<void> {
   const response = await fetch('/api/copilot/session/reset', { method: 'POST', credentials: 'same-origin' });
+  if (!response.ok) {
+    throw new Error(`${response.status} ${response.statusText}`);
+  }
+}
+
+// --- Auth + per-user history ---
+
+/** Public OIDC config the SPA reads at startup (unauthenticated). */
+export function fetchAuthConfig(signal?: AbortSignal): Promise<AuthConfigResponse> {
+  return readJson<AuthConfigResponse>('/api/config', undefined, signal);
+}
+
+export function fetchMe(token: string, signal?: AbortSignal): Promise<MeResponse> {
+  return readJson<MeResponse>('/api/me', { headers: authHeader(token), credentials: 'same-origin' }, signal);
+}
+
+export function fetchHistory(token: string, signal?: AbortSignal): Promise<ConversationHistoryResponse> {
+  return readJson<ConversationHistoryResponse>(
+    '/api/copilot/history',
+    { headers: authHeader(token), credentials: 'same-origin' },
+    signal,
+  );
+}
+
+/** Re-open an owned conversation: points the session cookie at it so the next ask resumes context. */
+export async function resumeSession(sessionId: string, token: string): Promise<void> {
+  const response = await fetch(`/api/copilot/session/resume/${encodeURIComponent(sessionId)}`, {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: authHeader(token),
+  });
   if (!response.ok) {
     throw new Error(`${response.status} ${response.statusText}`);
   }
