@@ -201,7 +201,7 @@ contract responses in component + Playwright E2E tests.
 **Then (lead):** review Codex's frontend + the backend slice, merge individually, E2E check
 (copilot conversation ↔ live `/api/copilot/ask`), then plan iteration 3.
 
-## Copilot answer readability (in flight)
+## Copilot answer readability (done 2026-07-05)
 
 Two coordinated fixes so the answer reads well and the conversation view behaves like a chat:
 
@@ -210,8 +210,10 @@ Two coordinated fixes so the answer reads well and the conversation view behaves
   (bold headline → `##` sub-headings + bullets), and to lean on the evidence panel for figures
   rather than re-listing them. Guardrails intact; `evaluator run` stayed 6/6 against the live
   agent. Manifest regenerated to `homescout.v2.md`.
-- **Frontend (Codex):** (1) **collapse the hero** (big "Compare areas and properties…" H1 +
-  START WITH cards) into a compact header once a conversation is active — empty state only
-  before the first question; (2) **render `answer.text` as sanitized Markdown** (headings /
-  bullets / bold). See [Codex Frontend Instructions](../02-frontend/codex-frontend-instructions.md)
-  "Third slice".
+- ✅ **Frontend (Codex) — done:** the conversation now keeps the full hero + START WITH cards only
+  in the empty state, collapses to the compact header with the New conversation affordance once a
+  question/answer/notice exists, and renders `answer.text` through a safe markdown subset (headings,
+  bold, inline code, lists, and safe links only). Unsafe links and raw HTML are not promoted into
+  executable content, and a trailing markdown "not mortgage advice" line is promoted into the caveat
+  callout if the structured `caveats` array is empty. Covered by Vitest + Playwright mocked
+  `/api/copilot/ask` responses.
