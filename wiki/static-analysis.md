@@ -62,15 +62,42 @@ intentional:
 Tighten to blocking later — set thresholds and use `--strict` in CI, and flip the ESLint
 complexity rules from `warn` to `error` — once the baseline is comfortably under budget.
 
-## Current baseline (2026-07-05)
+## Current baseline (2026-07-05) — clean
 
-- **Complexity:** two C# functions over the default gate (CCN>15) — the Evaluator argument
-  `switch` (CCN 27) and `Program.RecordAuthenticatedUserAsync` (CCN 17); frontend TS clean at
-  default thresholds. ESLint flags `App`, `EstimatorPanel`, and `renderInlineMarkdown` as
-  complexity-budget warnings.
-- **InspectCode:** ~108 WARNING+ suggestions, mostly redundant usings / namespace / nullable-
-  contract hints — advisory cleanup candidates, not defects.
-- **actionlint:** all workflows clean.
+The first run's findings were all triaged and cleared, so the tool now starts from zero:
+
+- **Complexity:** 0 over the default gate. The two C# offenders were refactored — the Evaluator
+  `switch` (CCN 27) split into per-verb handlers, and `RecordAuthenticatedUserAsync` (CCN 17) had
+  its claim-resolution chains extracted into helpers. Frontend: `renderInlineMarkdown` split into
+  inline matchers, `EstimatorPanel` extracted an `EstimateResult` subcomponent, and `App` moved its
+  workspace grid into `WorkspaceBody`. All under budget.
+- **InspectCode:** 0 at WARNING+. ReSharper `cleanupcode` (redundancy-only profile in
+  `dotnet/HomeScoutCopilot.slnx.DotSettings`) removed 36 redundant usings/qualifiers; two genuine
+  Aspire-scaffold nits were fixed in code; the rest were intentional conventions or false positives,
+  accepted via `dotnet/.editorconfig` (see below).
+- **actionlint:** clean.
+
+## Accepted conventions (why some inspections are configured off)
+
+These decisions live in `dotnet/.editorconfig` (InspectCode reads `resharper_*_highlighting`), each a
+deliberate call that a finding is *not* a defect — not an ignored pile. Genuine issues are fixed in code.
+
+- **`CheckNamespace` — off.** HomeScout uses one root namespace per project; folders organise files.
+  The API endpoints project happens to mirror folders, but that is not a required convention, and
+  Aspire's `ServiceDefaults` intentionally uses `namespace Microsoft.Extensions.Hosting` so its
+  extension methods are discoverable. Mass-renaming 37 files (26 in `API.Service`) plus their 64
+  consumers to satisfy a cosmetic advisory finding is disproportionate.
+- **`NotAccessedPositionalProperty.Global` — off.** Records in `*.Shared.Contracts` and the evaluator
+  dataset are (de)serialization DTOs; their positional properties are read across the JSON boundary
+  (API responses, the React client), which the in-solution reachability analysis cannot see.
+- **Nullable-contract + redundant-`!` inspections — off in `tests/` and `tools/` only** (active in
+  product `src/`). Test fixtures use the `= null!` late-init pattern with defensive teardown guards,
+  and live/external test helpers use redundant null-forgiving (`!`) after their own env-var guards.
+
+The **frontend** `max-lines-per-function` rule was dropped (cyclomatic `complexity`, `max-depth`, and
+`max-params` remain): raw line count is a poor signal for verbose-but-simple JSX view components and
+test bodies. Severity mechanism note: prefer `.editorconfig` (`resharper_*_highlighting`) over the
+solution `.DotSettings` for portability.
 
 ## Related
 

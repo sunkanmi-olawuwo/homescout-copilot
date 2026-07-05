@@ -1,5 +1,4 @@
 using HomeScoutCopilot.API.Service;
-using HomeScoutCopilot.Evaluator;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace HomeScoutCopilot.Evaluator.Test;

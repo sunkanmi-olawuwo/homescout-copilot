@@ -1,5 +1,3 @@
-using HomeScoutCopilot.Evaluator;
-
 namespace HomeScoutCopilot.Evaluator.Test;
 
 // Each safety evaluator must PASS a compliant answer and CATCH the corresponding violation.

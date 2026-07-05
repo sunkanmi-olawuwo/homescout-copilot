@@ -1,8 +1,10 @@
+using System.Security.Claims;
 using System.Text.Json.Serialization;
 using Azure.AI.Projects;
 using Azure.Core;
 using Azure.Identity;
 using Carter;
+using HomeScoutCopilot.API;
 using HomeScoutCopilot.API.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Caching.Memory;
@@ -17,7 +19,7 @@ builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi();
 
 // Endpoints are Carter modules (Features/) delegating to MediatR handlers.
-builder.Services.AddMediatR(config => config.RegisterServicesFromAssemblyContaining<HomeScoutCopilot.API.ApiMarker>());
+builder.Services.AddMediatR(config => config.RegisterServicesFromAssemblyContaining<ApiMarker>());
 builder.Services.AddCarter();
 
 // Accept/emit enums (e.g. RepaymentType) as strings for friendlier JSON.
@@ -154,7 +156,7 @@ app.Run();
 // JIT user capture on token validation: best-effort record of the (keycloak, sub) user so per-user
 // history works, throttled per subject (~10 min) to avoid a write on every request. Never throws —
 // a directory/DB blip must not break authentication.
-static async Task RecordAuthenticatedUserAsync(Microsoft.AspNetCore.Authentication.JwtBearer.TokenValidatedContext context)
+static async Task RecordAuthenticatedUserAsync(TokenValidatedContext context)
 {
     var services = context.HttpContext.RequestServices;
     var directory = services.GetRequiredService<IUserDirectory>();
@@ -163,15 +165,13 @@ static async Task RecordAuthenticatedUserAsync(Microsoft.AspNetCore.Authenticati
         return;
     }
 
-    var principal = context.Principal;
-    var subject = principal?.FindFirst("sub")?.Value
-        ?? principal?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    var subject = ResolveSubject(context.Principal);
     if (string.IsNullOrEmpty(subject))
     {
         return;
     }
 
-    var cache = services.GetRequiredService<Microsoft.Extensions.Caching.Memory.IMemoryCache>();
+    var cache = services.GetRequiredService<IMemoryCache>();
     var throttleKey = $"user-seen:{UserIdentityProviders.Keycloak}:{subject}";
     if (cache.TryGetValue(throttleKey, out _))
     {
@@ -180,8 +180,7 @@ static async Task RecordAuthenticatedUserAsync(Microsoft.AspNetCore.Authenticati
 
     try
     {
-        var email = principal?.FindFirst("email")?.Value;
-        var name = principal?.FindFirst("name")?.Value ?? principal?.FindFirst("preferred_username")?.Value;
+        var (email, name) = ResolveDisplay(context.Principal);
         await directory.RecordAsync(UserIdentityProviders.Keycloak, subject, email, name, context.HttpContext.RequestAborted);
         cache.Set(throttleKey, true, TimeSpan.FromMinutes(10));
     }
@@ -191,3 +190,13 @@ static async Task RecordAuthenticatedUserAsync(Microsoft.AspNetCore.Authenticati
         logger.LogWarning(ex, "JIT user capture failed for subject {Subject}; continuing.", subject);
     }
 }
+
+// Keycloak puts the stable user id in "sub"; fall back to the standard NameIdentifier claim.
+static string? ResolveSubject(ClaimsPrincipal? principal)
+    => principal?.FindFirst("sub")?.Value
+        ?? principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+// Best-effort display fields; "name" then "preferred_username" for a friendly label.
+static (string? Email, string? Name) ResolveDisplay(ClaimsPrincipal? principal)
+    => (principal?.FindFirst("email")?.Value,
+        principal?.FindFirst("name")?.Value ?? principal?.FindFirst("preferred_username")?.Value);

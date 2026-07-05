@@ -1,5 +1,3 @@
-using HomeScoutCopilot.Evaluator;
-
 namespace HomeScoutCopilot.Evaluator.Test;
 
 // Offline tests for the LLM-judge rubric: the prompt-building + score-parsing (no model call).

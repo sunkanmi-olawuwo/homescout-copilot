@@ -2,7 +2,6 @@ using Carter;
 using HomeScoutCopilot.API.Service;
 using HomeScoutCopilot.Shared.Contracts;
 using MediatR;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace HomeScoutCopilot.API.Features.Copilot;

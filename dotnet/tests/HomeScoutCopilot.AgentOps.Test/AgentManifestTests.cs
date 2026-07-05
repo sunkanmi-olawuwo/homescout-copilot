@@ -1,4 +1,3 @@
-using HomeScoutCopilot.AgentOps;
 using HomeScoutCopilot.API.Service;
 
 namespace HomeScoutCopilot.AgentOps.Test;

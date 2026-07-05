@@ -30,6 +30,55 @@ function findNextMarkdownToken(source: string, from: number) {
   return candidates.length ? Math.min(...candidates) : -1;
 }
 
+// A single inline token: the rendered node and where scanning resumes after it.
+type InlineToken = { node: ReactNode; nextCursor: number };
+type InlineMatcher = (source: string, at: number, key: string) => InlineToken | null;
+
+// Each matcher recognises one delimiter at `at` and returns null if it doesn't apply, keeping the
+// main scan loop flat. A delimited span only matches when its closing delimiter is found.
+const matchCode: InlineMatcher = (source, at, key) => {
+  if (!source.startsWith('`', at)) return null;
+  const end = source.indexOf('`', at + 1);
+  if (end <= at) return null;
+  return { node: <code key={key}>{source.slice(at + 1, end)}</code>, nextCursor: end + 1 };
+};
+
+const matchStrong: InlineMatcher = (source, at, key) => {
+  if (!source.startsWith('**', at)) return null;
+  const end = source.indexOf('**', at + 2);
+  if (end <= at) return null;
+  return { node: <strong key={key}>{source.slice(at + 2, end)}</strong>, nextCursor: end + 2 };
+};
+
+const matchEmphasis: InlineMatcher = (source, at, key) => {
+  if (!source.startsWith('*', at) || source.startsWith('**', at)) return null;
+  const end = source.indexOf('*', at + 1);
+  if (end <= at) return null;
+  return { node: <em key={key}>{source.slice(at + 1, end)}</em>, nextCursor: end + 1 };
+};
+
+const matchLink: InlineMatcher = (source, at, key) => {
+  if (!source.startsWith('[', at)) return null;
+  const labelEnd = source.indexOf(']', at + 1);
+  const urlStart = labelEnd >= 0 ? source.indexOf('(', labelEnd + 1) : -1;
+  const urlEnd = urlStart >= 0 ? source.indexOf(')', urlStart + 1) : -1;
+  if (labelEnd <= at || urlStart !== labelEnd + 1 || urlEnd <= urlStart) return null;
+
+  const label = source.slice(at + 1, labelEnd);
+  const url = source.slice(urlStart + 1, urlEnd);
+  // Unsafe schemes render as plain text, never as a link.
+  const node = isSafeLinkUrl(url) ? (
+    <a key={key} href={url.trim()} target="_blank" rel="noreferrer noopener">
+      {label}
+    </a>
+  ) : (
+    <span key={key}>{label}</span>
+  );
+  return { node, nextCursor: urlEnd + 1 };
+};
+
+const INLINE_MATCHERS: InlineMatcher[] = [matchCode, matchStrong, matchLink, matchEmphasis];
+
 export function renderInlineMarkdown(source: string, keyPrefix: string): ReactNode[] {
   const nodes: ReactNode[] = [];
   let cursor = 0;
@@ -44,59 +93,27 @@ export function renderInlineMarkdown(source: string, keyPrefix: string): ReactNo
 
     pushText(nodes, source.slice(cursor, next), `${keyPrefix}-text-${key++}`);
 
-    if (source.startsWith('`', next)) {
-      const end = source.indexOf('`', next + 1);
-      if (end > next) {
-        nodes.push(<code key={`${keyPrefix}-code-${key++}`}>{source.slice(next + 1, end)}</code>);
-        cursor = end + 1;
-        continue;
-      }
+    const token = firstInlineMatch(source, next, `${keyPrefix}-${key++}`);
+    if (token) {
+      nodes.push(token.node);
+      cursor = token.nextCursor;
+      continue;
     }
 
-    if (source.startsWith('**', next)) {
-      const end = source.indexOf('**', next + 2);
-      if (end > next) {
-        nodes.push(<strong key={`${keyPrefix}-strong-${key++}`}>{source.slice(next + 2, end)}</strong>);
-        cursor = end + 2;
-        continue;
-      }
-    }
-
-    if (source.startsWith('[', next)) {
-      const labelEnd = source.indexOf(']', next + 1);
-      const urlStart = labelEnd >= 0 ? source.indexOf('(', labelEnd + 1) : -1;
-      const urlEnd = urlStart >= 0 ? source.indexOf(')', urlStart + 1) : -1;
-      if (labelEnd > next && urlStart === labelEnd + 1 && urlEnd > urlStart) {
-        const label = source.slice(next + 1, labelEnd);
-        const url = source.slice(urlStart + 1, urlEnd);
-        if (isSafeLinkUrl(url)) {
-          nodes.push(
-            <a key={`${keyPrefix}-link-${key++}`} href={url.trim()} target="_blank" rel="noreferrer noopener">
-              {label}
-            </a>,
-          );
-        } else {
-          pushText(nodes, label, `${keyPrefix}-unsafe-link-${key++}`);
-        }
-        cursor = urlEnd + 1;
-        continue;
-      }
-    }
-
-    if (source.startsWith('*', next) && !source.startsWith('**', next)) {
-      const end = source.indexOf('*', next + 1);
-      if (end > next) {
-        nodes.push(<em key={`${keyPrefix}-em-${key++}`}>{source.slice(next + 1, end)}</em>);
-        cursor = end + 1;
-        continue;
-      }
-    }
-
+    // No delimiter matched here (e.g. an unclosed span): emit the literal char and move on.
     pushText(nodes, source[next], `${keyPrefix}-literal-${key++}`);
     cursor = next + 1;
   }
 
   return nodes;
+}
+
+function firstInlineMatch(source: string, at: number, key: string): InlineToken | null {
+  for (const matcher of INLINE_MATCHERS) {
+    const token = matcher(source, at, key);
+    if (token) return token;
+  }
+  return null;
 }
 
 export function renderMarkdownBlocks(source: string) {

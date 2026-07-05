@@ -1,5 +1,4 @@
 using Azure.Identity;
-using HomeScoutCopilot.Evaluator;
 
 namespace HomeScoutCopilot.Evaluator.Test;
 

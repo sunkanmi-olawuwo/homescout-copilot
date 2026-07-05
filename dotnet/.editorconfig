@@ -1,0 +1,29 @@
+# ReSharper / JetBrains InspectCode inspection severities for the HomeScout backend.
+#
+# InspectCode (scripts/static-analysis.sh inspect) honours these. Each entry records a
+# DELIBERATE decision that a finding reflects an intentional convention or a false positive
+# for this codebase — not an ignored defect. Rationale is documented in wiki/static-analysis.md.
+# Genuine issues are fixed in code, not silenced here.
+
+[*.cs]
+# HomeScout uses ONE root namespace per project; folders organise files. The API endpoints
+# project happens to mirror folders, but namespace-mirrors-folder is not a required convention,
+# and Aspire's ServiceDefaults intentionally uses `namespace Microsoft.Extensions.Hosting` so its
+# extension methods are discoverable. So "namespace does not match folder" is not enforced.
+resharper_check_namespace_highlighting = none
+
+# Records in *.Shared.Contracts and the evaluator dataset are (de)serialization DTOs: their
+# positional properties are read across the JSON boundary (API responses, the React client),
+# which the in-solution reachability analysis cannot see.
+resharper_not_accessed_positional_property_global_highlighting = none
+
+# Test and tool code only — these stay ACTIVE for product src/.
+# Test fixtures use the `= null!` late-init pattern with defensive teardown guards, and live/
+# external test helpers use redundant null-forgiving (!) after their own env-var guards. Both are
+# intentional and harmless; enforcing the nullable API contract here would remove correct defensive code.
+[{tests,tools}/**.cs]
+resharper_redundant_suppress_nullable_warning_expression_highlighting = none
+resharper_condition_is_always_true_or_false_according_to_nullable_api_contract_highlighting = none
+resharper_null_coalescing_condition_is_always_not_null_according_to_api_contract_highlighting = none
+resharper_redundant_cast_highlighting = none
+resharper_redundant_argument_default_value_highlighting = none

@@ -5,7 +5,6 @@ using HomeScoutCopilot.API.Service;
 using HomeScoutCopilot.Shared.Contracts;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace HomeScoutCopilot.API.Test;
 
@@ -29,7 +28,7 @@ public class CopilotEndpointTests
             ["Rate constant for the term."],
             ["This is an estimate, not mortgage advice."]);
 
-        using var factory = new WebApplicationFactory<HomeScoutCopilot.API.ApiMarker>()
+        using var factory = new WebApplicationFactory<ApiMarker>()
             .WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
                 services.AddScoped<IHomeScoutAgentGateway>(_ => new FakeHomeScoutAgentGateway(_ => canned))));
 
@@ -54,7 +53,7 @@ public class CopilotEndpointTests
     [Test]
     public async Task Ask_returns_503_when_the_copilot_is_not_configured()
     {
-        using var factory = new WebApplicationFactory<HomeScoutCopilot.API.ApiMarker>();
+        using var factory = new WebApplicationFactory<ApiMarker>();
 
         var response = await factory.CreateClient()
             .PostAsJsonAsync("/api/copilot/ask", new CopilotRequest("hello"));
@@ -65,7 +64,7 @@ public class CopilotEndpointTests
     [Test]
     public async Task Ask_returns_400_for_an_empty_message()
     {
-        using var factory = new WebApplicationFactory<HomeScoutCopilot.API.ApiMarker>()
+        using var factory = new WebApplicationFactory<ApiMarker>()
             .WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
                 services.AddScoped<IHomeScoutAgentGateway>(_ => new FakeHomeScoutAgentGateway())));
 
@@ -79,7 +78,7 @@ public class CopilotEndpointTests
     public async Task Reset_clears_the_session_from_the_durable_store_and_the_cookie()
     {
         var store = new RecordingSessionStore();
-        using var factory = new WebApplicationFactory<HomeScoutCopilot.API.ApiMarker>()
+        using var factory = new WebApplicationFactory<ApiMarker>()
             .WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
                 services.AddSingleton<ISessionStore>(store)));
 

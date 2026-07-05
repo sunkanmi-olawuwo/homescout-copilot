@@ -116,9 +116,10 @@ run_inspect() {
   jb inspectcode "$SOLUTION" --output="$sarif" --format=Sarif --severity=WARNING "${nobuild[@]}" >/dev/null 2>&1 || true
 
   if [[ -f "$sarif" ]]; then
-    # Count SARIF results without a JSON dependency: one "ruleId" per result.
-    local n; n="$(grep -c '"ruleId"' "$sarif" 2>/dev/null || echo 0)"
-    if [[ "$n" -gt 0 ]]; then
+    # Count SARIF results without a JSON dependency: one "ruleId" per result. grep -c already
+    # prints 0 (and exits 1) when there are no matches, so don't append a second 0 with `|| echo`.
+    local n; n="$(grep -c '"ruleId"' "$sarif" 2>/dev/null)" || true
+    if [[ "${n:-0}" -gt 0 ]]; then
       echo "   $n issue(s) at WARNING+ — SARIF: $sarif"
       FINDINGS=$((FINDINGS + 1))
     else

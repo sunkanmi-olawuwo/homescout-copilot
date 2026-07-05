@@ -11,7 +11,7 @@ namespace HomeScoutCopilot.API.Test.Drivers;
 /// </summary>
 public sealed class ApiDriver : IDisposable
 {
-    private readonly WebApplicationFactory<HomeScoutCopilot.API.ApiMarker> _factory = new();
+    private readonly WebApplicationFactory<ApiMarker> _factory = new();
     private readonly HomeScoutApiClient _client;
 
     public ApiDriver() => _client = new HomeScoutApiClient(_factory.CreateClient());

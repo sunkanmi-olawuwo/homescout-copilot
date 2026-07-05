@@ -1,5 +1,4 @@
 using Azure.Identity;
-using HomeScoutCopilot.AgentOps;
 
 namespace HomeScoutCopilot.AgentOps.Test;
 

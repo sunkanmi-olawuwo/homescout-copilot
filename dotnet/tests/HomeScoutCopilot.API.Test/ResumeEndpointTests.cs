@@ -19,8 +19,8 @@ public class ResumeEndpointTests
         return store;
     }
 
-    private static WebApplicationFactory<HomeScoutCopilot.API.ApiMarker> Factory(RecordingSessionStore store) =>
-        new WebApplicationFactory<HomeScoutCopilot.API.ApiMarker>()
+    private static WebApplicationFactory<ApiMarker> Factory(RecordingSessionStore store) =>
+        new WebApplicationFactory<ApiMarker>()
             .WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
             {
                 services.AddAuthentication(TestAuthHandler.SchemeName)
