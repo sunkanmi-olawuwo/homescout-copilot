@@ -220,8 +220,18 @@ API-first, so Codex builds login while the backend builds validation:
    as Aspire mounts it): the realm imports, OIDC discovery + JWKS (RS256) resolve, and a
    password-grant token for `dev` carries `sub` + **`aud: homescout-api`** (audience mapper working) —
    de-risks step 2's validation.
-2. **API JWT validation + `/api/me`** — `AddKeycloakJwtBearer` (audience check) + `OnTokenValidated`
-   JIT capture; `GET /api/me` returns the resolved user. Offline `TestAuthHandler` tests.
+2. ✅ **API JWT validation + `/api/me`** *(done + live-verified 2026-07-05)* — `AddKeycloakJwtBearer`
+   ("keycloak", realm `homescout`, audience `homescout-api`), wired only when the Keycloak service
+   reference is present so the API still runs standalone (no default scheme → `UseAuthentication`
+   inert). `GET /api/me` (`RequireAuthorization`) returns the token's `{subject, email, name}` and
+   401s on a missing subject. Offline `TestAuthHandler` tests (anonymous `/ask` still works; `/me`
+   401 without a token, 200 with claims, 401 when subject omitted). **Live-verified** by running the
+   API against a real Keycloak: `/api/me` with a genuine token → 200 `{"subject":"…","name":"Dev
+   User"}`, without → 401 (issuer + `homescout-api` audience + JWKS signature all validated).
+   *Re-scope note:* the `OnTokenValidated` **JIT user capture is deferred to step 3** (it needs the
+   user directory); step 2's `/api/me` returns token claims directly. *Observed:* the `email` claim
+   isn't in the default access-token scope — add an email client scope/mapper when the frontend
+   requests it (step 7) or if history display needs it.
 3. **User directory** — `app_users` table + `IUserDirectory` atomic upsert + `NullUserDirectory`
    fallback; Testcontainers concurrency test.
 4. **Store user association** — `conversation_sessions.user_id` migration; user-aware `ISessionStore`;
