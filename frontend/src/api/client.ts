@@ -1,8 +1,11 @@
 import type {
   AuthConfigResponse,
   BaseRate,
+  ComparisonResult,
   ConversationHistoryResponse,
   CopilotAnswer,
+  Listing,
+  ListingExtractionResult,
   MeResponse,
   MortgageEstimateRequest,
   MortgageEstimateResult,
@@ -32,6 +35,31 @@ export function fetchMortgageEstimate(
     { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(request) },
     signal,
   );
+}
+
+// --- Listings: capture (PDF → draft) + comparison ---
+
+/** Compares 2–4 confirmed listings side by side. Invalid input throws (the caller shows the message). */
+export function compareListings(listings: Listing[], signal?: AbortSignal): Promise<ComparisonResult> {
+  return readJson<ComparisonResult>(
+    '/api/comparison',
+    { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ listings }) },
+    signal,
+  );
+}
+
+/** Uploads one property's PDF(s) and returns a draft listing + per-field provenance for the user to confirm. */
+export async function extractListing(files: File[], sourceUrl?: string): Promise<ListingExtractionResult> {
+  const form = new FormData();
+  files.forEach((file) => form.append('files', file));
+  if (sourceUrl) {
+    form.append('sourceUrl', sourceUrl);
+  }
+  const response = await fetch('/api/listings/extract', { method: 'POST', body: form });
+  if (!response.ok) {
+    throw new Error(`${response.status} ${response.statusText}`);
+  }
+  return (await response.json()) as ListingExtractionResult;
 }
 
 function authHeader(token: string | null | undefined): Record<string, string> {
