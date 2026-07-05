@@ -28,6 +28,8 @@
 
   <ItemGroup>
     <None Update="allureConfig.json" CopyToOutputDirectory="PreserveNewest" />
+    <!-- Real listing PDFs for the extraction regression test (see TestData/listings/NOTICE.md). -->
+    <None Include="TestData\**\*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
