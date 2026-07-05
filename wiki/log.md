@@ -2,6 +2,35 @@
 
 ## 2026-07-05
 
+### Next Steps — Backend Backlog
+
+- The next backend slices, deferred behind the persistence/auth track (both surfaced by the
+  product/market review):
+  - **Listing-model decision-pack spine** — the MVP priority per [[Market Landscape And Product Lessons]]:
+    a `Listing` domain model + manual-entry capture + a real side-by-side comparison endpoint
+    (replacing the `/api/comparison/sample` placeholder), which unblocks the whole decision-pack flow
+    and the frontend shortlist/compare UI. Tracked under "Decision-Pack MVP" in [[Feature Coverage]].
+  - **Local static-analysis skill** — replace the CodeQL scanning lost when the repo went private
+    (GitHub Advanced Security isn't free on private repos, so the workflow is guarded to public-only):
+    a local CodeQL-CLI + code-complexity capability wired into `scripts/quality-gate.sh`.
+- The [[Area Evidence Map]] design (below) is a further backend + frontend candidate for after the
+  listing spine lands.
+
+### Added Area Evidence Map Design Doc
+
+- Added [[Area Evidence Map]] as the dedicated implementation/design page for the 2D nearby-places map.
+- Captured the MVP shape, API contract direction, MapLibre frontend direction, backend service shape, data sources, distance assumptions, provenance, safety rules, tests, and future 3D/routing extensions.
+- Linked the page from [[Feature Coverage]], [[Endpoint Summary]], and the wiki index.
+
+### Frontend — Reliable First-Click Sign-In
+
+- Fixed the first-click quirk seen in live testing (a cold OIDC discovery-metadata fetch made the
+  first Sign in click a no-op): `AuthGate` now owns the `UserManager`, **preloads the discovery
+  document + JWKS on mount**, and exposes an `isReady` flag; `AccountControls` **disables the Sign in
+  button (shows "Loading…") until ready**, so the first enabled click always redirects. Vitest test
+  added for the disabled state (14 total). **Live-verified**: after clearing state, the first click
+  redirected straight to the Keycloak login page.
+
 ### Keycloak Auth — Live Browser Sign-In Verified (feature complete)
 
 - Closed step 8: drove a **real browser** through the full flow against the running stack (Keycloak +
