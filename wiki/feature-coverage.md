@@ -26,7 +26,7 @@ This page tracks feature inventory across scaffolded, implemented, planned, and 
 
 | Feature | Status | Notes |
 | --- | --- | --- |
-| React comparison workspace shell | Scaffolded | Product layout exists, but generate/attach actions are placeholders. |
+| React comparison workspace shell | Implemented (compare + capture) | The **Compare** tab is a real decision-card view wired to `POST /api/comparison`: add 2–4 listings, see price per ft², indicative monthly cost, completeness bars, and "ask the agent" gaps — evidence and gaps, no verdict. Capture/confirm flow (`CapturePanel`): upload PDF → `POST /api/listings/extract` → editable confirm form with per-field provenance/confidence badges → add. Follows [[Frontend Design Guidelines]]; component + integration tests. The conversation composer's generate/attach remain scaffolded. |
 
 ## Planned From Course Mapping
 
@@ -58,7 +58,7 @@ distinct from portals (discovery), data platforms (B2B reports), and rental mark
 | --- | --- | --- |
 | Listing capture (PDF upload → extract) | Implemented (text layer) | `POST /api/listings/extract`: multipart PDF upload → draft `Listing` + per-field provenance/confidence for the user to confirm. Deterministic **text layer** live (`PdfPigDocumentReader` word-level extraction + `IListingFactParser`), verified against real Rightmove/Zoopla/OpenRent PDFs — reads price/rent, beds, size+unit, tenure, EPC, council-tax band, furnishing, property type, outward postcode across all three layouts; never guesses (absent facts → notes). Vision + register cross-check + eval set are later slices per [[Listing Capture — PDF Extraction Pipeline — Design]]. Terms-safe (user provides the document; no scraping). |
 | Structured listing facts (user-confirmed) | Implemented (model) | `Listing` record: label, mode (Buy/Rent), postcode, price/rent, beds, tenure, EPC, council tax, service charge, floor area (+unit), furnishing, bills, source URL, notes. See [[Listing Model + Comparison Spine — Design]]. |
-| Side-by-side comparison | Implemented (backend) | `POST /api/comparison` via `IListingComparisonService` — the real workflow, replacing the `/api/comparison/sample` placeholder. React compare UI is the next frontend slice. |
+| Side-by-side comparison | Implemented | `POST /api/comparison` via `IListingComparisonService` + the React **Compare** decision-card view (highlights, £/ft², completeness, ask-the-agent chips). Replaces the `/api/comparison/sample` placeholder. |
 | Missing-information checklist + "what's missing?" score | Implemented (backend) | Differentiator — `CompletenessPercent` + actionable `MissingInformation` per listing, over a mode-specific key-fact set. |
 | Hidden/true-cost comparison | Partial | Mortgage + rental estimators shipped; the comparison now adds an **indicative** monthly running cost across listings. Wiring the precise estimators into the comparison is a refinement. |
 | Price per square foot/metre | Implemented (backend) | `PricePerSquareFoot`/`PricePerSquareMetre` derived for Buy listings with floor area (normalised 1 m² = 10.7639 ft²). |

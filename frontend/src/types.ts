@@ -61,6 +61,71 @@ export interface CopilotAnswer {
   caveats: string[];
 }
 
+// --- Listings: capture + comparison (mirror HomeScoutCopilot.Shared.Contracts) ---
+
+export type ListingMode = 'Buy' | 'Rent';
+export type PropertyTenure = 'Freehold' | 'Leasehold' | 'ShareOfFreehold';
+export type FloorAreaUnit = 'SquareFeet' | 'SquareMetres';
+export type FurnishingState = 'Furnished' | 'PartFurnished' | 'Unfurnished' | 'AtTenantChoice';
+export type CouncilTaxBand = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H';
+export type PriceQualifier = 'Guide' | 'OffersOver' | 'OffersInRegionOf' | 'FixedPrice' | 'Poa';
+export type FieldProvenance = 'Text' | 'Vision' | 'Register' | 'None';
+export type FieldConfidence = 'High' | 'Medium' | 'Low';
+
+export interface Listing {
+  label: string;
+  mode: ListingMode;
+  postcode: string;
+  price?: number | null;
+  monthlyRent?: number | null;
+  bedrooms?: number | null;
+  floorArea?: number | null;
+  areaUnit?: FloorAreaUnit | null;
+  tenure?: PropertyTenure | null;
+  epcRating?: string | null;
+  monthlyCouncilTax?: number | null;
+  annualServiceCharge?: number | null;
+  furnishing?: FurnishingState | null;
+  estimatedMonthlyBills?: number | null;
+  sourceUrl?: string | null;
+  notes?: string | null;
+  councilTaxBand?: CouncilTaxBand | null;
+  propertyType?: string | null;
+  bathrooms?: number | null;
+  receptions?: number | null;
+  priceQualifier?: PriceQualifier | null;
+  addressLine?: string | null;
+}
+
+export interface ListingComparison {
+  listing: Listing;
+  pricePerSquareFoot: number | null;
+  pricePerSquareMetre: number | null;
+  indicativeMonthlyCost: number | null;
+  completenessPercent: number;
+  missingInformation: string[];
+  notes: string[];
+}
+
+export interface ComparisonResult {
+  listings: ListingComparison[];
+  highlights: string[];
+  assumptions: string[];
+  caveats: string[];
+}
+
+export interface FieldExtraction {
+  field: string;
+  source: FieldProvenance;
+  confidence: FieldConfidence;
+}
+
+export interface ListingExtractionResult {
+  draft: Listing;
+  fields: FieldExtraction[];
+  notes: string[];
+}
+
 // --- Auth + per-user history (Keycloak) ---
 
 export interface AuthConfigResponse {

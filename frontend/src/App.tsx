@@ -165,11 +165,6 @@ function App() {
     }
   };
 
-  // On mobile the "Comparison" tab surfaces the Estimator, so opening it also selects that rail tab.
-  const selectMainTab = (tab: MainTab) => {
-    setMainTab(tab);
-    if (tab === 'comparison' && isMobile) setRightTab('estimator');
-  };
 
   return (
     <div className="homescout-app" data-theme={theme} data-viewport={isMobile ? 'mobile' : 'wide'}>
@@ -196,7 +191,7 @@ function App() {
         history={history}
         onResume={(sessionId) => void resumeConversation(sessionId)}
         mainTab={mainTab}
-        onSelectMainTab={selectMainTab}
+        onSelectMainTab={setMainTab}
         rightTab={rightTab}
         onSelectRightTab={setRightTab}
         conversationActive={conversationActive}

@@ -2,6 +2,24 @@
 
 ## 2026-07-05
 
+### Frontend — Comparison Decision Card + Capture Confirm Screen
+
+- The tangible "a step above a chatbot" surface (see [[Differentiation And Data Strategy]]): the
+  **Compare** workspace tab is now a real decision-card view, not a placeholder.
+  - `ComparisonView` — add 2–4 listings, calls `POST /api/comparison`, renders `ComparisonCard`s
+    (price per ft², indicative monthly cost, a completeness bar, and "ask the agent" gaps) + the
+    descriptive highlights strip + assumptions/caveats. Evidence and gaps, never a verdict.
+  - `CapturePanel` — the capture→confirm flow: upload PDF(s) → `POST /api/listings/extract` → an
+    editable confirm form where each extracted field carries a provenance/confidence badge and the
+    user ratifies before it's added. "Your document, never scraped."
+  - Wiring: the workspace `Compare` tab (was a mobile-estimator placeholder) now hosts the view;
+    the evidence/estimator rail sits beside the conversation. API client gains `compareListings` +
+    `extractListing`; `types.ts` mirrors the listing/extraction DTOs.
+- Follows [[Frontend Design Guidelines]] (comparison cards, source/confidence badges, assumption
+  callouts, compact forms, clear empty state; app theme tokens, no marketing/hero). Visually verified
+  (Compare tab + capture form). 7 tests (3 card + 4 integration incl. the full add→confirm→compare
+  flow); full frontend suite green (21 unit + 4 e2e), lint 0 warnings, quality gate PASS.
+
 ### Listing Capture — Text Extraction Slice (POST /api/listings/extract)
 
 - Built slice 2 of [[Listing Capture — PDF Extraction Pipeline — Design]]: the **deterministic text

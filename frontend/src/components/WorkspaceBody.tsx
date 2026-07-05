@@ -11,6 +11,7 @@ import type {
 import type { SavedComparison, StartPrompt } from '../data';
 import { LeftRail } from './LeftRail';
 import { ConversationPanel } from './ConversationPanel';
+import { ComparisonView } from './ComparisonView';
 import { EvidenceRail } from './EvidenceRail';
 
 // The three-pane workspace grid (left rail · conversation · evidence/estimator rail) and its
@@ -45,8 +46,10 @@ export function WorkspaceBody(props: {
   baseRate: BaseRate | null;
 }) {
   const { isMobile, navOpen, mainTab, rightTab } = props;
-  const showConversation = mainTab === 'conversation' || !isMobile;
-  const showRightRail = !isMobile || mainTab === 'comparison';
+  const comparing = mainTab === 'comparison';
+  // The comparison view takes the full workspace; the evidence/estimator rail sits beside the
+  // conversation on desktop.
+  const showRightRail = !isMobile && !comparing;
 
   return (
     <div className="workspace-grid">
@@ -67,12 +70,14 @@ export function WorkspaceBody(props: {
           <button type="button" role="tab" aria-selected={mainTab === 'conversation'} onClick={() => props.onSelectMainTab('conversation')}>
             Conversation
           </button>
-          <button type="button" role="tab" aria-selected={mainTab === 'comparison'} onClick={() => props.onSelectMainTab('comparison')}>
-            {isMobile ? 'Estimator' : 'Comparison'}
+          <button type="button" role="tab" aria-selected={comparing} onClick={() => props.onSelectMainTab('comparison')}>
+            Compare
           </button>
         </div>
 
-        {showConversation ? (
+        {comparing ? (
+          <ComparisonView />
+        ) : (
           <ConversationPanel
             conversationActive={props.conversationActive}
             isResettingConversation={props.isResettingConversation}
@@ -84,7 +89,7 @@ export function WorkspaceBody(props: {
             copilotAnswer={props.copilotAnswer}
             copilotQuestion={props.copilotQuestion}
           />
-        ) : null}
+        )}
       </main>
 
       {showRightRail ? (
