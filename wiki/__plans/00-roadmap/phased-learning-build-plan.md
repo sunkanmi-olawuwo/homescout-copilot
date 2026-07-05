@@ -105,9 +105,9 @@ Microsoft Learn:
 
 Build:
 
-- `POST /api/comparisons/draft` or equivalent comparison endpoint.
+- `POST /api/comparison` — the real side-by-side comparison endpoint, designed in [Listing Model + Comparison Spine](./03-backend/listing-decision-pack-plan.md) (supersedes the earlier `/api/comparisons/draft` placeholder).
 - Deterministic `estimate_monthly_costs` tool — mortgage-only MVP designed in [Mortgage Cost Estimator](./03-backend/cost-estimator-mortgage-plan.md).
-- DTOs for property input, assumptions, and comparison result.
+- DTOs for property input (the `Listing` model), assumptions, and comparison result.
 - First backend service boundary for future Foundry agent orchestration.
 - Start the curated HomeScout knowledge base as source-controlled assumptions and safety notes, not as vector search yet.
 

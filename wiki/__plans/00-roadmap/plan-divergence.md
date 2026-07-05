@@ -322,3 +322,26 @@ Reason:
 Impact:
 
 - RAG work enters the plan gradually: curated knowledge starts in Phase 2-3, case-file scoping starts in Phase 5, retrieval arrives in Phase 6, and Azure search/storage planning arrives in Phase 7.
+
+### 2026-07-05: `POST /api/comparison` Supersedes The `/api/comparisons/draft` Placeholder
+
+Plan expectation:
+
+- Phase 2 of [Phased Learning And Build Plan](./phased-learning-build-plan.md) named the comparison
+  endpoint `POST /api/comparisons/draft` (a vague placeholder).
+
+HomeScout direction:
+
+- The real endpoint is `POST /api/comparison` (singular), consistent with the existing
+  `Features/Comparison` slice and the `/api/comparison/sample` route it replaces. Designed in
+  [Listing Model + Comparison Spine](../03-backend/listing-decision-pack-plan.md).
+
+Reason:
+
+- Consistency with the already-implemented `/api/comparison/...` prefix and feature folder; avoids a
+  gratuitous plural/singular split. The phased plan text was updated in the same change.
+
+Impact:
+
+- `/api/comparisons/draft` never shipped; no code referenced it. `/api/comparison/sample` (placeholder)
+  is removed by this slice.

@@ -80,6 +80,7 @@ API, service-layer, persistence, and backend integration plans.
 - [Conversation Threads — Multi-Turn, Anonymous](./03-backend/conversation-threads-plan.md) — design-first plan (AgentThread per anonymous session; no query rewrite; multi-turn eval cases; durable store + Keycloak later).
 - [Mortgage Cost Estimator — Design (MVP)](./03-backend/cost-estimator-mortgage-plan.md)
 - [Rental Cost Estimator — Design (renter analogue of the mortgage estimator)](./03-backend/rental-cost-estimator-plan.md) — deterministic true-monthly + upfront/deposit cost for renters (Tenant Fees Act 2019 caps).
+- [Listing Model + Comparison Spine — Design](./03-backend/listing-decision-pack-plan.md) — the `Listing` domain model + real `POST /api/comparison` side-by-side (price per ft², indicative monthly cost, "what's missing?" completeness score), replacing the `/api/comparison/sample` placeholder.
 - [Keycloak Auth + Per-User History — Design](./03-backend/keycloak-auth-plan.md) — design-first plan (Aspire-hosted Keycloak; JWT bearer; `(Provider, Subject)` → internal user id; per-user session history; anonymous→authenticated hand-off), modelled on RagLab.
 - [Backend Plans (overview)](./03-backend/README.md)
 

@@ -11,8 +11,6 @@ namespace HomeScoutCopilot.API.Service;
 public interface IHomeScoutService
 {
     Result<HomeScoutStatus> GetStatus();
-
-    Result<ComparisonSample> GetComparisonSample();
 }
 
 public sealed class HomeScoutService : IHomeScoutService
@@ -23,9 +21,4 @@ public sealed class HomeScoutService : IHomeScoutService
             Frontend: "React",
             Architecture: "API-first",
             AgentPlatform: "Microsoft Foundry Agent Service planned"));
-
-    public Result<ComparisonSample> GetComparisonSample() =>
-        Result.Ok(new ComparisonSample(
-            Title: "Greenwich vs Croydon",
-            Summary: "Sample placeholder for the first API-first comparison workflow."));
 }

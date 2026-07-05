@@ -2,6 +2,32 @@
 
 ## 2026-07-05
 
+### Listing Model + Comparison Spine (decision-pack MVP, Slice 1)
+
+- Started the backend backlog's top item — the **`Listing` domain model + real side-by-side comparison**,
+  replacing the `/api/comparison/sample` placeholder. Design-first: wrote the owning plan
+  [[Listing Model + Comparison Spine — Design]] (Phase 2), indexed it, superseded the vague
+  `/api/comparisons/draft` placeholder with `POST /api/comparison` (recorded in [[Plan Divergence]]).
+- **Shipped (backend, stateless):**
+  - `Listing` contract (mode Buy/Rent, postcode, price/rent, beds, tenure, EPC, council tax, service
+    charge, floor area + unit, furnishing, bills, source URL) + `ComparisonRequest`/`ComparisonResult`/
+    `ListingComparison` in `Shared/Contracts/ListingContracts.cs`.
+  - `IListingComparisonService` / `POST /api/comparison`: deterministic, offline, FluentResults →
+    ProblemDetails. Per listing: **price per ft²/m²** (Buy, normalised 1 m² = 10.7639 ft²), an
+    **indicative monthly running cost** (distinct from the precise estimators; mortgage excluded), a
+    **"what's missing?" completeness score** + actionable missing-info list. Descriptive cross-listing
+    highlights only — **no safe/unsafe verdict, no recommendation**; caveats always present.
+  - Removed the `ComparisonSample` placeholder (DTO, query/handler, `HomeScoutService` method, client
+    method); added typed `CompareListingsAsync`; DI-registered the service.
+- **Tests:** 12 service unit tests (validation, price-per-area normalisation, indicative cost, completeness,
+  descriptive highlights), 2 API contract tests (200 shape + 400 ProblemDetails), 2 wire-contract
+  serialization tests (camelCase + string enums). Full suite green (API 106/106).
+- **Static analysis clean** (the new gate caught my own code): Lizard 0 over the default gate; InspectCode
+  found 1 nullable-contract issue on the `Listings` null guard — fixed properly by making the DTO field
+  nullable (honest about the JSON boundary) rather than suppressing. Drift 0 fail.
+- **Next slices:** per-user persistence of listings + shortlists (onto the existing Postgres infra),
+  paste-link/upload fact extraction, and the React capture + compare UI (parallel frontend track).
+
 ### Static-Analysis Findings Cleared To A Clean Baseline
 
 - Cleared the first run's findings so the advisory tool starts from zero (rather than letting them pile up):

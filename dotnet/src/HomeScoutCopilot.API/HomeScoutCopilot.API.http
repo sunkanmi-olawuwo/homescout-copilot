@@ -5,7 +5,14 @@ Accept: application/json
 
 ###
 
-GET {{ApiService_HostAddress}}/api/comparison/sample
-Accept: application/json
+POST {{ApiService_HostAddress}}/api/comparison
+Content-Type: application/json
+
+{
+  "listings": [
+    { "label": "2-bed flat, Greenwich", "mode": "Buy", "postcode": "SE10 9NF", "price": 525000, "bedrooms": 2, "floorArea": 68, "areaUnit": "SquareMetres", "tenure": "Leasehold", "epcRating": "C", "monthlyCouncilTax": 165, "annualServiceCharge": 2400 },
+    { "label": "2-bed terrace, Croydon", "mode": "Buy", "postcode": "CR0 6BE", "price": 410000, "bedrooms": 2, "floorArea": 74, "areaUnit": "SquareMetres", "tenure": "Freehold", "epcRating": "D" }
+  ]
+}
 
 ###

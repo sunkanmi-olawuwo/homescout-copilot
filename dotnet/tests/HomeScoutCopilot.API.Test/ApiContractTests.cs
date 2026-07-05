@@ -1,4 +1,7 @@
+using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using HomeScoutCopilot.Shared.Contracts;
 using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace HomeScoutCopilot.API.Test;
@@ -33,17 +36,44 @@ public class ApiContractTests
         Assert.That(root.GetProperty("agentPlatform").GetString(), Is.Not.Null.And.Not.Empty);
     }
 
+    private static readonly JsonSerializerOptions Json =
+        new(JsonSerializerDefaults.Web) { Converters = { new JsonStringEnumConverter() } };
+
     [Test]
-    public async Task ComparisonSample_returns_ok_with_title_and_summary()
+    public async Task Comparison_returns_ok_with_per_listing_and_highlights()
     {
         var client = _factory.CreateClient();
+        var request = new ComparisonRequest([
+            new Listing("Greenwich flat", ListingMode.Buy, "SE10 9NF", Price: 525_000m, FloorArea: 68m, AreaUnit: FloorAreaUnit.SquareMetres, Bedrooms: 2, EpcRating: "C", MonthlyCouncilTax: 165m),
+            new Listing("Croydon terrace", ListingMode.Buy, "CR0 6BE", Price: 410_000m, FloorArea: 74m, AreaUnit: FloorAreaUnit.SquareMetres, Bedrooms: 2),
+        ]);
 
-        var response = await client.GetAsync("/api/comparison/sample");
+        var response = await client.PostAsJsonAsync("/api/comparison", request, Json);
 
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
         using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         var root = doc.RootElement;
-        Assert.That(root.GetProperty("title").GetString(), Is.Not.Null.And.Not.Empty);
-        Assert.That(root.GetProperty("summary").GetString(), Is.Not.Null.And.Not.Empty);
+        Assert.Multiple(() =>
+        {
+            Assert.That(root.GetProperty("listings").GetArrayLength(), Is.EqualTo(2));
+            Assert.That(root.GetProperty("listings")[0].GetProperty("pricePerSquareFoot").GetDecimal(), Is.GreaterThan(0));
+            Assert.That(root.GetProperty("listings")[0].GetProperty("completenessPercent").GetInt32(), Is.GreaterThan(0));
+            Assert.That(root.GetProperty("highlights").GetArrayLength(), Is.GreaterThan(0));
+            Assert.That(root.GetProperty("caveats").GetArrayLength(), Is.GreaterThan(0));
+        });
+    }
+
+    [Test]
+    public async Task Comparison_with_one_listing_returns_problem_details()
+    {
+        var client = _factory.CreateClient();
+        var request = new ComparisonRequest([
+            new Listing("Only one", ListingMode.Buy, "SE10 9NF", Price: 525_000m),
+        ]);
+
+        var response = await client.PostAsJsonAsync("/api/comparison", request, Json);
+
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+        Assert.That(response.Content.Headers.ContentType?.MediaType, Is.EqualTo("application/problem+json"));
     }
 }
