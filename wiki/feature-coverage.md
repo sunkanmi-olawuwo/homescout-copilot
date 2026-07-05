@@ -45,6 +45,39 @@ This page tracks feature inventory across scaffolded, implemented, planned, and 
 
 See [[Course Playlist Tracker]].
 
+## Planned — Decision-Pack MVP (market-informed)
+
+From the competitor/adjacent-product scan in [[Market Landscape And Product Lessons]]. HomeScout's
+wedge is the **evidence-backed decision layer between finding a listing and committing to it** —
+distinct from portals (discovery), data platforms (B2B reports), and rental marketplaces
+(transactions). These extend the accelerator MVP; the cost estimators + evidence panel already exist.
+
+| Feature | Status | Notes |
+| --- | --- | --- |
+| Listing capture (manual + paste-link) | Planned | Entry point of the pack; manual-first so demos don't depend on flaky link import. Terms-aware, with deep links back to the source listing. |
+| Structured listing facts (user-confirmed) | Planned | Price/rent, postcode, beds, tenure, EPC, council tax, service charge, deposit, floor area, availability, furnishing, bills. |
+| Side-by-side comparison | Planned | The real comparison workflow replacing the `/api/comparison/sample` placeholder. |
+| Missing-information checklist + "what's missing?" score | Planned | Differentiator — scores listing completeness and what to ask for. |
+| Hidden/true-cost comparison | Partial | Mortgage + rental estimators shipped; comparison *across* shortlisted listings is the extension. |
+| Price per square foot/metre | Planned | Comparison primitive when floor area is available (Jitty). |
+| Area evidence panel (commute, schools, amenities, flood/noise) | Planned | Per-listing, source-linked, caveated — no simplistic safe/unsafe labels (Crystal Roof). |
+| User preference capture + fit explanation | Planned | Commute, budget, schools, furnishing, outdoor space, risk tolerance → "why this may/may not fit you"; ties to the Memory course feature (OnTheMarket/Jitty). |
+| Viewing / application / offer questions | Planned | "What to ask before viewing/applying/offering", generated from the pack. |
+| Renter readiness / "before you apply" checklist | Planned | Documents, deposit, guarantor, affordability assumptions (Canopy). |
+| Renter early-warning / fraud checklist | Planned | Verify agent/landlord, don't pay before viewing, deposit-scheme + permitted-fees check; links to official guidance, not tenancy advice (OpenRent/RentProfile). |
+| Shareable / exportable decision pack | Planned | The artifact a user sends to a partner, parent, broker, or agent — the ChatGPT-defence. |
+
+### Later (market-informed)
+
+| Feature | Reason / source |
+| --- | --- |
+| Price-change / relisted-property tracking | Buyer/renter signal where allowed (Property Log). |
+| Browser extension "Analyse with HomeScout" | Validation path; terms/affiliation clarity required. |
+| Resident-review evidence | Evidence type raw listings can't replace (HomeViews); needs a licensed source. |
+| Partner handoff / "next professional to speak to" | Broker, surveyor, conveyancer, relocation adviser — value-first, no premature lead-push (Konnect/Reallymoving/OneDome). |
+| White-label agent/relocation/broker report | B2B mode (Sprift). |
+| Data-provider partnerships (reports, comparables) | Partner rather than rebuild datasets. |
+
 ## Deferred
 
 | Feature | Reason |
