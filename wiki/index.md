@@ -17,6 +17,7 @@ This wiki is the canonical development memory for HomeScout Copilot.
 - [[HomeScout Accelerator Shortlist]] - HomeScout-specific accelerator targets, fit rationale, application angles, and preparation checklist.
 - [[HomeScout Skilled Worker Visa Program Filter]] - Visa-aware filter for HomeScout accelerator and founder-support options while on a UK Skilled Worker visa.
 - [[Market Landscape And Product Lessons]] - Competitor/adjacent-product scan and product lessons to adapt for HomeScout's decision-pack workflow.
+- [[Area Evidence Map]] - Dedicated implementation and design direction for the 2D map showing nearby schools, transport, shops, parks, health services, distance, and provenance.
 - [[Onboarding Article]] - Narrative guide for returning to the project and understanding what exists.
 - [[Log]] - Chronological record of sessions and decisions.
 

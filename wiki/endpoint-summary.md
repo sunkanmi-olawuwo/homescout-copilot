@@ -25,6 +25,7 @@ These may become API routes, internal services, Foundry Agent Service tools, or 
 | Crime summary | postcode or lat/lon | crime counts, categories, recent trend caveats | Planned |
 | Amenities lookup | postcode or lat/lon, radius | nearby amenities grouped by type | Planned |
 | School context | postcode or lat/lon | nearby schools and key public metrics | Planned |
+| Area nearby evidence | postcode or lat/lon, radius | named nearby places grouped by category, distance, source, freshness, provenance, and missing-data notes | Planned; contract direction in [[Area Evidence Map]] |
 | Price context | postcode, district, or property details | sold-price context and local trend caveats | Planned |
 | Ownership cost estimate (full) | price, deposit, rate, term, fees, council tax, insurance | monthly estimate and assumptions | Planned (extends the implemented mortgage estimate) |
 | Area comparison | multiple locations | structured comparison report | Planned |

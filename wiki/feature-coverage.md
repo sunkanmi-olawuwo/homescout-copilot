@@ -61,7 +61,7 @@ distinct from portals (discovery), data platforms (B2B reports), and rental mark
 | Missing-information checklist + "what's missing?" score | Planned | Differentiator — scores listing completeness and what to ask for. |
 | Hidden/true-cost comparison | Partial | Mortgage + rental estimators shipped; comparison *across* shortlisted listings is the extension. |
 | Price per square foot/metre | Planned | Comparison primitive when floor area is available (Jitty). |
-| Area evidence panel (commute, schools, amenities, flood/noise) | Planned | Per-listing, source-linked, caveated — no simplistic safe/unsafe labels (Crystal Roof). |
+| Area evidence panel (commute, schools, amenities, flood/noise) | Planned | Per-listing, source-linked, caveated — no simplistic safe/unsafe labels (Crystal Roof). The map/list implementation direction lives in [[Area Evidence Map]]. |
 | User preference capture + fit explanation | Planned | Commute, budget, schools, furnishing, outdoor space, risk tolerance → "why this may/may not fit you"; ties to the Memory course feature (OnTheMarket/Jitty). |
 | Viewing / application / offer questions | Planned | "What to ask before viewing/applying/offering", generated from the pack. |
 | Renter readiness / "before you apply" checklist | Planned | Documents, deposit, guarantor, affordability assumptions (Canopy). |
