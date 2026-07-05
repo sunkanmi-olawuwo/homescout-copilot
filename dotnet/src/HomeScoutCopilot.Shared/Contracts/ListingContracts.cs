@@ -23,12 +23,39 @@ public enum FloorAreaUnit
     SquareMetres,
 }
 
-/// <summary>Furnishing state for a Rent listing.</summary>
+/// <summary>Furnishing state for a Rent listing. <see cref="AtTenantChoice"/> covers the common
+/// landlord-direct "furnished or unfurnished, tenant's choice" option.</summary>
 public enum FurnishingState
 {
     Furnished,
     PartFurnished,
     Unfurnished,
+    AtTenantChoice,
+}
+
+/// <summary>UK council tax band. Listings give the band, not the monthly £ — the £ is derived from
+/// the band plus the local authority's rates.</summary>
+public enum CouncilTaxBand
+{
+    A,
+    B,
+    C,
+    D,
+    E,
+    F,
+    G,
+    H,
+}
+
+/// <summary>How a Buy asking price is framed, so a "guide" or "offers over" figure is not treated as
+/// firm.</summary>
+public enum PriceQualifier
+{
+    Guide,
+    OffersOver,
+    OffersInRegionOf,
+    FixedPrice,
+    Poa,
 }
 
 /// <summary>
@@ -53,7 +80,17 @@ public record Listing(
     FurnishingState? Furnishing = null,
     decimal? EstimatedMonthlyBills = null,
     string? SourceUrl = null,
-    string? Notes = null);
+    string? Notes = null,
+    // Added with the capture slice (see listing-capture-extraction-plan): all optional, so the
+    // comparison spine is unaffected. Council tax is captured as a band (listings give the band,
+    // not a monthly £); PriceQualifier flags a non-firm asking price; AddressLine carries the
+    // street the description exposes, for precise geocoding when the portal hides the full postcode.
+    CouncilTaxBand? CouncilTaxBand = null,
+    string? PropertyType = null,
+    int? Bathrooms = null,
+    int? Receptions = null,
+    PriceQualifier? PriceQualifier = null,
+    string? AddressLine = null);
 
 /// <summary>Inputs to <c>POST /api/comparison</c>: the two to four listings to compare side by side.
 /// Nullable because a client can POST a missing/empty body — the service validates it to a 400.</summary>

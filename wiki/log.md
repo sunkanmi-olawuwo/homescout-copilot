@@ -2,6 +2,31 @@
 
 ## 2026-07-05
 
+### Listing Capture — Text Extraction Slice (POST /api/listings/extract)
+
+- Built slice 2 of [[Listing Capture — PDF Extraction Pipeline — Design]]: the **deterministic text
+  layer**. Multipart PDF upload (1–4 docs of one property) → `ListingExtractionResult` (draft
+  `Listing` + per-field `FieldExtraction` provenance/confidence + notes) for the user to confirm.
+  Nothing is used until confirmed; the vision/register layers slot behind the same seam later.
+- **Extended the `Listing` model** (additive, comparison spine unaffected): `CouncilTaxBand` (listings
+  give the band, not £), `PropertyType`, `Bathrooms`, `Receptions`, `PriceQualifier`, `AddressLine`,
+  and `FurnishingState.AtTenantChoice` (real OpenRent option).
+- **Pipeline pieces:** `ITextDocumentReader`/`PdfDocumentReader` (PdfPig `1.7.0-custom-5`, **word-level**
+  extraction — `page.Text` smushes tokens, `GetWords()` restores spacing), `IListingFactParser`
+  (format-tolerant labelled-field + spec-block regex, not per-site templates), `IListingExtractor`
+  orchestrator (count/format/empty validation → FluentResults), Carter+MediatR endpoint.
+- **Verified against the three real PDFs** (Rightmove buy, Zoopla rent, OpenRent rent) — extracts
+  price/rent, beds, size+unit, tenure, EPC, council-tax band, furnishing, property type, outward
+  postcode across all three layouts. Honest gaps exactly as designed: Rightmove EPC is a graphic (→
+  vision layer), OpenRent has no area/band (→ register/confirm), each surfaced as a note. Never guesses.
+- **Q answered (LLM vs confirm):** the user always confirms last; the LLM (later slice) *proposes*, it
+  never validates truth or filters post-confirm — registers verify the verifiable, the human ratifies
+  all. This slice is deterministic and offline (no LLM), so it runs in the PR gate.
+- **Tests:** 14 (7 parser with synthetic fixtures — no listing content committed, per the data-strategy
+  copyright rule; 5 orchestrator with a fake reader; 2 endpoint contract with an injected reader). Full
+  suite green (API 120/120). Static analysis clean — the gate caught 7 findings in the new code
+  (redundant null guards, dead members, a captured `using var` in a test); all fixed properly.
+
 ### Differentiation & Data Strategy (durable reference page)
 
 - Captured the "what makes us different from a chatbot, and how we get data" strategy as
