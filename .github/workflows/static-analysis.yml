@@ -50,6 +50,7 @@ jobs:
         env:
           INSPECT_NO_BUILD: '1'
         run: |
+          mkdir -p artifacts/static-analysis   # ensure the tee target dir exists before the pipe opens
           scripts/static-analysis.sh all | tee artifacts/static-analysis/summary.txt
           {
             echo "## Static analysis (advisory)"
