@@ -2,6 +2,21 @@
 
 ## 2026-07-05
 
+### Extraction Eval Corpus Completed To Six PDFs
+
+- Grew the extraction regression corpus from two to **six real listings**, all three sites × both modes
+  + edge cases. `ListingExtractionTests` now asserts committed ground truth for:
+  - Rightmove **buy** (bungalow, EPC-as-graphic) + Rightmove **rent** (semi via OpenRent; "Ask agent"
+    size/council-tax → null; headline rent taken over conflicting description figures).
+  - Zoopla **rent** (flat) + Zoopla **buy** (flat; no size/EPC/tenure on the page).
+  - OpenRent **rent** (terrace) + OpenRent **room-in-a-shared-house** (HMO: no bed count, no standard
+    property type, "EPC Not Required", council tax included → all correctly absent, never guessed).
+- Verified each against `pdftotext` ground truth before labelling; the pipeline extracted all six
+  correctly first time (mode, postcode, price/rent, beds, size, EPC, band, type), with the honest gaps
+  asserted `null`. 6/6 green in the PR gate; full API suite green; InspectCode 0.
+- The HMO room case is a good stress test that the "unknown over guess" rule holds on a non-standard
+  listing. Corpus is data-driven — add a PDF + one `Expected` row to extend it further.
+
 ### Extraction Regression Test On Real Listing PDFs (committed corpus)
 
 - Closed the coverage gap: the extraction tests were all **synthetic fixtures** (they lock the parser
