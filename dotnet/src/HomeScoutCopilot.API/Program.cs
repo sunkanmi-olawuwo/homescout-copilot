@@ -31,6 +31,9 @@ builder.Services.AddScoped<IHomeScoutService, HomeScoutService>();
 builder.Services.AddSingleton<IMortgageCostEstimator, MortgageCostEstimator>();
 builder.Services.AddSingleton<IRentalCostEstimator, RentalCostEstimator>();
 builder.Services.AddSingleton<IListingComparisonService, ListingComparisonService>();
+builder.Services.AddSingleton<ITextDocumentReader, PdfDocumentReader>();
+builder.Services.AddSingleton<IListingFactParser, ListingFactParser>();
+builder.Services.AddSingleton<IListingExtractor, ListingExtractor>();
 
 builder.Services.AddMemoryCache();
 builder.Services.AddValidatedOptions<BaseRateOptions>(builder.Configuration);
