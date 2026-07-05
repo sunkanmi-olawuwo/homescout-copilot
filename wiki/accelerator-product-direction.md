@@ -299,6 +299,7 @@ not a substitute for removing committed secrets.
 
 - [[Product Brief]]
 - [[Feature Coverage]]
+- [[HomeScout Accelerator Shortlist]]
 - [[Market Landscape And Product Lessons]]
 - [[Component Architecture]]
 - [[RAG Architecture]]
