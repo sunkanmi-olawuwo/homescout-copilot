@@ -1,11 +1,11 @@
 # Keycloak Auth + Per-User History Plan
 
-**Status:** **Backend done + live-verified (2026-07-05)** — steps 1–6 (realm + Aspire hosting, JWT
-validation + `/api/me`, user directory + JIT capture, session↔user association, owner-scoped history,
-anonymous→authenticated hand-off) are all implemented and verified against real Keycloak + Postgres
-(+ Foundry). Remaining: **step 7 — the frontend (Codex)** (login/logout, bearer header, history
-panel) against the ready API contract, then a final end-to-end pass. Persistence-track step 6 (the
-last item in [[Conversation Threads — Multi-Turn, Anonymous]]) is thereby delivered on the backend.
+**Status:** ✅ **COMPLETE + live-verified end-to-end (2026-07-05).** All 8 steps done — realm + Aspire
+hosting, JWT validation + `/api/me`, user directory + JIT capture, session↔user association,
+owner-scoped history, anon→authenticated hand-off, the React sign-in + history UI, and a real-browser
+sign-in pass (Keycloak login → `/api/me` → bearer-authenticated ask → owner-stamped conversation in
+"Your conversations"). Persistence-track step 6 (the last item in
+[[Conversation Threads — Multi-Turn, Anonymous]]) is delivered end to end, backend and frontend.
 
 **Owning context:** the [[Plan Divergence]] decision *End-User Auth Uses Keycloak, Not Entra ID*
 (2026-07-04) and the durable store in [[Conversation Threads — Multi-Turn, Anonymous]]. **Modelled
@@ -286,8 +286,12 @@ API-first, so Codex builds login while the backend builds validation:
    `pnpm lint`/`test`/`build`/`e2e` green. **Pending:** the interactive OIDC redirect handshake
    against a running Keycloak (browser sign-in) — the library-handled step, to verify on the Aspire
    stack.
-8. **Live verification** — the interactive browser sign-in through Keycloak on the Aspire stack is
-   the one remaining end-to-end check (every API endpoint is already live-verified).
+8. ✅ **Live verification** *(done 2026-07-05)* — drove a **real browser** through the whole flow
+   against the running stack (Keycloak + Postgres + API serving `/api`, Vite on `localhost:5173`):
+   Sign in → Keycloak login (`dev`/`dev`, Auth Code + PKCE) → redirect back → **signed in as "Dev
+   User"** (from `/api/me`) → asked a cost question → the **real Foundry answer** rendered with
+   evidence, and the bearer-authenticated turn was **owner-stamped and appeared in "Your
+   conversations"**. End-to-end OIDC → identity → per-user history confirmed. **Auth plan complete.**
 
 ## Open questions / verify-at-implementation
 
