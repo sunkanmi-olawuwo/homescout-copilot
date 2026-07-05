@@ -20,6 +20,7 @@ This wiki is the canonical development memory for HomeScout Copilot.
 - [[Area Evidence Map]] - Dedicated implementation and design direction for the 2D map showing nearby schools, transport, shops, parks, health services, distance, and provenance.
 - [[Onboarding Article]] - Narrative guide for returning to the project and understanding what exists.
 - [[Log]] - Chronological record of sessions and decisions.
+- [[Static Analysis]] - Local, advisory static analysis (Lizard complexity, JetBrains InspectCode, actionlint, ESLint) shared by every agent; replaces the dormant CodeQL scanning.
 
 ## Plan Pages
 

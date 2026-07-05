@@ -1,0 +1,68 @@
+# static-analysis — advisory local-analysis replacement for CodeQL.
+#
+# CodeQL's result upload needs GitHub Advanced Security, which isn't available on free
+# *private* repos (see codeql.yml), so its analyze job is dormant while HomeScout is private.
+# This workflow fills the gap with tools whose output we can read directly — no GHAS, no
+# upload gate: Lizard (C#/TS complexity), JetBrains InspectCode (.NET static analysis), and
+# actionlint (workflow linting). The frontend's ESLint complexity budget runs in frontend-ci.
+#
+# Posture: ADVISORY. The step runs scripts/static-analysis.sh (which exits 0 unless --strict),
+# prints findings to the job log + step summary, and uploads machine-readable reports as build
+# artifacts. It never blocks a PR. Flip the repo public and codeql.yml reactivates alongside this.
+name: static-analysis
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install analysis tools
+        run: |
+          python -m pip install --quiet lizard
+          dotnet tool install -g JetBrains.ReSharper.GlobalTools
+          go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.7
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+          echo "$HOME/go/bin" >> "$GITHUB_PATH"
+
+      - name: Build backend (so InspectCode can skip its own build)
+        run: |
+          dotnet restore dotnet/HomeScoutCopilot.slnx
+          dotnet build dotnet/HomeScoutCopilot.slnx --no-restore --configuration Release
+
+      - name: Run static analysis (advisory)
+        env:
+          INSPECT_NO_BUILD: '1'
+        run: |
+          scripts/static-analysis.sh all | tee artifacts/static-analysis/summary.txt
+          {
+            echo "## Static analysis (advisory)"
+            echo ""
+            tail -n 6 artifacts/static-analysis/summary.txt
+            echo ""
+            echo "Full reports are attached as the static-analysis-reports artifact."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: static-analysis-reports
+          path: artifacts/static-analysis/
+          if-no-files-found: warn

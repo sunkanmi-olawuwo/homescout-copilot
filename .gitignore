@@ -27,3 +27,6 @@ playwright/.cache/
 # Generated evaluation reports (regenerable via scripts/eval-report.sh) and local eval store
 artifacts/
 .eval-store/
+
+# Claude Code personal/local settings (skills under .claude/skills/ are committed)
+.claude/settings.local.json

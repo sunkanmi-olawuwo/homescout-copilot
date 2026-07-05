@@ -23,6 +23,13 @@ export default defineConfig(
         'warn',
         { allowConstantExport: true },
       ],
+      // Advisory complexity budget, mirroring the Lizard thresholds used for the backend.
+      // Warnings (not errors) so they surface in `pnpm run lint` without failing the gate;
+      // tighten to 'error' once the frontend baseline sits comfortably under budget.
+      complexity: ['warn', 15],
+      'max-depth': ['warn', 4],
+      'max-lines-per-function': ['warn', { max: 80, skipBlankLines: true, skipComments: true }],
+      'max-params': ['warn', 5],
     },
   },
 );

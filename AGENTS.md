@@ -47,6 +47,13 @@ tutorial or throwaway code.
   the real adapter and verify it against the real dependency with a live
   `[Category("External")]` test. The fake proves the *shape*, not the dependency — it
   is never a substitute for verifying the real thing (see "verify, don't assume").
+- **Static analysis is local and shared.** Run `scripts/static-analysis.sh` to check
+  cyclomatic complexity (Lizard, C# + TypeScript), .NET code smells (JetBrains
+  InspectCode), and GitHub Actions workflows (actionlint); the frontend's ESLint
+  complexity budget runs via `pnpm run lint`. It is **advisory** (reports, never fails),
+  runs on PRs via `.github/workflows/static-analysis.yml`, and replaces the CodeQL
+  scanning that went dormant when the repo went private. The script is the single source
+  of truth for every agent — Claude also has a `static-analysis` skill that wraps it.
 
 ## Plan Sync Protocol
 

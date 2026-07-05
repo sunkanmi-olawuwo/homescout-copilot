@@ -52,6 +52,11 @@ else
   echo ">> skipped (@playwright/test not installed — run 'npm i' in frontend/)"
 fi
 
+step "Static analysis (advisory — never fails the gate)"
+# Reports complexity + code-smell + workflow findings; tools self-skip if not installed.
+# Advisory by design, so its exit is not folded into FAILED (see wiki/static-analysis.md).
+bash scripts/static-analysis.sh all || true
+
 echo
 echo "------------------------------------------------------------"
 if [[ "$FAILED" -eq 0 ]]; then
