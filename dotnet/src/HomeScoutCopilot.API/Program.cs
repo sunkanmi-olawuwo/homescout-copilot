@@ -5,6 +5,7 @@ using Azure.Identity;
 using Carter;
 using HomeScoutCopilot.API.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Npgsql;
 
@@ -82,6 +83,9 @@ if (keycloakConfigured)
         {
             options.Audience = "homescout-api";
             options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
+            // JIT user capture: on every validated token, best-effort record the user so per-user
+            // history works. Throttled per subject and never fails auth if the DB is unavailable.
+            options.Events = new JwtBearerEvents { OnTokenValidated = RecordAuthenticatedUserAsync };
         });
 }
 else
@@ -102,6 +106,9 @@ builder.Services.AddHostedService<ConversationSessionSweeper>();
 // Durable session store (PostgreSQL). Registered only when the Aspire-injected "sessions"
 // connection string is present; otherwise sessions live only in memory (NullSessionStore) and are
 // cleared on restart — graceful degradation, mirroring how the copilot itself is optional.
+// The session store and the user directory share the same PostgreSQL server (the "sessions"
+// connection string). When absent, both fall back to their no-op implementations so the API still
+// runs standalone — sessions are in-memory only and users aren't persisted.
 var sessionsConnectionString = builder.Configuration.GetConnectionString("sessions");
 if (!string.IsNullOrWhiteSpace(sessionsConnectionString))
 {
@@ -109,10 +116,15 @@ if (!string.IsNullOrWhiteSpace(sessionsConnectionString))
     builder.Services.AddSingleton<PostgresSessionStore>();
     builder.Services.AddSingleton<ISessionStore>(sp => sp.GetRequiredService<PostgresSessionStore>());
     builder.Services.AddHostedService<PostgresSessionStoreInitializer>();
+
+    builder.Services.AddSingleton<PostgresUserDirectory>();
+    builder.Services.AddSingleton<IUserDirectory>(sp => sp.GetRequiredService<PostgresUserDirectory>());
+    builder.Services.AddHostedService<PostgresUserDirectoryInitializer>();
 }
 else
 {
     builder.Services.AddSingleton<ISessionStore, NullSessionStore>();
+    builder.Services.AddSingleton<IUserDirectory, NullUserDirectory>();
 }
 
 var app = builder.Build();
@@ -134,3 +146,44 @@ app.MapDefaultEndpoints();
 app.UseFileServer();
 
 app.Run();
+
+// JIT user capture on token validation: best-effort record of the (keycloak, sub) user so per-user
+// history works, throttled per subject (~10 min) to avoid a write on every request. Never throws —
+// a directory/DB blip must not break authentication.
+static async Task RecordAuthenticatedUserAsync(Microsoft.AspNetCore.Authentication.JwtBearer.TokenValidatedContext context)
+{
+    var services = context.HttpContext.RequestServices;
+    var directory = services.GetRequiredService<IUserDirectory>();
+    if (!directory.IsEnabled)
+    {
+        return;
+    }
+
+    var principal = context.Principal;
+    var subject = principal?.FindFirst("sub")?.Value
+        ?? principal?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    if (string.IsNullOrEmpty(subject))
+    {
+        return;
+    }
+
+    var cache = services.GetRequiredService<Microsoft.Extensions.Caching.Memory.IMemoryCache>();
+    var throttleKey = $"user-seen:{UserIdentityProviders.Keycloak}:{subject}";
+    if (cache.TryGetValue(throttleKey, out _))
+    {
+        return;
+    }
+
+    try
+    {
+        var email = principal?.FindFirst("email")?.Value;
+        var name = principal?.FindFirst("name")?.Value ?? principal?.FindFirst("preferred_username")?.Value;
+        await directory.RecordAsync(UserIdentityProviders.Keycloak, subject, email, name, context.HttpContext.RequestAborted);
+        cache.Set(throttleKey, true, TimeSpan.FromMinutes(10));
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger("UserCapture");
+        logger.LogWarning(ex, "JIT user capture failed for subject {Subject}; continuing.", subject);
+    }
+}

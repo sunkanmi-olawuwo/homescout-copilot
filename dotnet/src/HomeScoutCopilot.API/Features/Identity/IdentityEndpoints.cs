@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Carter;
+using HomeScoutCopilot.API.Service;
 using HomeScoutCopilot.Shared.Contracts;
 
 namespace HomeScoutCopilot.API.Features.Identity;
@@ -7,12 +8,13 @@ namespace HomeScoutCopilot.API.Features.Identity;
 /// <summary>
 /// Identity endpoints. <c>GET /api/me</c> is the smallest end-to-end proof that a Keycloak token
 /// validates and resolves to a caller — and the seam the frontend calls to render the signed-in
-/// user. Requires a valid bearer token; anonymous callers get 401.
+/// user. Requires a valid bearer token; anonymous callers get 401. Resolves the token to the
+/// internal user (<see cref="MeResponse.UserId"/>) via the <see cref="IUserDirectory"/>.
 /// </summary>
 public sealed class IdentityEndpoints : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app) =>
-        app.MapGet("/api/me", (ClaimsPrincipal user) =>
+        app.MapGet("/api/me", async (ClaimsPrincipal user, IUserDirectory directory, CancellationToken cancellationToken) =>
             {
                 // The subject is the stable identity key. A validated token without one is unusable.
                 var subject = user.FindFirstValue("sub") ?? user.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -26,7 +28,9 @@ public sealed class IdentityEndpoints : ICarterModule
                     ?? user.FindFirstValue("preferred_username")
                     ?? user.Identity?.Name;
 
-                return Results.Ok(new MeResponse(subject, email, name));
+                // Resolve (get-or-create) the internal user; null when no database is configured.
+                var record = await directory.RecordAsync(UserIdentityProviders.Keycloak, subject, email, name, cancellationToken);
+                return Results.Ok(new MeResponse(record?.Id, subject, record?.Email ?? email, record?.Name ?? name));
             })
             .RequireAuthorization()
             .WithName("GetMe")

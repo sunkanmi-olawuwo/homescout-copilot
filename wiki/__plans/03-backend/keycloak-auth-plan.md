@@ -232,8 +232,16 @@ API-first, so Codex builds login while the backend builds validation:
    user directory); step 2's `/api/me` returns token claims directly. *Observed:* the `email` claim
    isn't in the default access-token scope — add an email client scope/mapper when the frontend
    requests it (step 7) or if history display needs it.
-3. **User directory** — `app_users` table + `IUserDirectory` atomic upsert + `NullUserDirectory`
-   fallback; Testcontainers concurrency test.
+3. ✅ **User directory** *(done + live-verified 2026-07-05)* — `app_users` table (raw Npgsql,
+   `UNIQUE(provider, subject)`) + `IUserDirectory` with a race-safe atomic upsert
+   (`INSERT … ON CONFLICT … RETURNING`) + `NullUserDirectory` fallback (no DB). The
+   `OnTokenValidated` JIT capture (throttled ~10 min per subject, best-effort, never breaks auth)
+   records the user on any validated token; `/api/me` now returns the internal `userId`. Directory
+   registered on the same Postgres as the session store, config-gated. Tests: `PostgresUserDirectoryTests`
+   (`Category=Database`) incl. the **12-parallel-first-sign-in → one id** concurrency test (mirrors
+   RagLab's `UserDirectoryConcurrencyTests`); `NullUserDirectoryTests`. **Live-verified** against real
+   Keycloak + Postgres: `/api/me` returns a stable internal `userId` across calls and the JIT capture
+   created the `app_users` row (`keycloak | <sub> | Dev User`).
 4. **Store user association** — `conversation_sessions.user_id` migration; user-aware `ISessionStore`;
    gateway stamps the owner.
 5. **History endpoints** — `GET /api/copilot/history[/{id}]`, owner-scoped, authorized; tests.

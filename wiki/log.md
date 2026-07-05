@@ -2,6 +2,22 @@
 
 ## 2026-07-05
 
+### Keycloak Auth Steps 2 + 3 — JWT Validation, /api/me, User Directory
+
+- **Step 2 (JWT validation + `/api/me`).** Wired `AddKeycloakJwtBearer` (realm `homescout`, audience
+  `homescout-api`) via `Aspire.Keycloak.Authentication`, gated on the Keycloak service reference so
+  the API still runs standalone (no default scheme → `UseAuthentication` inert). `GET /api/me`
+  (authorized) returns the token identity; anonymous copilot endpoints unchanged. Offline
+  `TestAuthHandler` stub + tests. **Live-verified**: `/api/me` with a real token → 200, without → 401.
+- **Step 3 (user directory).** `app_users` table (raw Npgsql, `UNIQUE(provider, subject)`) +
+  `IUserDirectory` race-safe atomic upsert (`INSERT … ON CONFLICT … RETURNING`) + `NullUserDirectory`
+  fallback. `OnTokenValidated` JIT user capture (throttled, best-effort); `/api/me` returns the
+  internal `userId`. Tests incl. the 12-parallel-first-sign-in → one-id concurrency test (RagLab
+  parity). **Live-verified** against real Keycloak + Postgres: stable internal `userId` across calls;
+  JIT capture created the `app_users` row. API.Test 62 → 76.
+- Persistence-track step 6 progress: steps 1–3 done + live-verified; remaining: session↔user
+  association, history endpoints, anon→auth hand-off, frontend login. Foundry still up (billable).
+
 ### Market Landscape And Product Lessons
 
 - Added [[Market Landscape And Product Lessons]] to capture the competitor/adjacent-product scan
