@@ -55,6 +55,19 @@ const copilotAnswer = {
   caveats: ['This is an estimate, not mortgage advice — speak to a qualified adviser before deciding.'],
 };
 
+const copilotAnswerWithMarkdownCaveat = {
+  ...copilotAnswer,
+  text: [
+    '**Estimated monthly repayment: £2,204.42**',
+    '',
+    '## Next steps',
+    '- Check the assumptions before relying on this.',
+    '',
+    'This is an estimate, not mortgage advice — speak to a qualified mortgage adviser.',
+  ].join('\n'),
+  caveats: [],
+};
+
 function jsonResponse(body: unknown) {
   return { ok: true, status: 200, statusText: 'OK', json: () => Promise.resolve(body) } as Response;
 }
@@ -192,6 +205,28 @@ describe('App workspace', () => {
         ),
       ).toBe(true);
     });
+  });
+
+  it('promotes a trailing markdown caveat into the caveat callout when structured caveats are empty', async () => {
+    const fetchMock = vi.mocked(fetch);
+    fetchMock.mockImplementation((input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.endsWith('/api/mortgage/base-rate')) return Promise.resolve(jsonResponse(baseRateBody));
+      if (url.endsWith('/api/mortgage/estimate')) return Promise.resolve(jsonResponse(estimateBody));
+      if (url.endsWith('/api/copilot/ask')) return Promise.resolve(jsonResponse(copilotAnswerWithMarkdownCaveat));
+      if (url.endsWith('/api/copilot/session/reset')) return Promise.resolve(emptyResponse());
+      return Promise.reject(new Error(`Unexpected request: ${url}`));
+    });
+
+    const { container } = render(<App />);
+
+    fireEvent.change(screen.getByLabelText('Ask HomeScout'), { target: { value: 'Estimate this listing' } });
+    fireEvent.submit(screen.getByLabelText('Ask HomeScout').closest('form') as HTMLFormElement);
+
+    expect(await screen.findByRole('heading', { name: 'Next steps' })).toBeTruthy();
+    const caveat = await screen.findByText('This is an estimate, not mortgage advice — speak to a qualified mortgage adviser.');
+    expect(caveat.closest('.answer-caveats')).toBeTruthy();
+    expect(container.querySelector('.answer-markdown')?.textContent).not.toContain('not mortgage advice');
   });
 
   it('starts a new conversation through the session reset endpoint and clears visible state', async () => {

@@ -146,6 +146,11 @@ live wherever the `AZURE_FOUNDRY_*` env is set.
 Two fixes, both frontend-only. The backend prompt (v2) now returns **structured markdown**, so
 the seam is ready.
 
+Status: ✅ implemented 2026-07-05 in the React frontend. The active conversation state collapses the
+empty-state hero/cards, `answer.text` is rendered with a sanitized safe markdown subset, unsafe links
+are not promoted, and trailing markdown caveats are shown as the caveat callout when structured
+`caveats` are absent.
+
 1. **Collapse the hero when a conversation is active.** Today the big "Compare areas and
    properties…" hero H1 + intro + START WITH cards stay pinned above the answer. Once a
    conversation starts (a `copilotQuestion`/`copilotAnswer` exists), **replace them with a

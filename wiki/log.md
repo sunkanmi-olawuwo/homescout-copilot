@@ -2,6 +2,15 @@
 
 ## 2026-07-05
 
+### Frontend Copilot Readability
+
+- Implemented the [[Work Tracks]] copilot readability slice from
+  `wiki/__plans/02-frontend/codex-frontend-instructions.md`: the conversation hero now gives way to
+  the compact active header once a question/answer/notice exists, and copilot answers render as a
+  sanitized markdown subset.
+- Hardened the caveat rendering so a trailing markdown "not mortgage advice" line is promoted into
+  the caveat callout when the structured `caveats` array is empty; covered by Vitest.
+
 ### Keycloak Auth Step 6 — Anon→Auth Hand-off (backend auth complete)
 
 - Closed the anonymous→authenticated hand-off (persistence-track step 6). The mechanism shipped in

@@ -589,11 +589,13 @@ function App() {
 // The agent ends its prose with the not-mortgage-advice caveat, which we also render as the
 // structured callout below — strip it from the prose so it isn't shown twice (the callout is
 // the guaranteed, prominent copy).
-function stripTrailingCaveat(text: string): string {
+function splitTrailingCaveat(text: string): { markdown: string; trailingCaveat: string | null } {
   const lines = text.replace(/\r\n/g, '\n').split('\n');
   while (lines.length && lines[lines.length - 1].trim() === '') lines.pop();
-  if (lines.length && /not mortgage advice/i.test(lines[lines.length - 1])) lines.pop();
-  return lines.join('\n');
+  const lastLine = lines[lines.length - 1]?.trim() ?? '';
+  const trailingCaveat = /not mortgage advice/i.test(lastLine) ? lastLine : null;
+  if (trailingCaveat) lines.pop();
+  return { markdown: lines.join('\n'), trailingCaveat };
 }
 
 function UserIcon() {
@@ -627,6 +629,9 @@ function NewChatIcon() {
 }
 
 function CopilotAnswerCard({ question, answer }: { question: string | null; answer: CopilotAnswer }) {
+  const { markdown, trailingCaveat } = splitTrailingCaveat(answer.text);
+  const caveats = answer.caveats.length ? answer.caveats : trailingCaveat ? [trailingCaveat] : [];
+
   return (
     <article className="answer-card" aria-label="Copilot answer">
       {question ? (
@@ -638,7 +643,7 @@ function CopilotAnswerCard({ question, answer }: { question: string | null; answ
       <div className="chat-turn bot">
         <span className="turn-avatar bot" aria-label="HomeScout"><BotIcon /></span>
         <div className="turn-body">
-          <div className="answer-markdown">{renderMarkdownBlocks(stripTrailingCaveat(answer.text))}</div>
+          <div className="answer-markdown">{renderMarkdownBlocks(markdown)}</div>
           {answer.toolCalls.length ? (
             <div className="tool-chip-row" aria-label="Tools used">
               {answer.toolCalls.map((tool) => (
@@ -659,9 +664,9 @@ function CopilotAnswerCard({ question, answer }: { question: string | null; answ
               </ul>
             </section>
           ) : null}
-          {answer.caveats.length ? (
+          {caveats.length ? (
             <div className="answer-caveats" role="note">
-              {answer.caveats.map((caveat) => (
+              {caveats.map((caveat) => (
                 <p key={caveat}>{caveat}</p>
               ))}
             </div>
