@@ -17,10 +17,14 @@ public class ListingsEndpointTests
 
     [OneTimeSetUp]
     public void SetUp() => _factory = new WebApplicationFactory<ApiMarker>().WithWebHostBuilder(builder =>
-        // ConfigureTestServices runs after the app's own registration, so this stub wins the resolve.
+        // ConfigureTestServices runs after the app's own registration, so these stubs win the resolve.
         builder.ConfigureTestServices(services =>
+        {
             services.AddSingleton<ITextDocumentReader>(new StubReader(
-                "2 bed flat to rent Test Court, AB1 £900 pcm 2 beds 1 bath EPC Rating: C Unfurnished"))));
+                "2 bed flat to rent Test Court, AB1 £900 pcm 2 beds 1 bath EPC Rating: C Unfurnished"));
+            // Keep the endpoint test network-free — no real postcodes.io call.
+            services.AddSingleton<IRegisterCrossCheck, NullRegisterCrossCheck>();
+        }));
 
     [OneTimeTearDown]
     public void TearDown() => _factory.Dispose();

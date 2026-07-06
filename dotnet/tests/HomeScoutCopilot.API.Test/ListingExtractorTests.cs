@@ -11,7 +11,7 @@ public class ListingExtractorTests
     private static UploadedDocument Doc(string name = "listing.pdf") => new(name, new MemoryStream([1, 2, 3]));
 
     private static ListingExtractor WithReader(Func<Stream, string> read)
-        => new(new FakeReader(read), new ListingFactParser());
+        => new(new FakeReader(read), new ListingFactParser(), new NullRegisterCrossCheck());
 
     private sealed class FakeReader(Func<Stream, string> read) : ITextDocumentReader
     {

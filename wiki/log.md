@@ -2,6 +2,29 @@
 
 ## 2026-07-05
 
+### Register Cross-Check — Postcode Geocode (postcodes.io, live)
+
+- First register cross-check layer, per the capture plan: the "verify against an authoritative source,
+  don't trust the listing" seam plus its first live register.
+- `IRegisterCrossCheck` (seam) + `RegisterCrossCheck` (holds the geocoder; EPC + council-tax registers
+  slot in behind it next) + `NullRegisterCrossCheck` (graceful/offline default). Wired into
+  `ListingExtractor` after the text parse.
+- `IPostcodeGeocoder` + **`PostcodesIoGeocoder`** (postcodes.io — open ONS data, **no API key**): full
+  postcode → exact lat/long + district; outward code → area centroid (flagged approximate). Best-effort
+  and non-throwing — an unresolvable postcode or an unreachable service returns null, so extraction
+  never breaks (the text-only draft stands). `Listing` gains `Latitude`/`Longitude` (register-derived,
+  unblocks the area-evidence map).
+- **Live-verified** (`[Category("External")]`, excluded from the gate, on the nightly schedule): real
+  postcodes.io → SW1A 1AA = Westminster exact, YO32 = approximate centroid, invalid = null. End-to-end
+  confirmed: extracting the Rightmove bungalow (YO32) resolves to lat 54.012/lon -1.059 with a
+  `Location:Register` field and the "add the full postcode for the exact position" note.
+- DI: config-gated (`Registers:PostcodeLookup`, default on; keyless so safe), typed HttpClient with a
+  5s timeout, transient lifetimes to avoid capturing the HttpClient. Offline unit tests (fake geocoder)
+  in the gate; the six-PDF eval + endpoint test use `NullRegisterCrossCheck` to stay network-free.
+- Static analysis clean (the gate caught 2 in the new code — a redundant coalesce, a `with`-sets-all —
+  both fixed). Full suite green (114 offline + 3 live). **Next registers: EPC (needs a free API key) +
+  council-tax band → £ (needs council rate data).**
+
 ### Extraction Eval Corpus Completed To Six PDFs
 
 - Grew the extraction regression corpus from two to **six real listings**, all three sites × both modes
