@@ -90,7 +90,11 @@ public record Listing(
     int? Bathrooms = null,
     int? Receptions = null,
     PriceQualifier? PriceQualifier = null,
-    string? AddressLine = null);
+    string? AddressLine = null,
+    // Resolved from the postcode by the register cross-check (postcodes.io), not user-entered. Unblocks
+    // the area-evidence map; approximate (area centroid) when only an outward code is known.
+    double? Latitude = null,
+    double? Longitude = null);
 
 /// <summary>Inputs to <c>POST /api/comparison</c>: the two to four listings to compare side by side.
 /// Nullable because a client can POST a missing/empty body — the service validates it to a 400.</summary>

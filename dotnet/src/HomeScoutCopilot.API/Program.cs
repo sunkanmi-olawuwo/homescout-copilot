@@ -33,7 +33,25 @@ builder.Services.AddSingleton<IRentalCostEstimator, RentalCostEstimator>();
 builder.Services.AddSingleton<IListingComparisonService, ListingComparisonService>();
 builder.Services.AddSingleton<ITextDocumentReader, PdfDocumentReader>();
 builder.Services.AddSingleton<IListingFactParser, ListingFactParser>();
-builder.Services.AddSingleton<IListingExtractor, ListingExtractor>();
+builder.Services.AddTransient<IListingExtractor, ListingExtractor>();
+
+// Register cross-check: postcodes.io geocode (open, keyless) verifies the postcode and adds a
+// location. Gated on; graceful (an unreachable service leaves the text-only draft). EPC + council-tax
+// registers slot in behind IRegisterCrossCheck next.
+if (builder.Configuration.GetValue("Registers:PostcodeLookup", true))
+{
+    builder.Services.AddHttpClient<PostcodesIoGeocoder>(client =>
+    {
+        client.BaseAddress = new Uri("https://api.postcodes.io/");
+        client.Timeout = TimeSpan.FromSeconds(5);
+    });
+    builder.Services.AddTransient<IPostcodeGeocoder>(sp => sp.GetRequiredService<PostcodesIoGeocoder>());
+    builder.Services.AddTransient<IRegisterCrossCheck, RegisterCrossCheck>();
+}
+else
+{
+    builder.Services.AddSingleton<IRegisterCrossCheck, NullRegisterCrossCheck>();
+}
 
 builder.Services.AddMemoryCache();
 builder.Services.AddValidatedOptions<BaseRateOptions>(builder.Configuration);

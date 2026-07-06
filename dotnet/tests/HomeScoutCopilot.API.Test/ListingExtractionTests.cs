@@ -63,7 +63,8 @@ public class ListingExtractionTests
         Assert.That(File.Exists(path), Is.True, $"Fixture not found (check csproj CopyToOutputDirectory): {path}");
 
         using var stream = File.OpenRead(path);
-        var extractor = new ListingExtractor(new PdfDocumentReader(), new ListingFactParser());
+        // NullRegisterCrossCheck keeps this eval offline + deterministic (no postcodes.io call).
+        var extractor = new ListingExtractor(new PdfDocumentReader(), new ListingFactParser(), new NullRegisterCrossCheck());
         var result = extractor.ExtractAsync([new UploadedDocument(e.File, stream)], null, CancellationToken.None)
             .GetAwaiter().GetResult();
 

@@ -22,23 +22,26 @@ public interface IListingExtractor
         CancellationToken cancellationToken);
 }
 
-public sealed class ListingExtractor(ITextDocumentReader reader, IListingFactParser parser) : IListingExtractor
+public sealed class ListingExtractor(
+    ITextDocumentReader reader,
+    IListingFactParser parser,
+    IRegisterCrossCheck registers) : IListingExtractor
 {
     private const int MaxDocuments = 4;
 
-    public Task<Result<ListingExtractionResult>> ExtractAsync(
+    public async Task<Result<ListingExtractionResult>> ExtractAsync(
         IReadOnlyList<UploadedDocument> documents,
         string? sourceUrl,
         CancellationToken cancellationToken)
     {
         if (documents.Count == 0)
         {
-            return Fail("Upload at least one PDF to extract a listing.");
+            return Result.Fail("Upload at least one PDF to extract a listing.");
         }
 
         if (documents.Count > MaxDocuments)
         {
-            return Fail($"Upload at most {MaxDocuments} documents for one property.");
+            return Result.Fail($"Upload at most {MaxDocuments} documents for one property.");
         }
 
         var combined = new StringBuilder();
@@ -52,7 +55,7 @@ public sealed class ListingExtractor(ITextDocumentReader reader, IListingFactPar
             }
             catch (Exception)
             {
-                return Fail($"Couldn't read '{document.FileName}' — is it a valid PDF?");
+                return Result.Fail($"Couldn't read '{document.FileName}' — is it a valid PDF?");
             }
 
             combined.AppendLine(text);
@@ -60,14 +63,12 @@ public sealed class ListingExtractor(ITextDocumentReader reader, IListingFactPar
 
         if (string.IsNullOrWhiteSpace(combined.ToString()))
         {
-            return Fail("No text could be read — the document may be scanned or image-only "
+            return Result.Fail("No text could be read — the document may be scanned or image-only "
                 + "(image extraction is a later slice). Enter the facts manually for now.");
         }
 
-        var result = parser.Parse(combined.ToString(), sourceUrl);
-        return Task.FromResult(Result.Ok(result));
+        var parsed = parser.Parse(combined.ToString(), sourceUrl);
+        var enriched = await registers.EnrichAsync(parsed, cancellationToken);
+        return Result.Ok(enriched);
     }
-
-    private static Task<Result<ListingExtractionResult>> Fail(string message)
-        => Task.FromResult(Result.Fail<ListingExtractionResult>(message));
 }
