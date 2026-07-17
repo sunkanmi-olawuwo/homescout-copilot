@@ -15,7 +15,7 @@ namespace HomeScoutCopilot.API.Test;
 // test is here to surface (the offline suite can't, because it stubs the source).
 [TestFixture]
 [Category("Integration")] // excluded from the fast PR gate
-[Category("External")]    // targeted by the nightly external-checks workflow
+[Category("External")]    // run by the advisory external-checks workflow (PR/push, non-blocking)
 public class BaseRateLiveTests
 {
     [Test]
