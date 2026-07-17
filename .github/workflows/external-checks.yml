@@ -3,14 +3,18 @@ name: external-checks
 permissions:
   contents: read
 
-# Verifies live external dependencies (e.g. the Bank of England base-rate fetch).
-# These make real network calls, so they are NOT part of the PR quality gate — a
-# third-party outage must not block merges. This runs them on a schedule (and on
-# demand) so we find out promptly if a source blocks us or changes its format.
+# Verifies live external dependencies (e.g. the Bank of England base-rate fetch)
+# on every pull request and push to main. These make real network calls, so a
+# third-party outage must NOT block a merge: the external test step is ADVISORY
+# (continue-on-error) — a failure surfaces as a warning annotation + job summary
+# but the job still succeeds, so it never gates the PR. This keeps the signal
+# tied to the change that triggered it while honouring "a third-party outage must
+# not block merges". workflow_dispatch stays for on-demand runs.
 
 on:
-  schedule:
-    - cron: '17 6 * * *' # daily, 06:17 UTC
+  push:
+    branches: [main]
+  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -23,7 +27,27 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
-      - name: External dependency tests
+      - name: External dependency tests (advisory — never blocks merge)
+        id: external
+        continue-on-error: true
         run: >-
           dotnet test dotnet/HomeScoutCopilot.slnx --configuration Release
           --filter "Category=External"
+
+      - name: Surface result
+        if: always()
+        run: |
+          if [ "${{ steps.external.outcome }}" = "success" ]; then
+            echo "✅ External dependency checks passed." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::warning title=External check failed (advisory)::A live external dependency (e.g. Bank of England) did not serve a live value — often a transient upstream outage; the app falls back gracefully. This does not block the merge. Check the job logs."
+            {
+              echo "## ⚠️ External dependency check failed (advisory)"
+              echo ""
+              echo "A live external source did not return a usable value. This is"
+              echo "commonly a transient upstream outage (the app degrades to a"
+              echo "fallback), but it can also mean the source changed format or"
+              echo "blocked us. This step is **advisory and does not block the merge** —"
+              echo "review the logs above to decide whether action is needed."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
